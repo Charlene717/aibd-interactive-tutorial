@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch20 · 未來：AI 帶來的範式轉移</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html" class="active">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK E · CHAPTER 20 / 20</div>
+  <h1 data-zh="未來：AI 帶來的範式轉移" data-en="Future: The Coming Paradigm Shift">未來：AI 帶來的範式轉移</h1>
+  <p class="subtitle" data-lang="zh">Virtual Cell、self-driving labs、digital twins、AI-enabled trials——下一個十年的地圖。</p>
+  <p class="subtitle" data-lang="en">Virtual Cell, self-driving labs, digital twins, AI-enabled trials — the map of the next decade.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="主張" data-en="THESIS">主張</div>
+<h2 data-zh="生醫研究的方向反轉：90% 計算 → 10% 實驗" data-en="Biomedicine inverts: 90% computational → 10% experimental">方向反轉：90% 計算 → 10% 實驗</h2>
+<div data-lang="zh">
+<p>過去 20 年生醫研究的常態是：<strong>90% 實驗 + 10% 計算</strong>。AlphaFold 3、scGPT、Med-Gemini 預示一個對立的未來：<strong>90% 計算先驗、10% 關鍵實驗驗證</strong>。Chan Zuckerberg Initiative 2025 推出的 <em>rBio</em>（第一個在 Virtual Cell 模擬上做推理的 AI）就是這個方向的代表。</p>
+<p>這個範式如果落地，會壓縮藥物 R&amp;D 時間從 12 年降到 4-5 年、把基礎研究的「假設 → 實驗」循環從週縮成天。</p>
+</div>
+<div data-lang="en">
+<p>For 20 years, biomedicine has been <strong>90% wet-lab + 10% compute</strong>. AlphaFold 3, scGPT, Med-Gemini herald the inverse: <strong>90% computational prior, 10% key experiments</strong>. CZI's 2025 <em>rBio</em> — the first AI trained to reason about cellular biology via virtual-cell simulations — exemplifies this direction.</p>
+<p>If this paradigm lands, drug R&amp;D could compress from 12 years to 4–5; basic-research "hypothesis → experiment" cycles drop from weeks to days.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="六大趨勢" data-en="SIX TRENDS">六大趨勢</div>
+<h2 data-zh="2026 之後可能發生的事" data-en="What's likely after 2026">2026 之後可能發生的事</h2>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🧫</div><h4 data-zh="① Virtual Cell 興起" data-en="① Virtual Cell rises">① Virtual Cell 興起</h4>
+<div data-lang="zh"><p>CZI Virtual Cells Platform + NVIDIA 合作、Biohub $500M Virtual Biology Initiative、Billion Cells Project (2025)。目標：能在電腦中「執行」一個完整細胞。</p></div>
+<div data-lang="en"><p>CZI Virtual Cells Platform + NVIDIA collaboration; Biohub's $500M Virtual Biology Initiative; Billion Cells Project (2025). Goal: simulate a complete cell in silico.</p></div></div>
+<div class="card"><div class="card-icon">🤖</div><h4 data-zh="② 自駕實驗室普及" data-en="② Self-driving labs go mainstream">② 自駕實驗室普及</h4>
+<div data-lang="zh"><p>Recursion + Exscientia 合併、Aspuru-Guzik、Carnegie Mellon Cloud Lab。從化學擴展到細胞、基因編輯、抗體最佳化。</p></div>
+<div data-lang="en"><p>Recursion + Exscientia merger; Aspuru-Guzik; CMU Cloud Lab. Extends from chemistry to cells, gene editing, antibody optimization.</p></div></div>
+<div class="card"><div class="card-icon">👤</div><h4 data-zh="③ 患者 Digital Twin" data-en="③ Patient digital twins">③ 患者 Digital Twin</h4>
+<div data-lang="zh"><p>結合基因體 + EHR + 影像 + 穿戴的個人化模擬人。GE / Siemens / Unlearn.AI 已在 RCT 與心衰中試行；未來十年可能成為臨床決策標配。</p></div>
+<div data-lang="en"><p>Personalized simulators combining genomics + EHR + imaging + wearables. GE / Siemens / Unlearn.AI piloted in RCTs and heart failure; could become a clinical standard in the next decade.</p></div></div>
+<div class="card"><div class="card-icon">🧪</div><h4 data-zh="④ AI 增強的臨床試驗" data-en="④ AI-enabled clinical trials">④ AI 增強的臨床試驗</h4>
+<div data-lang="zh"><p>External control arms（外部對照組）、synthetic control、自動病人匹配。FDA / EMA 已開放 RWD/RWE 框架。</p></div>
+<div data-lang="en"><p>External control arms, synthetic controls, automated trial matching. FDA / EMA have opened RWD/RWE frameworks.</p></div></div>
+<div class="card"><div class="card-icon">🧬</div><h4 data-zh="⑤ 從序列 / 結構走向「功能」" data-en="⑤ From sequence/structure to function">⑤ 從序列 / 結構走向「功能」</h4>
+<div data-lang="zh"><p>Evo、Geneformer 2、ESM-3 都嘗試把「功能」變成第一級輸出而非附帶。設計能執行特定生物功能的蛋白與基因迴路成為主流目標。</p></div>
+<div data-lang="en"><p>Evo, Geneformer 2, ESM-3 try to make "function" a first-class output. Designing proteins/circuits to perform specific biological functions becomes the mainline target.</p></div></div>
+<div class="card"><div class="card-icon">🏛️</div><h4 data-zh="⑥ 監管追上：可追溯 AI 醫療" data-en="⑥ Regulation catches up: traceable AI medicine">⑥ 監管追上</h4>
+<div data-lang="zh"><p>EU AI Act 高風險條款 2026-08 全面生效、FDA PCCP 落地、各國衛福部開始要求公平性審計與後市監測。AI 醫療進入「可審計、可追責」階段。</p></div>
+<div data-lang="en"><p>EU AI Act high-risk rules fully apply 2026-08; FDA PCCP operational; ministries worldwide require fairness audits &amp; post-market monitoring. AI medicine enters "auditable, accountable" era.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="開放問題" data-en="OPEN QUESTIONS">開放問題</div>
+<h2 data-zh="十年內仍待解的開放問題" data-en="Open questions for the next decade">十年內待解</h2>
+<ol>
+<li data-lang="zh">Foundation Models 對「分布外」生物現象的歸納能力到底有多強？</li><li data-lang="en">How well do foundation models generalize to "out-of-distribution" biological phenomena?</li>
+<li data-lang="zh">「Causal」AI 何時能從相關性走到反事實干預？</li><li data-lang="en">When will "causal" AI move from correlation to counterfactual intervention?</li>
+<li data-lang="zh">在強隱私約束下，FL+DP 能不能達到「機構間共享 OMOP」的同等成效？</li><li data-lang="en">Can FL+DP match centralized OMOP-sharing under strict privacy?</li>
+<li data-lang="zh">數十億參數的醫療 LLM 是否真的比中型專科 LLM + RAG 更有臨床價值？</li><li data-lang="en">Are billion-parameter medical LLMs really more clinically valuable than mid-size specialty LLM + RAG?</li>
+<li data-lang="zh">AI 介入後，醫師的「臨床決策技能去技能化」會發生嗎？怎麼緩解？</li><li data-lang="en">Will AI cause "deskilling" of clinicians? How do we mitigate?</li>
+<li data-lang="zh">如何讓資源有限地區（LMICs）獲得 Foundation Model 紅利，避免「AI 鴻溝」？</li><li data-lang="en">How do we ensure low-resource regions (LMICs) share the foundation-model dividend and avoid an "AI divide"?</li>
+</ol>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="結語" data-en="CLOSING">結語</div>
+<h2 data-zh="從 20 章走到這裡，你已經..." data-en="After 20 chapters, you can now…">恭喜你完成 20 章！</h2>
+<div data-lang="zh">
+<p>你應該能：</p>
+<ul>
+<li>說出 AlphaFold 3、scGPT、Med-Gemini、AlphaMissense、CONCH 各自的位置與適用場景；</li>
+<li>分辨「benchmark 高」與「臨床上有效」之間的距離；</li>
+<li>選對任務的模型架構（CNN/Transformer/Diffusion/GNN/SSM）；</li>
+<li>規劃符合 TRIPOD-AI / FDA PCCP / EU AI Act 的研究與部署；</li>
+<li>把可解釋性、公平性、隱私技術納入工作流。</li>
+</ul>
+<p><strong>下一步建議：</strong>挑一個你最有興趣的章節，用 References 中的論文做深入閱讀，再去做 Quiz 全範圍模擬考；最後挑 1-2 個 Notebook 在你自己的資料上跑一遍。</p>
+</div>
+<div data-lang="en">
+<p>You should now be able to:</p>
+<ul>
+<li>Place AlphaFold 3, scGPT, Med-Gemini, AlphaMissense, CONCH on the map &amp; pick when to use each;</li>
+<li>Tell the distance between "benchmark high" and "clinically useful";</li>
+<li>Pick the right architecture per task (CNN/Transformer/Diffusion/GNN/SSM);</li>
+<li>Plan research &amp; deployment compliant with TRIPOD-AI / FDA PCCP / EU AI Act;</li>
+<li>Integrate explainability, fairness, and privacy into the workflow.</li>
+</ul>
+<p><strong>Next steps:</strong> pick the chapter that excited you most, dig into the References, then take the full 200-question Quiz; finally, run 1-2 Notebooks on your own data.</p>
+</div>
+<div class="callout bio"><span class="callout-icon">🧬</span><div>
+<span data-lang="zh"><strong>結尾的一句話：</strong>AI 不會取代生醫研究者，但善用 AI 的生醫研究者，會在下一個十年的科學賽道遙遙領先。</span>
+<span data-lang="en"><strong>One closing line:</strong> AI won't replace biomedical researchers, but those who wield AI well will be far ahead on the scientific track of the next decade.</span>
+</div></div>
+</section>
+
+<nav class="page-nav">
+<a href="ch19-mlops-privacy.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="MLOps、隱私與聯邦學習" data-en="MLOps, Privacy &amp; Federated Learning">MLOps、隱私與聯邦學習</span></a>
+<a href="references/index.html"><span class="nav-dir" data-zh="繼續 →" data-en="Continue →">繼續 →</span><span class="nav-title" data-zh="參考資料" data-en="References">參考資料</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 20 (End)</footer>
+<script src="i18n.js"></script>
+</body></html>

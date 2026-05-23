@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch04 · 倫理、公平性與法規</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html" class="active">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK A · CHAPTER 04 / 20</div>
+  <h1 data-zh="倫理、公平性與法規" data-en="Ethics, Fairness & Regulation">倫理、公平性與法規</h1>
+  <p class="subtitle" data-lang="zh">2024 年起，FDA PCCP 終版與 EU AI Act 同時上路——AI 醫療不再是「狂野西部」。</p>
+  <p class="subtitle" data-lang="en">Since 2024, the FDA PCCP final guidance and the EU AI Act came together — medical AI is no longer the Wild West.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="案例" data-en="THE CASE">案例</div>
+<h2 data-zh="Obermeyer 2019：一個曾錯派 4400 萬美國患者照護的演算法" data-en="Obermeyer 2019: the algorithm that misallocated care for 44M Americans">Obermeyer 2019：一個曾錯派 4400 萬美國患者照護的演算法</h2>
+<div data-lang="zh">
+<p>2019 年 Obermeyer 等人在 <em>Science</em> 公開一個美國醫療體系廣泛使用、影響約 2 億人的演算法：它用「未來醫療支出」作為「健康需求」的代理變數，結果<strong>系統性低估黑人病人的健康需求</strong>。在相同預測風險下，黑人病人實際病情比白人重得多。為什麼？因為非裔患者就醫機會與支出本就較低；演算法把「結構性歧視」誤學成「實際需求」。</p>
+<p>這個案例是 AI 公平性的教科書級例子，它揭示：<strong>標籤選擇 (label choice) 本身可以是偏差來源</strong>，而不只是資料代表性的問題。</p>
+</div>
+<div data-lang="en">
+<p>In 2019, Obermeyer et al. (<em>Science</em>) exposed an algorithm widely used across the US health system affecting ~200M people: it used "future health spending" as a proxy for "health need", systematically underestimating Black patients' needs. At the same predicted risk, Black patients were sicker than White patients. Why? Because African-American patients incur less spending due to structural barriers; the algorithm learned <em>structural discrimination</em> as if it were <em>need</em>.</p>
+<p>This is the textbook case for AI fairness: <strong>label choice itself</strong> can be a source of bias, not just data representation.</p>
+</div>
+<div class="callout danger"><span class="callout-icon">🚨</span><div>
+<span data-lang="zh"><strong>教訓：</strong>「代理變數 (proxy)」是公平性最大的雷區。在生醫情境，常見錯誤代理包括「就醫次數」代表「疾病嚴重度」、「申報碼」代表「臨床診斷」、「自費比例」代表「健康風險」。</span>
+<span data-lang="en"><strong>Lesson:</strong> Proxy variables are the biggest landmine for fairness. Frequent biomedical errors: using "visit counts" for "severity", "claim codes" for "clinical diagnosis", "out-of-pocket %" for "health risk".</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="法規版圖" data-en="REGULATORY LANDSCAPE">法規版圖</div>
+<h2 data-zh="2024–2026 兩大新法規" data-en="Two new pillars in 2024–2026">2024–2026 兩大新法規</h2>
+<table class="comp-table"><thead><tr><th></th><th>FDA PCCP (US)</th><th>EU AI Act (EU)</th></tr></thead><tbody>
+<tr><td data-zh="正式發布" data-en="Issued"><strong>正式發布</strong></td><td>2024-12-03 final guidance</td><td>Regulation (EU) 2024/1689, in force 2024-08-01</td></tr>
+<tr><td data-zh="核心概念" data-en="Core idea"><strong>核心概念</strong></td><td data-zh="允許 AI 醫材在「預先核准的變更控制計畫」下迭代更新，不必每次重新申請。" data-en="Allows AI devices to iterate under a pre-authorized change-control plan, no re-submission per update.">允許 AI 醫材在「預先核准的變更控制計畫」下迭代更新，不必每次重新申請。</td>
+<td data-zh="統一的 AI 風險分級框架；醫療 AI 自動列為「高風險」。" data-en="Unified risk-tiering for AI; medical AI is automatically 'high-risk'.">統一的 AI 風險分級框架；醫療 AI 自動列為「高風險」。</td></tr>
+<tr><td data-zh="必備三件套" data-en="Required triad"><strong>必備三件套</strong></td><td data-zh="變更描述 + 變更協定 + 影響評估" data-en="Description of modifications + modification protocol + impact assessment">變更描述 + 變更協定 + 影響評估</td><td data-zh="風險管理 + 高品質資料 + 人類監督" data-en="Risk management + high-quality data + human oversight">風險管理 + 高品質資料 + 人類監督</td></tr>
+<tr><td data-zh="生效時程" data-en="Effective dates"><strong>生效時程</strong></td><td data-zh="即時適用於新申請；既有產品依各自路徑更新。" data-en="Effective immediately for new submissions; existing devices update via their pathway.">即時適用於新申請；既有產品依各自路徑更新。</td><td data-zh="2025-02 禁止性 AI 條款生效；2025-08 GPAI 規定；2026-08 高風險 AI 全面合規；MDR 下醫材延至 2027-08。" data-en="2025-02 prohibitions; 2025-08 GPAI; 2026-08 high-risk in full; medical devices under MDR until 2027-08.">2025-02 禁止性 AI 條款；2025-08 GPAI；2026-08 高風險全面合規；MDR 醫材至 2027-08。</td></tr>
+<tr><td data-zh="重點新增" data-en="New emphasis"><strong>重點新增</strong></td><td data-zh="偏差緩解、參考標準、後市監測都要寫進 PCCP" data-en="Bias mitigation, reference standards, post-market monitoring all in PCCP">偏差緩解、參考標準、後市監測寫進 PCCP</td><td data-zh="AI 文獻紀錄、技術文檔、市場後監督、嚴重事故通報" data-en="AI documentation, technical files, post-market monitoring, serious-incident reporting">AI 文檔、技術文件、市場後監督、事故通報</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="公平性指標" data-en="FAIRNESS METRICS">公平性指標</div>
+<h2 data-zh="七種你會在審查表上看到的公平性指標" data-en="Seven fairness metrics you'll see on review forms">七種你會在審查表上看到的公平性指標</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>① <span data-zh="統計獨立 (Demographic Parity)" data-en="Demographic Parity">統計獨立</span></h4>
+<div data-lang="zh"><p>各族群被預測為陽性的比例相同。最簡單但常與「真實疾病分布」衝突。</p></div>
+<div data-lang="en"><p>Positive prediction rate equal across groups. Simple, but often conflicts with true disease prevalence.</p></div></div>
+<div class="card"><h4>② <span data-zh="機會均等 (Equal Opportunity)" data-en="Equal Opportunity">機會均等</span></h4>
+<div data-lang="zh"><p>真陽性率 (TPR / Sensitivity) 在各族群相同。臨床上常是首選。</p></div>
+<div data-lang="en"><p>TPR (sensitivity) equal across groups. Often the clinical preference.</p></div></div>
+<div class="card"><h4>③ <span data-zh="均等機率 (Equalized Odds)" data-en="Equalized Odds">均等機率</span></h4>
+<div data-lang="zh"><p>TPR 和 FPR 都跨族群相同。比機會均等更嚴格。</p></div>
+<div data-lang="en"><p>Both TPR and FPR equal across groups. Stricter than equal opportunity.</p></div></div>
+<div class="card"><h4>④ <span data-zh="預測值同等 (Predictive Parity)" data-en="Predictive Parity">預測值同等</span></h4>
+<div data-lang="zh"><p>PPV / NPV 跨族群相同。臨床醫師最直覺。</p></div>
+<div data-lang="en"><p>PPV / NPV equal across groups. Most intuitive for clinicians.</p></div></div>
+<div class="card"><h4>⑤ <span data-zh="校準同等 (Calibration)" data-en="Calibration">校準同等</span></h4>
+<div data-lang="zh"><p>各族群「預測機率 = 實際機率」。</p></div>
+<div data-lang="en"><p>Predicted probability = actual probability across groups.</p></div></div>
+<div class="card"><h4>⑥ <span data-zh="子族 AUC" data-en="Subgroup AUC">子族 AUC</span></h4>
+<div data-lang="zh"><p>各族群分別計算 AUROC / AUPRC。TRIPOD-AI 要求逐子群報告。</p></div>
+<div data-lang="en"><p>AUROC/AUPRC computed per group. TRIPOD-AI requires per-subgroup reporting.</p></div></div>
+<div class="card"><h4>⑦ <span data-zh="反事實公平" data-en="Counterfactual Fairness">反事實公平</span></h4>
+<div data-lang="zh"><p>若交換敏感屬性（性別、族裔）預測不變。理論優雅，實作困難。</p></div>
+<div data-lang="en"><p>Prediction unchanged when sensitive attribute is flipped. Theoretically elegant, practically hard.</p></div></div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>不可能三角：</strong>除非各族群基期完全一致，否則「校準同等」「均等機率」「預測值同等」三者不能同時成立 (Chouldechova 2017)。臨床決策上要先和倫理委員會討論該守哪個。</span>
+<span data-lang="en"><strong>Impossibility:</strong> Unless base rates are equal, "calibration", "equalized odds" and "predictive parity" cannot all hold simultaneously (Chouldechova 2017). Discuss with your ethics board which to prioritize.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="用 Fairlearn 偵測子族 AUC 差異" data-en="Detect subgroup AUC gaps with Fairlearn">用 Fairlearn 偵測子族 AUC 差異</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">from</span> fairlearn.metrics <span class="kw">import</span> MetricFrame
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score
+<span class="comment"># y_true, y_pred, sensitive_features (e.g., 'race')</span>
+mf = <span class="func">MetricFrame</span>(metrics={<span class="str">"AUROC"</span>: roc_auc_score},
+                 y_true=y_true, y_pred=y_pred,
+                 sensitive_features=race)
+<span class="func">print</span>(mf.<span class="func">by_group</span>)
+<span class="func">print</span>(<span class="str">"Diff:"</span>, mf.<span class="func">difference</span>(method=<span class="str">"between_groups"</span>))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(fairness); <span class="kw">library</span>(pROC)
+<span class="comment"># df: data.frame(y, prob, race)</span>
+<span class="kw">for</span>(g <span class="kw">in</span> <span class="func">unique</span>(df$race)){
+  s &lt;- df[df$race==g,]
+  <span class="func">cat</span>(g, <span class="str">":"</span>, <span class="func">auc</span>(s$y, s$prob), <span class="str">"\n"</span>)
+}
+<span class="comment"># 計算 demographic parity / equal opportunity</span>
+<span class="func">equal_odds</span>(df, outcome=<span class="str">"y"</span>, predicted=<span class="str">"pred"</span>, group=<span class="str">"race"</span>)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實踐清單" data-en="CHECKLIST">實踐清單</div>
+<h2 data-zh="送審前 / 發表前的 10 項自查" data-en="10-item pre-submission checklist">送審前 / 發表前的 10 項自查</h2>
+<ol>
+<li data-lang="zh">是否依 <strong>TRIPOD-AI 2024</strong> 報告外部驗證與子族表現？</li><li data-lang="en">Reported external validation + subgroup performance per <strong>TRIPOD-AI 2024</strong>?</li>
+<li data-lang="zh">是否說明「標籤定義」是否會引入結構性偏差？</li><li data-lang="en">Documented whether the <em>label definition</em> introduces structural bias?</li>
+<li data-lang="zh">是否使用 <strong>CONSORT-AI</strong>（介入研究）或 <strong>SPIRIT-AI</strong>（試驗計畫書）規範？</li><li data-lang="en">Used <strong>CONSORT-AI</strong> (interventional studies) or <strong>SPIRIT-AI</strong> (trial protocol)?</li>
+<li data-lang="zh">是否申報「資料/模型卡」(Data card / Model card)？</li><li data-lang="en">Released a data card / model card?</li>
+<li data-lang="zh">是否預先註冊（PROSPERO / OSF）研究計畫？</li><li data-lang="en">Pre-registered protocol (PROSPERO / OSF)?</li>
+<li data-lang="zh">是否揭露衝突利益、資金來源、模型權重來源？</li><li data-lang="en">Disclosed conflicts of interest, funding, and weight provenance?</li>
+<li data-lang="zh">是否有<strong>實質人類監督</strong>機制？（EU AI Act 必備）</li><li data-lang="en">Genuine <strong>human oversight</strong> mechanism? (Required by EU AI Act)</li>
+<li data-lang="zh">是否做差分隱私 / 聯邦學習 / 去識別化評估？</li><li data-lang="en">Assessed differential privacy / federated learning / de-identification?</li>
+<li data-lang="zh">是否包含 PCCP 三件套？（FDA 路線）</li><li data-lang="en">Included the PCCP triad? (FDA route)</li>
+<li data-lang="zh">是否規劃<strong>市場後監測</strong>與 drift 檢測？</li><li data-lang="en">Planned <strong>post-market surveillance</strong> &amp; drift detection?</li>
+</ol>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. EU AI Act 把醫療 AI 列為哪一級？</p>
+<p data-lang="en">1. The EU AI Act classifies medical AI as which tier?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. Minimal risk</div>
+<div class="quiz-opt" data-correct="0">B. Limited risk</div>
+<div class="quiz-opt" data-correct="1">C. High risk</div>
+<div class="quiz-opt" data-correct="0">D. Unacceptable risk</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>幾乎所有 MDR / IVDR 管轄的 AI 都自動是高風險。</span><span data-lang="en"><strong>C.</strong> Almost all AI under MDR / IVDR is automatically high-risk.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. FDA PCCP 的核心承諾是？</p>
+<p data-lang="en">2. The core promise of FDA's PCCP is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 廠商不必再做臨床試驗</span><span data-lang="en">A. No clinical trials needed anymore</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 廠商可在預先核准的協定下迭代更新 AI 而不需重新申請</span><span data-lang="en">B. Iterate AI under a pre-authorized protocol without re-submission</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 完全開源所有權重</span><span data-lang="en">C. Open-source all weights</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 廠商免責於不良事件</span><span data-lang="en">D. Immunity from adverse events</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>PCCP = 描述 + 協定 + 影響評估。</span><span data-lang="en"><strong>B.</strong> PCCP = description + protocol + impact assessment.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. Obermeyer 2019 案例的核心教訓是？</p>
+<p data-lang="en">3. The central lesson of Obermeyer 2019 is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 模型參數太少</span><span data-lang="en">A. Too few model parameters</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 用「醫療支出」做「健康需求」的代理變數會把結構性歧視學進演算法</span><span data-lang="en">B. Using "spending" as a proxy for "need" bakes structural discrimination into the algorithm</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 黑人病人本來就比較健康</span><span data-lang="en">C. Black patients were actually healthier</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. AI 不應用於醫療</span><span data-lang="en">D. AI should not be used in medicine</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>標籤選擇本身可以是偏差來源——不只是資料代表性問題。</span><span data-lang="en"><strong>B.</strong> Label choice itself can be a source of bias — not just data representation.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch03-ml-dl-foundations.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="機器學習與深度學習基礎" data-en="ML &amp; DL Foundations">機器學習與深度學習基礎</span></a>
+<a href="ch05-genomic-sequence-ai.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="基因體序列 AI" data-en="Genomic Sequence AI">基因體序列 AI</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 04</footer>
+<script src="i18n.js"></script>
+</body></html>

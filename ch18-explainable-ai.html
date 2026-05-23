@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch18 · 可解釋 AI 與生醫應用</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html" class="active">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK E · CHAPTER 18 / 20</div>
+  <h1 data-zh="可解釋 AI 與生醫應用" data-en="Explainable AI for Biomedicine">可解釋 AI 與生醫應用</h1>
+  <p class="subtitle" data-lang="zh">SHAP、Integrated Gradients、Grad-CAM、Concept Bottleneck、Counterfactuals——一張圖看懂。</p>
+  <p class="subtitle" data-lang="en">SHAP, Integrated Gradients, Grad-CAM, concept bottlenecks, counterfactuals — in one diagram.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="為什麼解釋" data-en="WHY EXPLAIN">為什麼解釋</h2>
+<h2 data-zh="可解釋性的三個目的" data-en="Three purposes of explainability">三個目的</h2>
+<div data-lang="zh">
+<p>(1) <strong>除錯</strong>：模型是不是學到「scanner ID」而非疾病？(2) <strong>建立信任</strong>：醫師能否認可 AI 的輸出？(3) <strong>科學發現</strong>：高重要度特徵是不是新的生物標誌？這三者要求的解釋程度與方法不同。<em>不要把所有解釋當「解釋」</em>。</p>
+</div>
+<div data-lang="en">
+<p>(1) <strong>Debugging</strong>: did the model learn the scanner ID instead of disease? (2) <strong>Trust</strong>: can clinicians endorse outputs? (3) <strong>Scientific discovery</strong>: are top features novel biomarkers? Each demands different methods and depth. <em>Don't treat every explanation as "the explanation."</em></p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="方法地圖" data-en="METHOD MAP">方法地圖</div>
+<h2 data-zh="XAI 方法的四象限" data-en="Four quadrants of XAI methods">XAI 方法的四象限</h2>
+<table class="comp-table"><thead><tr><th></th><th data-zh="局部 (Local, 對單一樣本)" data-en="Local (per-sample)">局部 (Local)</th><th data-zh="全域 (Global, 模型整體)" data-en="Global (model-wide)">全域 (Global)</th></tr></thead><tbody>
+<tr><td data-zh="不需模型內部"><strong data-zh="模型無關 (Model-agnostic)" data-en="Model-agnostic">模型無關</strong></td>
+  <td>LIME, SHAP (KernelSHAP), Counterfactuals</td>
+  <td>Permutation importance, PDP / ALE plots</td></tr>
+<tr><td data-zh="需要梯度 / 結構"><strong data-zh="模型相依 (Model-specific)" data-en="Model-specific">模型相依</strong></td>
+  <td>Integrated Gradients, Grad-CAM, Attention, DeepLIFT, SHAP (DeepSHAP)</td>
+  <td>Concept Bottleneck, Network Dissection</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="主流方法" data-en="MAIN METHODS">主流方法</div>
+<h2 data-zh="六種你需要會的解釋方法" data-en="Six XAI methods you should know">六種你需要會的解釋方法</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>① <strong>SHAP</strong></h4>
+<div data-lang="zh"><p>基於 Shapley 值的「公平特徵歸因」。KernelSHAP（model-agnostic）、TreeSHAP（XGBoost / RF 用，極快）、DeepSHAP。生醫 tabular / EHR 標配。</p></div>
+<div data-lang="en"><p>Fair feature attribution via Shapley. KernelSHAP (model-agnostic), TreeSHAP (XGB/RF, very fast), DeepSHAP. Staple for tabular / EHR.</p></div></div>
+<div class="card"><h4>② <strong>Integrated Gradients</strong></h4>
+<div data-lang="zh"><p>從 baseline 到輸入，對梯度沿線積分。常見於影像、序列；具備「完整性 (completeness)」性質。</p></div>
+<div data-lang="en"><p>Integrate gradients from baseline to input. Common for image/sequence; satisfies completeness.</p></div></div>
+<div class="card"><h4>③ <strong>Grad-CAM</strong></h4>
+<div data-lang="zh"><p>用最後一層 conv 的梯度加權產生 heatmap。胸 X 光、CT 的標準視覺化。</p></div>
+<div data-lang="en"><p>Weight last-conv feature maps by gradients to make heatmaps. Standard for chest X-ray / CT.</p></div></div>
+<div class="card"><h4>④ <strong>Attention / Probing</strong></h4>
+<div data-lang="zh"><p>Transformer 直接出 attention，但「attention ≠ explanation」是 2024 共識；probing 比 attention 更可靠。</p></div>
+<div data-lang="en"><p>Transformer exposes attention, but "attention ≠ explanation" is 2024 consensus; probing is more reliable.</p></div></div>
+<div class="card"><h4>⑤ <strong>Concept Bottleneck Models</strong></h4>
+<div data-lang="zh"><p>強迫模型先預測「人類可理解概念」（腫瘤大小、染色強度…），再從概念預測標籤。臨床最易接受。</p></div>
+<div data-lang="en"><p>Force the model to predict human-readable concepts first (size, stain intensity…), then map to labels. Most clinician-friendly.</p></div></div>
+<div class="card"><h4>⑥ <strong>Counterfactual / What-if</strong></h4>
+<div data-lang="zh"><p>「如果 LDL 降到 100，預測會不會翻盤？」可操作性最強，但生成可靠的反事實仍困難。</p></div>
+<div data-lang="en"><p>"If LDL drops to 100, does the prediction flip?" Most actionable, but generating reliable counterfactuals is hard.</p></div></div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>2024 醫學影像 XAI 系統評論的警示：</strong>多數研究<em>視覺化 attribution map 後就結束</em>，沒有量化 faithfulness（解釋是否真實反映模型決策）。請至少加做 deletion / insertion test 或 sanity checks。</span>
+<span data-lang="en"><strong>2024 XAI systematic-review warning:</strong> most studies stop at <em>visualizing attribution maps</em> without quantifying faithfulness. At minimum run deletion/insertion tests or sanity checks.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="SHAP for XGBoost + Grad-CAM for CNN" data-en="SHAP for XGBoost + Grad-CAM for CNN">SHAP + Grad-CAM</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> shap, xgboost <span class="kw">as</span> xgb, torch
+<span class="kw">from</span> pytorch_grad_cam <span class="kw">import</span> GradCAM
+<span class="kw">from</span> pytorch_grad_cam.utils.image <span class="kw">import</span> show_cam_on_image
+<span class="comment"># 1) SHAP for tabular XGBoost</span>
+clf = xgb.<span class="func">XGBClassifier</span>().<span class="func">fit</span>(Xtr, ytr)
+expl = shap.<span class="func">TreeExplainer</span>(clf)
+sv = expl.<span class="func">shap_values</span>(Xte)
+shap.<span class="func">summary_plot</span>(sv, Xte, feature_names=feat_names)
+<span class="comment"># 2) Grad-CAM for CNN</span>
+cam = <span class="func">GradCAM</span>(model=resnet, target_layers=[resnet.layer4[-<span class="num">1</span>]])
+grayscale_cam = <span class="func">cam</span>(input_tensor=img.<span class="func">unsqueeze</span>(<span class="num">0</span>))[<span class="num">0</span>]
+heat = <span class="func">show_cam_on_image</span>(rgb_img.<span class="func">numpy</span>()/<span class="num">255</span>, grayscale_cam, use_rgb=<span class="kw">True</span>)</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(xgboost); <span class="kw">library</span>(SHAPforxgboost)
+xgb_mod &lt;- xgboost::<span class="func">xgboost</span>(data=<span class="func">as.matrix</span>(Xtr), label=ytr, nrounds=<span class="num">200</span>, objective=<span class="str">"binary:logistic"</span>)
+shap_long &lt;- <span class="func">shap.prep</span>(xgb_model=xgb_mod, X_train=<span class="func">as.matrix</span>(Xtr))
+<span class="func">shap.plot.summary</span>(shap_long)
+<span class="comment"># Grad-CAM 需要 keras / torch for R</span>
+<span class="kw">library</span>(torch); <span class="kw">library</span>(luz)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 「attention ≠ explanation」是什麼意思？</p>
+<p data-lang="en">1. What does "attention ≠ explanation" mean?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 高 attention 權重不一定對應到真正影響預測的 token</span><span data-lang="en">A. High attention weights don't always correspond to truly influential tokens</span></div>
+<div class="quiz-opt" data-correct="0">B. attention 永遠錯</div>
+<div class="quiz-opt" data-correct="0">C. attention 沒意義</div>
+<div class="quiz-opt" data-correct="0">D. 要全部刪除</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>因此需要 IG / probing / counterfactual 補強。</span><span data-lang="en"><strong>A.</strong> Hence need IG / probing / counterfactuals.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 臨床上最易被醫師接受的 XAI 是？</p>
+<p data-lang="en">2. Most clinician-acceptable XAI?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. KernelSHAP</div>
+<div class="quiz-opt" data-correct="0">B. attention map</div>
+<div class="quiz-opt" data-correct="1">C. Concept Bottleneck</div>
+<div class="quiz-opt" data-correct="0">D. saliency</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>直接走「臨床概念 → 標籤」最直觀。</span><span data-lang="en"><strong>C.</strong> "Clinical concept → label" is the most intuitive path.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 什麼是 deletion test？</p>
+<p data-lang="en">3. What's a deletion test?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 把高歸因像素「刪去」，看預測下降多少，量化解釋忠實度</span><span data-lang="en">A. Remove top-attribution pixels and measure prediction drop — to quantify faithfulness</span></div>
+<div class="quiz-opt" data-correct="0">B. 刪除整張影像</div>
+<div class="quiz-opt" data-correct="0">C. 刪除模型</div>
+<div class="quiz-opt" data-correct="0">D. 刪除 PHI</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>deletion / insertion 是評估 attribution 忠實度的標準工具。</span><span data-lang="en"><strong>A.</strong> Deletion / insertion are standard for evaluating attribution faithfulness.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch17-evaluation-calibration.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="模型評估、校準與公平性" data-en="Evaluation, Calibration &amp; Fairness">模型評估、校準與公平性</span></a>
+<a href="ch19-mlops-privacy.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="MLOps、隱私與聯邦學習" data-en="MLOps, Privacy &amp; Federated Learning">MLOps、隱私與聯邦學習</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 18</footer>
+<script src="i18n.js"></script>
+</body></html>

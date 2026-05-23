@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch11 · 蛋白質結構與生成設計</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html" class="active">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK C · CHAPTER 11 / 20</div>
+  <h1 data-zh="蛋白質結構與生成設計" data-en="Protein Structure & Generative Design">蛋白質結構與生成設計</h1>
+  <p class="subtitle" data-lang="zh">AlphaFold 3 / ESM-3 / RFdiffusion3 / ProteinMPNN——從預測到從零設計。</p>
+  <p class="subtitle" data-lang="en">AlphaFold 3 / ESM-3 / RFdiffusion3 / ProteinMPNN — from prediction to de novo design.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="兩條主線" data-en="TWO TRACKS">兩條主線</div>
+<h2 data-zh="預測 vs 設計：兩條互補的主線" data-en="Prediction vs Design: two complementary tracks">預測 vs 設計：兩條互補的主線</h2>
+<div data-lang="zh">
+<p>蛋白質 AI 在 2024–2026 進入兩條同時推進的主線：<strong>(a) 結構預測</strong>，給序列得結構，AlphaFold 3 / ESM-3 / ESMFold 是代表；<strong>(b) 結構設計</strong>，從功能規格（binder、酶、symmetry）生出全新的蛋白序列+結構，RFdiffusion 3 / ProteinMPNN / Chroma 是代表。兩者常組合：先用 RFdiffusion 想出 backbone，再用 ProteinMPNN 鋪設 side chain，最後用 AF3 驗證。</p>
+</div>
+<div data-lang="en">
+<p>Protein AI in 2024–2026 advances along two parallel tracks: <strong>(a) structure prediction</strong> — sequence to structure (AlphaFold 3, ESM-3, ESMFold); <strong>(b) structure design</strong> — generate sequences+structures from functional specs like binders, enzymes, symmetry (RFdiffusion 3, ProteinMPNN, Chroma). They often pair up: RFdiffusion proposes a backbone, ProteinMPNN designs side-chains, AF3 validates.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="AlphaFold 3" data-en="ALPHAFOLD 3">AlphaFold 3</div>
+<h2 data-zh="AlphaFold 3：把所有分子放進同一個模型" data-en="AlphaFold 3: all molecules in one model">AlphaFold 3</h2>
+<div data-lang="zh">
+<p>2024-05-08 Nature 630:493–500。AF3 用 <strong>擴散式 (diffusion) decoder</strong> 取代 AF2 的 IPA，在一個模型內聯合預測：蛋白質、核酸（DNA/RNA）、配體、離子、轉譯後修飾、抗體-抗原。</p>
+<ul>
+<li data-lang="zh">配體結合姿態：勝過 AutoDock Vina 等專用 docking 工具。</li>
+<li data-lang="en">Ligand binding pose: beats AutoDock Vina and other specialist docking tools.</li>
+<li data-lang="zh">抗體–抗原預測：顯著勝過 AlphaFold-Multimer v2。</li>
+<li data-lang="en">Antibody–antigen: substantially beats AlphaFold-Multimer v2.</li>
+<li data-lang="zh">非商業免費 AlphaFold Server；2024 加開 inference code GitHub。</li>
+<li data-lang="en">AlphaFold Server free for non-commercial; inference code open-sourced on GitHub later in 2024.</li>
+</ul>
+</div>
+<div data-lang="en"><p>Published Nature 630:493–500 on 2024-05-08. AF3 replaces AF2's IPA with a <strong>diffusion decoder</strong>, jointly predicting proteins, DNA/RNA, ligands, ions, PTMs, antibody-antigen complexes in a single model.</p></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="主流模型" data-en="MODEL COMPARISON">主流模型</div>
+<h2 data-zh="預測 vs 設計工具地圖" data-en="Prediction vs design tool map">預測 vs 設計工具地圖</h2>
+<table class="comp-table"><thead><tr><th data-zh="任務" data-en="Task">任務</th><th data-zh="工具" data-en="Tool">工具</th><th data-zh="重點" data-en="Highlight">重點</th></tr></thead><tbody>
+<tr><td data-zh="結構預測（單鏈）" data-en="Structure prediction (single chain)">結構預測（單鏈）</td><td>ESMFold, AF2, AF3</td><td data-zh="ESMFold 沒 MSA 也能用，速度最快" data-en="ESMFold runs without MSA, fastest">無 MSA 也能用</td></tr>
+<tr><td data-zh="結構預測（複合體 + 配體）" data-en="Complex + ligand">複合體 + 配體</td><td>AlphaFold 3</td><td data-zh="當前 SOTA；commercial server" data-en="Current SOTA; commercial server">當前 SOTA</td></tr>
+<tr><td data-zh="序列生成（從骨架）" data-en="Inverse folding">序列生成 (inverse folding)</td><td>ProteinMPNN, LigandMPNN, ESM-IF1</td><td data-zh="給結構 → 給胺基酸；穩定 5-10×" data-en="Structure → sequence; 5-10× stabilization">穩定 5-10×</td></tr>
+<tr><td data-zh="骨架生成" data-en="Backbone generation">骨架生成</td><td>RFdiffusion / RFdiffusion3</td><td data-zh="RFdiffusion3 開源、原子級、10× 速度" data-en="RFdiffusion3 open-source, atom-level, 10× faster">原子級、10×</td></tr>
+<tr><td data-zh="多模 (seq+struct+func)" data-en="Multi-modal (seq+struct+func)">多模生成</td><td>ESM-3</td><td data-zh="chain-of-thought across modalities" data-en="Chain-of-thought across modalities">分模態鏈式生成</td></tr>
+<tr><td data-zh="抗體設計" data-en="Antibody design">抗體設計</td><td>IgLM, AntiFold, AbLang2</td><td data-zh="專為 CDR 訓練" data-en="Trained for CDR">專為 CDR</td></tr>
+</tbody></table>
+<div class="callout bio"><span class="callout-icon">🧬</span><div>
+<span data-lang="zh"><strong>標準設計循環 (2025 Baker Lab):</strong> RFdiffusion3 → ProteinMPNN → AF3 / Rosetta 驗證 → 實驗合成 (Twist Bioscience / GenScript) → SPR / BLI 結合驗證。</span>
+<span data-lang="en"><strong>Standard design loop (Baker Lab, 2025):</strong> RFdiffusion3 → ProteinMPNN → AF3/Rosetta validation → synthesis (Twist / GenScript) → SPR / BLI binding test.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="ESMFold 直接從序列預測結構" data-en="ESMFold: sequence → structure directly">ESMFold 直接從序列預測結構</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> torch, esm
+m, alpha = esm.pretrained.<span class="func">esmfold_v1</span>()
+m = m.<span class="func">eval</span>().<span class="func">cuda</span>()
+seq = <span class="str">"MKTAYIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQDNLSGAEK..."</span>
+<span class="kw">with</span> torch.<span class="func">no_grad</span>():
+    pdb = m.<span class="func">infer_pdb</span>(seq)
+<span class="func">open</span>(<span class="str">"esmfold.pdb"</span>,<span class="str">"w"</span>).<span class="func">write</span>(pdb)
+<span class="comment"># Visualize with py3Dmol or PyMOL</span>
+<span class="kw">import</span> py3Dmol
+view = py3Dmol.<span class="func">view</span>(width=<span class="num">600</span>, height=<span class="num">400</span>)
+view.<span class="func">addModel</span>(pdb, <span class="str">"pdb"</span>); view.<span class="func">setStyle</span>({<span class="str">"cartoon"</span>:{}}); view.<span class="func">zoomTo</span>()</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate); <span class="kw">library</span>(bio3d)
+esm &lt;- <span class="func">import</span>(<span class="str">"esm"</span>); torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>)
+pre &lt;- esm$pretrained$<span class="func">esmfold_v1</span>()
+m   &lt;- pre[[<span class="num">1</span>]]$<span class="func">eval</span>()$<span class="func">cuda</span>()
+seq &lt;- <span class="str">"MKTAYIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQDNLSGAEK"</span>
+pdb &lt;- m$<span class="func">infer_pdb</span>(seq)
+<span class="func">writeLines</span>(pdb, <span class="str">"esmfold.pdb"</span>)
+struc &lt;- bio3d::<span class="func">read.pdb</span>(<span class="str">"esmfold.pdb"</span>)
+<span class="func">summary</span>(struc)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策樹" data-en="DECISION TREE">決策樹</div>
+<h2 data-zh="你的問題是？" data-en="What's your problem?">你的問題是？</h2>
+<div class="decision-tree">
+<h4 data-zh="目標" data-en="Goal">目標</h4>
+<div class="dt-node"><span class="dt-q">①</span><span class="dt-arrow">→</span><span data-lang="zh">只要結構（小蛋白、快）：<strong>ESMFold</strong>。</span><span data-lang="en">Structure only (small, fast): <strong>ESMFold</strong>.</span></div>
+<div class="dt-node"><span class="dt-q">②</span><span class="dt-arrow">→</span><span data-lang="zh">結構 + 配體：<strong>AlphaFold 3</strong>（Server）；商業用可考慮 Boltz-1 / Chai-1。</span><span data-lang="en">Structure + ligand: <strong>AlphaFold 3</strong> (Server); commercial use → Boltz-1 / Chai-1.</span></div>
+<div class="dt-node"><span class="dt-q">③</span><span class="dt-arrow">→</span><span data-lang="zh">設計 binder：RFdiffusion3 (backbone) → ProteinMPNN (seq) → AF3 (validate)。</span><span data-lang="en">Binder design: RFdiffusion3 → ProteinMPNN → AF3.</span></div>
+<div class="dt-node"><span class="dt-q">④</span><span class="dt-arrow">→</span><span data-lang="zh">穩定化已有蛋白：ProteinMPNN inverse folding。</span><span data-lang="en">Stabilize existing protein: ProteinMPNN inverse folding.</span></div>
+<div class="dt-node"><span class="dt-q">⑤</span><span class="dt-arrow">→</span><span data-lang="zh">抗體 CDR：IgLM / AntiFold。</span><span data-lang="en">Antibody CDR: IgLM / AntiFold.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. AlphaFold 3 與 AF2 在架構上的關鍵差異是？</p>
+<p data-lang="en">1. The key architectural difference between AF3 and AF2 is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. AF3 用 diffusion decoder 取代 IPA</span><span data-lang="en">A. AF3 replaces IPA with a diffusion decoder</span></div>
+<div class="quiz-opt" data-correct="0">B. AF3 取消 MSA</div>
+<div class="quiz-opt" data-correct="0">C. AF3 改用 RNN</div>
+<div class="quiz-opt" data-correct="0">D. AF3 不需要 GPU</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>diffusion decoder 讓 AF3 能同時建模蛋白-核酸-配體。</span><span data-lang="en"><strong>A.</strong> Diffusion decoder lets AF3 jointly model protein-NA-ligand.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. RFdiffusion3 相比前一代的優勢？</p>
+<p data-lang="en">2. RFdiffusion3 over its predecessor?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 只能生成 α-helix</span><span data-lang="en">A. Only generates α-helix</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 原子級設計、10× 加速、支援 DNA binder 與酶</span><span data-lang="en">B. Atom-level, 10× faster, supports DNA binders and enzymes</span></div>
+<div class="quiz-opt" data-correct="0">C. 取消開源</div>
+<div class="quiz-opt" data-correct="0">D. 不再需要 ProteinMPNN</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>RFdiffusion3 是 2025 IPD 開源旗艦。</span><span data-lang="en"><strong>B.</strong> RFdiffusion3 is the 2025 IPD open-source flagship.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. ProteinMPNN 是用在哪個環節？</p>
+<p data-lang="en">3. ProteinMPNN is used for?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 預測結構</span><span data-lang="en">A. Structure prediction</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. Inverse folding：給結構→輸出序列</span><span data-lang="en">B. Inverse folding: structure → sequence</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 影像分割</span><span data-lang="en">C. Image segmentation</span></div>
+<div class="quiz-opt" data-correct="0">D. GWAS</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>ProteinMPNN 是設計流程的「鋪 side chain」步驟。</span><span data-lang="en"><strong>B.</strong> ProteinMPNN is the "side-chain assignment" step in the design loop.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch10-digital-pathology.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="數位病理與全玻片影像" data-en="Digital Pathology &amp; WSI">數位病理與全玻片影像</span></a>
+<a href="ch12-ai-drug-discovery.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="AI 藥物發現" data-en="AI Drug Discovery">AI 藥物發現</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 11</footer>
+<script src="i18n.js"></script>
+</body></html>

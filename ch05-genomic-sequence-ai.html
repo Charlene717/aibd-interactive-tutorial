@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch05 · 基因體序列 AI</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html" class="active">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK B · CHAPTER 05 / 20</div>
+  <h1 data-zh="基因體序列 AI" data-en="Genomic Sequence AI">基因體序列 AI</h1>
+  <p class="subtitle" data-lang="zh">把 30 億個鹼基當成「語言」來建模——Enformer、Borzoi、Nucleotide Transformer、Caduceus 的世界。</p>
+  <p class="subtitle" data-lang="en">Modeling 3 billion bases as a 'language' — the world of Enformer, Borzoi, Nucleotide Transformer, and Caduceus.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="動機" data-en="MOTIVATION">動機</div>
+<h2 data-zh="DNA 為什麼可以被「語言模型」建模？" data-en="Why can DNA be modeled as a language?">DNA 為什麼可以被「語言模型」建模？</h2>
+<div data-lang="zh">
+<p>表面上 DNA 只有 4 個字母（A/C/G/T），但啟動子、增強子、剪接位、CpG 島等「文法」隱藏在序列中。<strong>距離可達 100 kb 以上</strong>的調控元件能影響一個基因的表現量——這正是 Transformer 「自注意力」最擅長捕捉的長程依賴。</p>
+<p>傳統 motif 掃描或 PWM 只能看局部訊號；現代序列 AI 把整段 DNA 當作上下文，輸出可以是 chromatin accessibility、表現量、變異效應等多種「軌道 (tracks)」。</p>
+</div>
+<div data-lang="en">
+<p>DNA has only 4 letters (A/C/G/T), but promoters, enhancers, splice sites, CpG islands hide an entire "grammar". Regulatory elements <strong>>100 kb away</strong> can modulate a gene's expression — exactly the long-range dependencies Transformer self-attention excels at.</p>
+<p>Traditional motif-scanning or PWMs see only local signals; modern sequence AI treats long DNA as context and outputs many "tracks": chromatin accessibility, expression, variant effects, and more.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="主流模型" data-en="LEADING MODELS">主流模型</div>
+<h2 data-zh="2024–2026 五大序列模型對照" data-en="Top 5 sequence models (2024–2026)">2024–2026 五大序列模型對照</h2>
+<table class="comp-table"><thead><tr><th data-zh="模型" data-en="Model">模型</th><th data-zh="架構" data-en="Architecture">架構</th><th data-zh="脈絡長度" data-en="Context">脈絡長度</th><th data-zh="主要任務" data-en="Primary task">主要任務</th><th data-zh="一句話評" data-en="One-liner">一句話評</th></tr></thead><tbody>
+<tr><td><strong>Enformer</strong> (2021)</td><td>Transformer + Conv</td><td>~200 kb</td><td data-zh="預測 5313 軌道（表現/染色質）" data-en="5,313 tracks (expression/chromatin)">5313 軌道</td><td data-zh="長程依賴里程碑；至今仍是 baseline" data-en="The long-range milestone; still a baseline">長程依賴里程碑</td></tr>
+<tr><td><strong>Nucleotide Transformer v2</strong> (Nat Methods 2024)</td><td>RoBERTa</td><td>6 kb</td><td data-zh="多任務微調" data-en="Multi-task fine-tuning">多任務微調</td><td data-zh="2.5B 多物種 SOTA；強微調基底" data-en="2.5B multispecies SOTA; strong fine-tuning base">2.5B 多物種 SOTA</td></tr>
+<tr><td><strong>DNABERT-2</strong> (2024)</td><td>BERT + BPE</td><td>~10 kb</td><td data-zh="調控元件分類" data-en="Regulatory element classification">調控分類</td><td data-zh="BPE tokenization 顯著降參數量" data-en="BPE tokenization reduces params">BPE 降參數量</td></tr>
+<tr><td><strong>Borzoi</strong> (2024)</td><td>Enformer 衍生</td><td>~524 kb</td><td data-zh="RNA-seq 表現量" data-en="RNA-seq expression">RNA-seq 表現</td><td data-zh="Flashzoi 後速度提升 4×" data-en="Flashzoi 4× speedup">複雜疾病風險強</td></tr>
+<tr><td><strong>Caduceus-PS</strong> (2024)</td><td>Mamba (SSM) + RC-equivariant</td><td>~131 kb</td><td data-zh="雙向長序列" data-en="Bi-directional long DNA">雙向長序列</td><td data-zh="超過 Enformer，輕量百倍" data-en="Beats Enformer, 100× lighter">SOTA 兼輕量</td></tr>
+</tbody></table>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>2024 benchmark 重點：</strong>對「孟德爾 / 複雜疾病」變異效應預測，alignment-based 模型（CADD、GPN-MSA）反而領先；對「非疾病量化性狀」，功能監督的 Enformer / Borzoi 領先。<em>沒有單一模型在所有任務上贏</em>。</span>
+<span data-lang="en"><strong>2024 benchmark take-away:</strong> For Mendelian / complex-disease variants, alignment-based models (CADD, GPN-MSA) lead; for non-disease quantitative traits, function-supervised Enformer/Borzoi lead. <em>No model wins everywhere.</em></span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="工作流" data-en="WORKFLOW">工作流</div>
+<h2 data-zh="一個典型 DNA Foundation Model 使用流程" data-en="Typical workflow with a DNA foundation model">典型使用流程</h2>
+<div class="workflow">
+  <div class="workflow-step" data-step="1"><h4 data-zh="選模型與 token 化" data-en="Pick model & tokenize">選模型與 token 化</h4>
+    <p data-lang="zh">NT-v2 用 6-mer + BPE；Caduceus 用單字符。任務若涉及短距 motif，6-mer 更有效；涉及超長序列，單字符 + Mamba 更省。</p>
+    <p data-lang="en">NT-v2 uses 6-mer + BPE; Caduceus uses single-character. Short motifs → 6-mer; ultra-long → single-char + Mamba.</p></div>
+  <div class="workflow-step" data-step="2"><h4 data-zh="嵌入抽取或微調" data-en="Extract embeddings or fine-tune">嵌入抽取或微調</h4>
+    <p data-lang="zh">少資料情境用 zero-shot 嵌入接線性分類器；資料夠用 LoRA / full FT。</p>
+    <p data-lang="en">Few-shot: zero-shot embeddings + linear probe; ample data: LoRA / full fine-tune.</p></div>
+  <div class="workflow-step" data-step="3"><h4 data-zh="變異效應預測（in silico mutagenesis）" data-en="Variant effect (ISM)">變異效應預測（ISM）</h4>
+    <p data-lang="zh">在序列上做 ref vs alt 推論，記錄輸出差異作為 delta-score。</p>
+    <p data-lang="en">Run ref vs alt through the model; the output delta is the variant effect score.</p></div>
+  <div class="workflow-step" data-step="4"><h4 data-zh="與 GWAS / QTL 整合" data-en="Integrate with GWAS / QTL">與 GWAS / QTL 整合</h4>
+    <p data-lang="zh">用模型分數做 functional fine-mapping，或當作 PRS 的補充特徵。</p>
+    <p data-lang="en">Use scores for functional fine-mapping or as auxiliary features in PRS.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="用 Nucleotide Transformer 嵌入一段序列" data-en="Embed a sequence with Nucleotide Transformer">用 Nucleotide Transformer 嵌入一段序列</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="comment"># pip install transformers torch</span>
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModel
+<span class="kw">import</span> torch
+ck = <span class="str">"InstaDeepAI/nucleotide-transformer-v2-500m-multi-species"</span>
+tok = AutoTokenizer.<span class="func">from_pretrained</span>(ck)
+m   = AutoModel.<span class="func">from_pretrained</span>(ck).<span class="func">eval</span>().<span class="func">cuda</span>()
+seq = <span class="str">"ACGT"</span> * <span class="num">200</span>           <span class="comment"># 800 bp toy</span>
+inp = <span class="func">tok</span>(seq, return_tensors=<span class="str">"pt"</span>).<span class="func">to</span>(<span class="str">"cuda"</span>)
+<span class="kw">with</span> torch.<span class="func">no_grad</span>():
+    out = <span class="func">m</span>(**inp, output_hidden_states=<span class="kw">True</span>)
+emb = out.hidden_states[-<span class="num">1</span>].<span class="func">mean</span>(dim=<span class="num">1</span>)        <span class="comment"># (1, 1024)</span>
+<span class="func">print</span>(emb.shape)
+<span class="comment"># In-silico mutagenesis</span>
+<span class="kw">def</span> <span class="func">delta</span>(ref, alt, pos):
+    seq_alt = ref[:pos] + alt + ref[pos+<span class="num">1</span>:]
+    inp2 = <span class="func">tok</span>(seq_alt, return_tensors=<span class="str">"pt"</span>).<span class="func">to</span>(<span class="str">"cuda"</span>)
+    e2 = <span class="func">m</span>(**inp2, output_hidden_states=<span class="kw">True</span>).hidden_states[-<span class="num">1</span>].<span class="func">mean</span>(<span class="num">1</span>)
+    <span class="kw">return</span> (e2-emb).<span class="func">norm</span>().<span class="func">item</span>()
+<span class="func">print</span>(<span class="str">"effect:"</span>, <span class="func">delta</span>(seq, <span class="str">"G"</span>, <span class="num">100</span>))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate)
+trans &lt;- <span class="func">import</span>(<span class="str">"transformers"</span>); torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>)
+ck   &lt;- <span class="str">"InstaDeepAI/nucleotide-transformer-v2-500m-multi-species"</span>
+tok  &lt;- trans$AutoTokenizer$<span class="func">from_pretrained</span>(ck)
+mdl  &lt;- trans$AutoModel$<span class="func">from_pretrained</span>(ck)$<span class="func">eval</span>()$<span class="func">cuda</span>()
+seq  &lt;- <span class="func">paste</span>(<span class="func">rep</span>(<span class="str">"ACGT"</span>,<span class="num">200</span>), collapse=<span class="str">""</span>)
+inp  &lt;- <span class="func">tok</span>(seq, return_tensors=<span class="str">"pt"</span>)$<span class="func">to</span>(<span class="str">"cuda"</span>)
+out  &lt;- mdl$<span class="func">forward</span>(input_ids=inp$input_ids, output_hidden_states=<span class="kw">TRUE</span>)
+emb  &lt;- out$hidden_states[[<span class="num">25</span>]]$<span class="func">mean</span>(dim=<span class="num">1</span>L)
+<span class="func">cat</span>(<span class="str">"emb dim:"</span>, emb$<span class="func">shape</span>, <span class="str">"\n"</span>)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策樹" data-en="DECISION TREE">決策樹</div>
+<h2 data-zh="什麼任務該選哪個模型？" data-en="Which model for which task?">什麼任務該選哪個模型？</h2>
+<div class="decision-tree">
+<h4 data-zh="任務類型？" data-en="Task type?">任務類型？</h4>
+<div class="dt-node"><span class="dt-q">①</span><span class="dt-arrow">→</span><span data-lang="zh">表現量 / 染色質：<strong>Enformer / Borzoi</strong>。</span><span data-lang="en">Expression / chromatin: <strong>Enformer / Borzoi</strong>.</span></div>
+<div class="dt-node"><span class="dt-q">②</span><span class="dt-arrow">→</span><span data-lang="zh">變異致病性 / 罕病：<strong>AlphaMissense + PrimateAI-3D</strong>（見 Ch08）。</span><span data-lang="en">Variant pathogenicity / rare disease: <strong>AlphaMissense + PrimateAI-3D</strong> (Ch08).</span></div>
+<div class="dt-node"><span class="dt-q">③</span><span class="dt-arrow">→</span><span data-lang="zh">短調控元件分類：<strong>DNABERT-2 / NT-v2</strong>。</span><span data-lang="en">Short regulatory classification: <strong>DNABERT-2 / NT-v2</strong>.</span></div>
+<div class="dt-node"><span class="dt-q">④</span><span class="dt-arrow">→</span><span data-lang="zh">100 kb+ 長序列 + 算力有限：<strong>Caduceus</strong>。</span><span data-lang="en">100 kb+ long with limited compute: <strong>Caduceus</strong>.</span></div>
+<div class="dt-node"><span class="dt-q">⑤</span><span class="dt-arrow">→</span><span data-lang="zh">非編碼變異 QTL：<strong>Enformer/Borzoi</strong> + <strong>GPN-MSA</strong> 集成。</span><span data-lang="en">Non-coding QTL: <strong>Enformer/Borzoi</strong> + <strong>GPN-MSA</strong> ensemble.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. Caduceus 的核心架構特色是？</p>
+<p data-lang="en">1. Caduceus's core architectural feature is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. Vanilla Transformer</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. Mamba 狀態空間 + 反向互補等變性</span><span data-lang="en">B. Mamba state-space + reverse-complement equivariance</span></div>
+<div class="quiz-opt" data-correct="0">C. CNN with PWM</div>
+<div class="quiz-opt" data-correct="0">D. RNN with attention</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>SSM + RC 等變讓長 DNA 建模又準又快。</span><span data-lang="en"><strong>B.</strong> SSM + RC equivariance gives accurate &amp; fast long-DNA modeling.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 「In-silico mutagenesis」是？</p>
+<p data-lang="en">2. "In-silico mutagenesis" is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 真實的細胞編輯實驗</span><span data-lang="en">A. Real cell-editing experiment</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 用模型對 ref vs alt 序列推論，記錄輸出差異作為變異效應</span><span data-lang="en">B. Run ref vs alt through a model and use the output delta as the variant effect</span></div>
+<div class="quiz-opt" data-correct="0">C. PCR primer 設計</div>
+<div class="quiz-opt" data-correct="0">D. CRISPR screen</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>ISM 是序列 AI 最常用的解釋方法之一。</span><span data-lang="en"><strong>B.</strong> ISM is one of the most common interpretability tools for sequence AI.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 為何 2024 benchmark 顯示「沒有單一模型在所有任務勝出」？</p>
+<p data-lang="en">3. Why does the 2024 benchmark show "no model wins all tasks"?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 沒人會調參</span><span data-lang="en">A. No one knows how to tune</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 不同任務需要不同的 inductive bias（功能監督 vs 進化保守）</span><span data-lang="en">B. Different tasks need different inductive biases (functional supervision vs evolutionary conservation)</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 因為 benchmark 設計有錯</span><span data-lang="en">C. The benchmark is flawed</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 因為 Caduceus 還沒釋出</span><span data-lang="en">D. Caduceus wasn't released yet</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>不同任務本質就是「不同的歸納偏好最契合」。</span><span data-lang="en"><strong>B.</strong> Different tasks favor different inductive biases.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch04-ethics-regulation.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="倫理、公平性與法規" data-en="Ethics, Fairness &amp; Regulation">倫理、公平性與法規</span></a>
+<a href="ch06-single-cell-foundation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="單細胞 Foundation Models" data-en="Single-cell Foundation Models">單細胞 Foundation Models</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 05</footer>
+<script src="i18n.js"></script>
+</body></html>

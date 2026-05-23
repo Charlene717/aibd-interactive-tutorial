@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch10 · 數位病理與全玻片影像</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html" class="active">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK C · CHAPTER 10 / 20</div>
+  <h1 data-zh="數位病理與全玻片影像" data-en="Digital Pathology & WSI">數位病理與全玻片影像</h1>
+  <p class="subtitle" data-lang="zh">UNI、CONCH、Virchow、Prov-GigaPath——千兆像素時代的 Foundation Models。</p>
+  <p class="subtitle" data-lang="en">UNI, CONCH, Virchow, Prov-GigaPath — foundation models for the gigapixel era.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="挑戰" data-en="CHALLENGES">挑戰</div>
+<h2 data-zh="為什麼 WSI 是 AI 最硬的影像挑戰" data-en="Why WSI is the hardest image challenge">為什麼 WSI 是 AI 最硬的影像挑戰</h2>
+<div data-lang="zh">
+<p>一張全玻片影像（WSI）動輒 100,000 × 100,000 像素、約 1–10 GB。<strong>沒有任何 GPU 能整張塞進來</strong>。標準解法是切成 256² 或 512² 的 patches，用 multiple-instance learning (MIL) 在 patch-level 聚合到 slide-level 標籤。同時還要面對 H&amp;E 染色差異、組織人工破損、跨醫院 scanner 差異。</p>
+<p>2023-2024 起，<strong>病理 Foundation Models</strong> 改變遊戲規則：UNI、CONCH、Virchow、Prov-GigaPath 預訓在數十萬到百萬 WSI 上，提供強大 patch encoder，下游只要訓練 attention-MIL head 就能 SOTA。</p>
+</div>
+<div data-lang="en">
+<p>A whole-slide image (WSI) is routinely 100,000 × 100,000 pixels, ~1–10 GB. <strong>No GPU can load it at once.</strong> Standard recipe: tile into 256² or 512² patches, use Multiple Instance Learning (MIL) to aggregate patch-level features into slide-level labels. Plus H&amp;E stain variation, tissue artifacts, scanner-to-scanner differences across hospitals.</p>
+<p>Since 2023–2024, <strong>pathology foundation models</strong> changed the game: UNI, CONCH, Virchow, Prov-GigaPath pretrain on hundreds of thousands to millions of WSIs, giving strong patch encoders so downstream only needs an attention-MIL head to reach SOTA.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="四大 Foundation Models" data-en="FOUR FOUNDATION MODELS">四大 Foundation Models</h2>
+<h2 data-zh="2024 病理 FM 對照" data-en="Pathology FM comparison (2024)">2024 病理 FM 對照</h2>
+<table class="comp-table"><thead><tr><th data-zh="模型" data-en="Model">模型</th><th data-zh="來源 / 出版" data-en="Source / Publication">來源</th><th data-zh="訓練資料" data-en="Training data">訓練資料</th><th data-zh="架構" data-en="Architecture">架構</th><th data-zh="授權" data-en="License">授權</th></tr></thead><tbody>
+<tr><td><strong>UNI</strong></td><td>Nat Med 2024 (Mahmood Lab)</td><td>>100K WSI / >100M patches</td><td>ViT-L / DINOv2</td><td data-zh="非商業開源" data-en="Open, non-commercial">非商業開源</td></tr>
+<tr><td><strong>CONCH</strong></td><td>Nat Med 2024 (Mahmood Lab)</td><td>1.17M image-caption pairs</td><td data-zh="ViT + CoCa（視覺-語言）" data-en="ViT + CoCa (vision-language)">ViT + CoCa</td><td data-zh="非商業開源" data-en="Open, non-commercial">非商業開源</td></tr>
+<tr><td><strong>Virchow</strong></td><td>Nat Med 2024 (Paige)</td><td>1.5M WSI</td><td>ViT-H / DINOv2</td><td data-zh="商業（部分釋出）" data-en="Commercial (partial release)">商業</td></tr>
+<tr><td><strong>Prov-GigaPath</strong></td><td>Nature 2024 (Microsoft)</td><td>1.3M WSI / 171K patients</td><td data-zh="ViT + LongNet（slide-level）" data-en="ViT + LongNet (slide-level)">ViT + LongNet</td><td data-zh="非商業" data-en="Non-commercial">非商業</td></tr>
+</tbody></table>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>2025 colon MSI benchmark：</strong>CONCH 用 2-cluster + ProtoNet 取得最佳外部驗證 balanced accuracy（0.775–0.778），勝過 UNI / Virchow / Prov-GigaPath。<em>結論：「最大模型 ≠ 最好下游」。</em></span>
+<span data-lang="en"><strong>2025 colon MSI benchmark:</strong> CONCH with 2-cluster + ProtoNet achieved top external balanced accuracy (0.775–0.778), ahead of UNI / Virchow / Prov-GigaPath. <em>Lesson: bigger model ≠ better downstream.</em></span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="工作流" data-en="WORKFLOW">工作流</div>
+<h2 data-zh="WSI 分析五步驟" data-en="Five-step WSI workflow">WSI 分析五步驟</h2>
+<div class="workflow">
+  <div class="workflow-step" data-step="1"><h4 data-zh="WSI 載入與組織分割" data-en="WSI loading + tissue segmentation">WSI 載入與組織分割</h4>
+    <p data-lang="zh">OpenSlide / cuCIM 讀取；Otsu / HoVer-Net 偵測組織區域，過濾背景與 artifacts。</p>
+    <p data-lang="en">Load with OpenSlide / cuCIM; Otsu / HoVer-Net to detect tissue and filter background.</p></div>
+  <div class="workflow-step" data-step="2"><h4 data-zh="Patch 抽取與染色標準化" data-en="Patch extraction & stain normalization">Patch 抽取與染色標準化</h4>
+    <p data-lang="zh">通常 256² @ 20×；Macenko / Reinhard / Vahadane 統一 H&amp;E。</p>
+    <p data-lang="en">Typically 256² @ 20×; Macenko / Reinhard / Vahadane for H&amp;E normalization.</p></div>
+  <div class="workflow-step" data-step="3"><h4 data-zh="Foundation Model 抽特徵" data-en="Extract features with foundation model">Foundation Model 抽特徵</h4>
+    <p data-lang="zh">UNI / CONCH / Virchow patch encoder → 每張 patch 一個 1024 維向量。</p>
+    <p data-lang="en">UNI / CONCH / Virchow patch encoder → 1024-d vector per patch.</p></div>
+  <div class="workflow-step" data-step="4"><h4 data-zh="MIL Aggregation" data-en="MIL aggregation">MIL Aggregation</h4>
+    <p data-lang="zh">CLAM、TransMIL、DSMIL、ABMIL；attention-weighted pooling 是業界標準。</p>
+    <p data-lang="en">CLAM, TransMIL, DSMIL, ABMIL; attention-weighted pooling is the standard.</p></div>
+  <div class="workflow-step" data-step="5"><h4 data-zh="Slide-level 預測 + 解釋" data-en="Slide-level prediction + explanation">Slide-level 預測 + 解釋</h4>
+    <p data-lang="zh">輸出標籤 + attention heatmap，疊回原圖供病理醫師檢視。</p>
+    <p data-lang="en">Predict label + attention heatmap, overlay on the slide for pathologist review.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="UNI patch encoder + CLAM MIL" data-en="UNI patch encoder + CLAM MIL">UNI patch encoder + CLAM MIL</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> torch, timm
+<span class="kw">from</span> openslide <span class="kw">import</span> OpenSlide
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="comment"># Hugging Face: MahmoodLab/UNI (gated access)</span>
+model = timm.<span class="func">create_model</span>(<span class="str">"hf-hub:MahmoodLab/UNI"</span>, pretrained=<span class="kw">True</span>).<span class="func">eval</span>().<span class="func">cuda</span>()
+slide = <span class="func">OpenSlide</span>(<span class="str">"sample.svs"</span>)
+<span class="comment"># tile and embed (simplified)</span>
+feats = []
+<span class="kw">for</span> (x,y) <span class="kw">in</span> coords_20x:
+    tile = np.<span class="func">array</span>(slide.<span class="func">read_region</span>((x,y), <span class="num">0</span>, (<span class="num">256</span>,<span class="num">256</span>)).<span class="func">convert</span>(<span class="str">"RGB"</span>))
+    t = torch.<span class="func">from_numpy</span>(tile).<span class="func">permute</span>(<span class="num">2</span>,<span class="num">0</span>,<span class="num">1</span>).<span class="func">float</span>().<span class="func">cuda</span>()/<span class="num">255</span>
+    <span class="kw">with</span> torch.<span class="func">no_grad</span>():
+        feats.<span class="func">append</span>(<span class="func">model</span>(t.<span class="func">unsqueeze</span>(<span class="num">0</span>)).<span class="func">cpu</span>())
+feats = torch.<span class="func">cat</span>(feats)         <span class="comment"># (N_patches, 1024)</span>
+<span class="comment"># Train CLAM MIL on (feats, slide_label)</span></pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="comment"># 病理 FM 推論主流仍在 Python；R 通常呼叫 reticulate</span>
+<span class="kw">library</span>(reticulate); <span class="kw">library</span>(openslide)
+torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>); timm &lt;- <span class="func">import</span>(<span class="str">"timm"</span>)
+model &lt;- timm$<span class="func">create_model</span>(<span class="str">"hf-hub:MahmoodLab/UNI"</span>, pretrained=<span class="kw">TRUE</span>)$<span class="func">eval</span>()$<span class="func">cuda</span>()
+slide &lt;- <span class="func">openslide_open</span>(<span class="str">"sample.svs"</span>)
+<span class="comment"># for-loop 抽 tile，與 Python 類似</span></pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 為何 WSI 採用 MIL？</p>
+<p data-lang="en">1. Why does WSI analysis use MIL?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 整張圖太大、只能用 patch；patch label 不可得但 slide label 可得</span><span data-lang="en">A. Slides are too large; only patch features are available, while only slide-level labels exist</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. MIL 比 CNN 快</span><span data-lang="en">B. MIL is faster than CNN</span></div>
+<div class="quiz-opt" data-correct="0">C. 因為 H&amp;E 太鮮豔</div>
+<div class="quiz-opt" data-correct="0">D. 為了滿足 HIPAA</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>MIL 是「弱監督 + 聚合」的經典範式。</span><span data-lang="en"><strong>A.</strong> MIL is the classic "weak supervision + aggregation" paradigm.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. CONCH 與 UNI 的核心差別是？</p>
+<p data-lang="en">2. The core difference between CONCH and UNI is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. CONCH 不是 ViT</span><span data-lang="en">A. CONCH is not ViT</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. CONCH 是視覺-語言模型（含 caption pairs），可做 image-text retrieval</span><span data-lang="en">B. CONCH is a vision-language model (with caption pairs), enabling image-text retrieval</span></div>
+<div class="quiz-opt" data-correct="0">C. UNI 更小</div>
+<div class="quiz-opt" data-correct="0">D. CONCH 商業授權，UNI 開源</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>CONCH 用 1.17M 影像-描述對訓 CoCa-style 視覺語言模型。</span><span data-lang="en"><strong>B.</strong> CONCH uses 1.17M image-caption pairs with a CoCa-style vision-language objective.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 染色標準化的目的是？</p>
+<p data-lang="en">3. The purpose of stain normalization is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 降低跨機構 H&amp;E 變異，讓模型聚焦在形態而非染色強度</span><span data-lang="en">A. Reduce inter-institution H&amp;E variation so the model focuses on morphology, not stain intensity</span></div>
+<div class="quiz-opt" data-correct="0">B. 加速 GPU</div>
+<div class="quiz-opt" data-correct="0">C. 滿足 FDA</div>
+<div class="quiz-opt" data-correct="0">D. 取代 patch tiling</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>Macenko / Reinhard 是業界基本動作。</span><span data-lang="en"><strong>A.</strong> Macenko / Reinhard are routine.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch09-medical-imaging-dl.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="醫療影像深度學習" data-en="Medical Imaging Deep Learning">醫療影像深度學習</span></a>
+<a href="ch11-protein-structure.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="蛋白質結構與生成設計" data-en="Protein Structure &amp; Generative Design">蛋白質結構與生成設計</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 10</footer>
+<script src="i18n.js"></script>
+</body></html>

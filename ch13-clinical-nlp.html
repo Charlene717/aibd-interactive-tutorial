@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch13 · EHR 與臨床 NLP</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html" class="active">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK D · CHAPTER 13 / 20</div>
+  <h1 data-zh="電子病歷與臨床 NLP" data-en="EHR & Clinical NLP">電子病歷與臨床 NLP</h1>
+  <p class="subtitle" data-lang="zh">從 BioBERT 到 Med-Gemini——臨床 NLP 的 6 年躍進。</p>
+  <p class="subtitle" data-lang="en">From BioBERT to Med-Gemini — six years of leaps in clinical NLP.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="任務地景" data-en="TASK LANDSCAPE">任務地景</div>
+<h2 data-zh="臨床 NLP 的六種任務" data-en="Six clinical NLP tasks">臨床 NLP 的六種任務</h2>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🔖</div><h4 data-zh="① 命名實體辨識 (NER)" data-en="① Named Entity Recognition">① NER</h4>
+<div data-lang="zh"><p>從病歷文本抽診斷、藥物、檢查、症狀。i2b2 / n2c2 系列、ShARe/CLEF eHealth。</p></div>
+<div data-lang="en"><p>Extract diagnoses, drugs, tests, symptoms from notes. i2b2/n2c2, ShARe/CLEF eHealth.</p></div></div>
+<div class="card"><div class="card-icon">🔗</div><h4 data-zh="② 概念規範化 (Entity Linking)" data-en="② Concept Normalization">② 概念規範化</h4>
+<div data-lang="zh"><p>把抽出來的 entity 對應到 UMLS / SNOMED CT / ICD-10。MetaMap, SciSpaCy, BioSyn。</p></div>
+<div data-lang="en"><p>Link entities to UMLS / SNOMED CT / ICD-10. MetaMap, SciSpaCy, BioSyn.</p></div></div>
+<div class="card"><div class="card-icon">⏳</div><h4 data-zh="③ 時態與否定" data-en="③ Temporal & Negation">③ 時態與否定</h4>
+<div data-lang="zh"><p>"No fever" vs "Fever past 3 days" 對臨床推理至關重要。NegEx、Stanford temporalizer。</p></div>
+<div data-lang="en"><p>"No fever" vs "Fever past 3 days" — vital for clinical reasoning. NegEx, Stanford temporalizer.</p></div></div>
+<div class="card"><div class="card-icon">📋</div><h4 data-zh="④ 文件摘要 / 草擬" data-en="④ Summarization / Drafting">④ 文件摘要</h4>
+<div data-lang="zh"><p>住院摘要、轉診信、病程總結。MIMIC-IV BHC 數據集；Med-Gemini、GatorTronGPT 等做生成。</p></div>
+<div data-lang="en"><p>Discharge summary, referral letter, course narrative. MIMIC-IV BHC; Med-Gemini, GatorTronGPT.</p></div></div>
+<div class="card"><div class="card-icon">❓</div><h4 data-zh="⑤ 醫學問答 (QA)" data-en="⑤ Medical QA">⑤ 醫學問答</h4>
+<div data-lang="zh"><p>MedQA、PubMedQA、MedMCQA、MMLU-clinical。Med-PaLM 2 達 86.5%、Med-Gemini 91.1%。</p></div>
+<div data-lang="en"><p>MedQA, PubMedQA, MedMCQA, MMLU-clinical. Med-PaLM 2: 86.5%; Med-Gemini: 91.1%.</p></div></div>
+<div class="card"><div class="card-icon">📊</div><h4 data-zh="⑥ 結構化抽取 / 風險預測" data-en="⑥ Structured extraction / Risk">⑥ 結構化抽取</h4>
+<div data-lang="zh"><p>從敘事文本生成 OMOP CDM 結構化資料、預測 30-day 再入院、敗血症等。</p></div>
+<div data-lang="en"><p>Extract OMOP CDM from notes; predict 30-day readmission, sepsis, etc.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="模型演進" data-en="MODEL TIMELINE">模型演進</div>
+<h2 data-zh="2019 → 2026 的進化階梯" data-en="Evolution 2019 → 2026">進化階梯</h2>
+<table class="comp-table"><thead><tr><th data-zh="年份" data-en="Year">年份</th><th data-zh="模型" data-en="Model">模型</th><th data-zh="關鍵" data-en="Key">關鍵</th><th>MedQA</th></tr></thead><tbody>
+<tr><td>2019</td><td>BioBERT</td><td>PubMed + PMC 預訓 BERT</td><td>~50%</td></tr>
+<tr><td>2020</td><td>PubMedBERT, ClinicalBERT</td><td data-zh="從頭預訓於生醫文本" data-en="From-scratch pretrain on biomed text">從頭預訓於生醫</td><td>~60%</td></tr>
+<tr><td>2022</td><td>GatorTron 8.9B (UF Health)</td><td data-zh="第一個大型臨床 LLM" data-en="First large clinical LLM">第一個大型臨床 LLM</td><td>~67%</td></tr>
+<tr><td>2023</td><td>Med-PaLM 2</td><td data-zh="LLM 微調 + RLHF" data-en="LLM fine-tune + RLHF">LLM 微調 + RLHF</td><td>86.5%</td></tr>
+<tr><td>2024</td><td>Med-Gemini-L 1.0</td><td data-zh="多模態 + reasoning" data-en="Multimodal + reasoning">多模態 + reasoning</td><td><strong>91.1%</strong></td></tr>
+<tr><td>2024</td><td>MedAlpaca / MEDITRON-70B</td><td data-zh="開源臨床 LLM" data-en="Open clinical LLM">開源臨床 LLM</td><td>~76%</td></tr>
+<tr><td>2024</td><td>MedGemma (Google open)</td><td data-zh="Gemma 系列的醫療版" data-en="Medical variant of Gemma">開源醫療 Gemma</td><td>~80%</td></tr>
+</tbody></table>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>2024 MIMIC-CDM 研究警示：</strong>儘管 LLM 在 MedQA 高分，在真實臨床決策（指引遵循、實驗室結果解讀）仍會犯系統性錯誤。<em>不要把考試分數當臨床能力。</em></span>
+<span data-lang="en"><strong>2024 MIMIC-CDM warning:</strong> despite high MedQA scores, LLMs still make systematic errors in real clinical decisions (guideline adherence, lab interpretation). <em>Don't conflate exam scores with clinical competence.</em></span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="用 ClinicalBERT 抽診斷與藥物" data-en="Extract diagnoses & drugs with ClinicalBERT">用 ClinicalBERT 抽診斷與藥物</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModelForTokenClassification, pipeline
+ck = <span class="str">"alvaroalon2/biobert_diseases_ner"</span>
+tok = AutoTokenizer.<span class="func">from_pretrained</span>(ck)
+m   = AutoModelForTokenClassification.<span class="func">from_pretrained</span>(ck)
+ner = <span class="func">pipeline</span>(<span class="str">"ner"</span>, model=m, tokenizer=tok, aggregation_strategy=<span class="str">"simple"</span>)
+note = <span class="str">"55-yo male with type 2 diabetes presents with chest pain, on metformin 500 mg BID."</span>
+<span class="kw">for</span> e <span class="kw">in</span> <span class="func">ner</span>(note):
+    <span class="func">print</span>(e[<span class="str">"entity_group"</span>], e[<span class="str">"word"</span>], <span class="func">round</span>(e[<span class="str">"score"</span>],<span class="num">3</span>))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate); transformers &lt;- <span class="func">import</span>(<span class="str">"transformers"</span>)
+ck  &lt;- <span class="str">"alvaroalon2/biobert_diseases_ner"</span>
+tok &lt;- transformers$AutoTokenizer$<span class="func">from_pretrained</span>(ck)
+m   &lt;- transformers$AutoModelForTokenClassification$<span class="func">from_pretrained</span>(ck)
+ner &lt;- transformers$<span class="func">pipeline</span>(<span class="str">"ner"</span>, model=m, tokenizer=tok,
+                            aggregation_strategy=<span class="str">"simple"</span>)
+note &lt;- <span class="str">"55-yo male with type 2 diabetes presents with chest pain, on metformin 500 mg BID."</span>
+<span class="func">print</span>(<span class="func">ner</span>(note))</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="部署要點" data-en="DEPLOYMENT">部署要點</div>
+<h2 data-zh="把 LLM 放進醫院的 6 條原則" data-en="6 rules for LLMs in hospitals">把 LLM 放進醫院的 6 條原則</h2>
+<ol>
+<li data-lang="zh"><strong>不直接生成臨床決定</strong>：LLM 草擬，臨床醫師簽署。</li>
+<li data-lang="en"><strong>No autonomous decisions</strong>: LLM drafts; clinician signs.</li>
+<li data-lang="zh"><strong>RAG 接知識庫</strong>：UpToDate、ICD、藥典都接外部 retrieval（見 Ch16）。</li>
+<li data-lang="en"><strong>Connect via RAG</strong>: UpToDate, ICD, formulary via retrieval (Ch16).</li>
+<li data-lang="zh"><strong>本地 / 私有雲部署</strong>：MedGemma / MEDITRON 開源權重可上 NVIDIA NIM、vLLM。</li>
+<li data-lang="en"><strong>On-prem / private cloud</strong>: open weights (MedGemma, MEDITRON) on NVIDIA NIM, vLLM.</li>
+<li data-lang="zh"><strong>幻覺監控</strong>：對輸出做 self-check 與 retrieval-grounded 比對。</li>
+<li data-lang="en"><strong>Hallucination monitoring</strong>: self-check &amp; grounded comparison.</li>
+<li data-lang="zh"><strong>子族表現審核</strong>：定期檢查跨族裔、性別、年齡層 AUC（見 Ch04 / Ch17）。</li>
+<li data-lang="en"><strong>Subgroup audit</strong>: monitor AUC across race/gender/age (Ch04/Ch17).</li>
+<li data-lang="zh"><strong>差分隱私 / 聯邦學習</strong>：訓練端不暴露 PHI。</li>
+<li data-lang="en"><strong>DP / FL</strong>: keep PHI off the training side.</li>
+</ol>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 目前在 USMLE MedQA 拿到最高分的模型是？</p>
+<p data-lang="en">1. The model with the highest MedQA (USMLE) score is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. BioBERT</div>
+<div class="quiz-opt" data-correct="0">B. ClinicalBERT</div>
+<div class="quiz-opt" data-correct="0">C. Med-PaLM 2</div>
+<div class="quiz-opt" data-correct="1">D. Med-Gemini-L 1.0 (91.1%)</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>D 正解。</strong>Nature Medicine 2024 報告。</span><span data-lang="en"><strong>D.</strong> Nature Medicine 2024.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 2024 MIMIC-CDM 研究的核心警示是？</p>
+<p data-lang="en">2. The 2024 MIMIC-CDM warning is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 高 MedQA 分數的 LLM 在實際臨床仍系統性犯錯</span><span data-lang="en">A. High-MedQA LLMs still make systematic errors in real clinical decisions</span></div>
+<div class="quiz-opt" data-correct="0">B. LLM 完全不能用</div>
+<div class="quiz-opt" data-correct="0">C. MIMIC 不再可用</div>
+<div class="quiz-opt" data-correct="0">D. RLHF 沒效</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>考試 ≠ 臨床。</span><span data-lang="en"><strong>A.</strong> Exams ≠ clinic.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 臨床 NLP 為什麼必須處理「否定」？</p>
+<p data-lang="en">3. Why must clinical NLP handle negation?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 文法美觀</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. "no fever" 跟 "fever" 的臨床意涵完全相反</span><span data-lang="en">B. "no fever" and "fever" mean opposite clinical things</span></div>
+<div class="quiz-opt" data-correct="0">C. 加快推論</div>
+<div class="quiz-opt" data-correct="0">D. 法規要求</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>否定錯誤是臨床 NLP 最嚴重的 false call 來源。</span><span data-lang="en"><strong>B.</strong> Negation errors are the worst false-call source in clinical NLP.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch12-ai-drug-discovery.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="AI 藥物發現" data-en="AI Drug Discovery">AI 藥物發現</span></a>
+<a href="ch14-survival-prediction.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="臨床預測與生存分析" data-en="Clinical Prediction &amp; Survival">臨床預測與生存分析</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 13</footer>
+<script src="i18n.js"></script>
+</body></html>

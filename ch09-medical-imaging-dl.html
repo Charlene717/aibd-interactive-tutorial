@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch09 · 醫療影像深度學習</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html" class="active">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK C · CHAPTER 09 / 20</div>
+  <h1 data-zh="醫療影像深度學習" data-en="Medical Imaging Deep Learning">醫療影像深度學習</h1>
+  <p class="subtitle" data-lang="zh">U-Net 開啟、nnU-Net 工業化、MedSAM 走向 Foundation——醫療影像 AI 的完整工具箱。</p>
+  <p class="subtitle" data-lang="en">From U-Net's birth to nnU-Net's industrialization to MedSAM's foundation era — the full toolbox.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="任務地景" data-en="TASK LANDSCAPE">任務地景</div>
+<h2 data-zh="醫療影像四大任務" data-en="The four task families">醫療影像四大任務</h2>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="① 分類 / 偵測 (Classification / Detection)" data-en="① Classification / Detection">① 分類 / 偵測</h4>
+<div data-lang="zh"><p>整張影像 → 標籤（如 CheXpert 14 類胸 X 光、糖尿病視網膜病變）。模型常用 ResNet / ConvNeXt / ViT。</p></div>
+<div data-lang="en"><p>Image → label (CheXpert 14-class chest X-ray, diabetic retinopathy). Models: ResNet / ConvNeXt / ViT.</p></div></div>
+<div class="card"><div class="card-icon">✂️</div><h4 data-zh="② 分割 (Segmentation)" data-en="② Segmentation">② 分割</h4>
+<div data-lang="zh"><p>每個 voxel/pixel → 類別（腫瘤、器官、病灶）。U-Net / nnU-Net 是黃金骨幹；3D 應用以 MONAI 為主流框架。</p></div>
+<div data-lang="en"><p>Voxel/pixel → class (tumor, organ, lesion). U-Net / nnU-Net are gold-standard backbones; MONAI is the mainstream 3D framework.</p></div></div>
+<div class="card"><div class="card-icon">📏</div><h4 data-zh="③ 配準 (Registration)" data-en="③ Registration">③ 配準</h4>
+<div data-lang="zh"><p>把不同時間 / 模態的影像對齊。VoxelMorph、TransMorph，2024 起常與分割聯合訓練。</p></div>
+<div data-lang="en"><p>Align images across time/modality. VoxelMorph, TransMorph — since 2024 often jointly trained with segmentation.</p></div></div>
+<div class="card"><div class="card-icon">🎨</div><h4 data-zh="④ 生成 / 重建 (Generation)" data-en="④ Generation / Reconstruction">④ 生成 / 重建</h4>
+<div data-lang="zh"><p>低劑量 CT 重建、MR 加速、跨模態合成（MRI→CT）。Diffusion / GAN / INR。Med-Diff、RoentGen 是熱門。</p></div>
+<div data-lang="en"><p>Low-dose CT reconstruction, MR acceleration, cross-modal synthesis (MRI→CT). Diffusion / GAN / INR. Med-Diff, RoentGen are popular.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="兩大支柱" data-en="TWO PILLARS">兩大支柱</div>
+<h2 data-zh="nnU-Net 與 MedSAM" data-en="nnU-Net & MedSAM">nnU-Net 與 MedSAM：今天的雙引擎</h2>
+<table class="comp-table"><thead><tr><th></th><th>nnU-Net (v2)</th><th>MedSAM / SAM-Med</th></tr></thead><tbody>
+<tr><td data-zh="出身" data-en="Origin">出身</td><td>DKFZ 2018, revised 2024</td><td>SAM (Meta) → Med 領域延伸</td></tr>
+<tr><td data-zh="核心想法" data-en="Core idea">核心想法</td><td data-zh="self-configuring：把超參數選擇自動化" data-en="Self-configuring: automate hyperparameter choices">self-configuring 自動超參數</td><td data-zh="prompt-based 分割 foundation：點 / 框 / 文字" data-en="Prompt-based segmentation foundation: point / box / text">prompt-based 分割</td></tr>
+<tr><td data-zh="訓練資料" data-en="Training">訓練資料</td><td data-zh="任務專屬資料集 (Decathlon、KiTS、…)" data-en="Task-specific (Decathlon, KiTS, …)">任務專屬</td><td data-zh="MedSAM 1.57M image-mask 對；SAM-Med 多模態" data-en="MedSAM 1.57M pairs; SAM-Med multi-modal">MedSAM 1.57M 影像-遮罩對</td></tr>
+<tr><td data-zh="優勢" data-en="Strengths">優勢</td><td data-zh="開箱即用、各 challenge top；2024 nnU-Net Revisited 顯示仍是 SOTA recipe" data-en="Out-of-the-box; tops most challenges; 'nnU-Net Revisited' 2024 confirms it">開箱即用</td><td data-zh="少樣本 / 零樣本，跨任務泛化；可與 nnU-Net 串成 nnSAM" data-en="Few-shot / zero-shot, cross-task generalization; nnSAM combines both">少樣本 / 零樣本</td></tr>
+<tr><td data-zh="不適合" data-en="Not for">不適合</td><td data-zh="需 high-throughput inference 的線上應用" data-en="High-throughput online inference">高速線上推論</td><td data-zh="完全 unattended、無人 prompt 的全自動分割" data-en="Fully unattended automatic segmentation">無人 prompt 場景</td></tr>
+</tbody></table>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>2024 nnU-Net Revisited (Isensee et al., arXiv 2404.09556) 重點：</strong>CNN-based U-Net + nnU-Net 自動配置 + 用足夠的算力，仍是 3D 醫療影像分割的最強配方。<em>不是所有問題都需要 Transformer。</em></span>
+<span data-lang="en"><strong>Key from 'nnU-Net Revisited' (Isensee et al., 2024):</strong> CNN-based U-Net + nnU-Net auto-config + adequate compute remains the strongest recipe for 3D medical image segmentation. <em>Not every problem needs a Transformer.</em></span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="模型動物園" data-en="MODEL ZOO">模型動物園</div>
+<h2 data-zh="按任務挑模型" data-en="Pick by task">按任務挑模型</h2>
+<div class="decision-tree">
+<h4 data-zh="目標是什麼？" data-en="What's your goal?">目標是什麼？</h4>
+<div class="dt-node"><span class="dt-q">3D 器官分割</span><span class="dt-arrow">→</span><span data-lang="zh"><strong>nnU-Net v2 + MONAI</strong>；超大資料用 Swin UNETR。</span><span data-lang="en"><strong>nnU-Net v2 + MONAI</strong>; Swin UNETR for huge data.</span></div>
+<div class="dt-node"><span class="dt-q">少樣本</span><span class="dt-arrow">→</span><span data-lang="zh"><strong>MedSAM / nnSAM</strong>，5-50 標記即可起步。</span><span data-lang="en"><strong>MedSAM / nnSAM</strong>, starts at 5-50 labels.</span></div>
+<div class="dt-node"><span class="dt-q">放射影像分類</span><span class="dt-arrow">→</span><span data-lang="zh">DenseNet-121 / RadImageNet 預訓 ViT。</span><span data-lang="en">DenseNet-121 / RadImageNet pretrained ViT.</span></div>
+<div class="dt-node"><span class="dt-q">病灶偵測</span><span class="dt-arrow">→</span><span data-lang="zh">DETR / RetinaNet；眼底 / 乳房有專用模型（EyePACS、RSNA）。</span><span data-lang="en">DETR / RetinaNet; retina / breast have dedicated models (EyePACS, RSNA).</span></div>
+<div class="dt-node"><span class="dt-q">報告生成</span><span class="dt-arrow">→</span><span data-lang="zh">RoentGen / Med-Gemini 多模態（見 Ch15）。</span><span data-lang="en">RoentGen / Med-Gemini multimodal (Ch15).</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="用 MONAI 跑 nnU-Net 風格的 3D 分割" data-en="3D segmentation with MONAI in nnU-Net style">用 MONAI 跑 nnU-Net 風格的 3D 分割</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">from</span> monai.networks.nets <span class="kw">import</span> UNet
+<span class="kw">from</span> monai.losses <span class="kw">import</span> DiceCELoss
+<span class="kw">from</span> monai.metrics <span class="kw">import</span> DiceMetric
+<span class="kw">import</span> torch
+m = <span class="func">UNet</span>(spatial_dims=<span class="num">3</span>, in_channels=<span class="num">1</span>, out_channels=<span class="num">3</span>,
+         channels=(<span class="num">32</span>,<span class="num">64</span>,<span class="num">128</span>,<span class="num">256</span>,<span class="num">512</span>),
+         strides=(<span class="num">2</span>,<span class="num">2</span>,<span class="num">2</span>,<span class="num">2</span>),
+         num_res_units=<span class="num">2</span>, norm=<span class="str">"BATCH"</span>).<span class="func">cuda</span>()
+loss = <span class="func">DiceCELoss</span>(to_onehot_y=<span class="kw">True</span>, softmax=<span class="kw">True</span>)
+opt = torch.optim.<span class="func">AdamW</span>(m.<span class="func">parameters</span>(), lr=<span class="num">2e-4</span>)
+<span class="comment"># DataLoader 用 monai.data CacheDataset + transforms 處理 NIfTI</span>
+<span class="kw">for</span> ep <span class="kw">in</span> <span class="func">range</span>(<span class="num">200</span>):
+    <span class="kw">for</span> batch <span class="kw">in</span> train_loader:
+        x = batch[<span class="str">"image"</span>].<span class="func">cuda</span>(); y = batch[<span class="str">"label"</span>].<span class="func">cuda</span>()
+        opt.<span class="func">zero_grad</span>(); l = <span class="func">loss</span>(<span class="func">m</span>(x), y)
+        l.<span class="func">backward</span>(); opt.<span class="func">step</span>()</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="comment"># 透過 reticulate 從 R 呼叫 MONAI（R 端常見做法）</span>
+<span class="kw">library</span>(reticulate)
+monai &lt;- <span class="func">import</span>(<span class="str">"monai"</span>); torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>)
+m &lt;- monai$networks$nets$<span class="func">UNet</span>(spatial_dims=<span class="num">3</span>L,
+       in_channels=<span class="num">1</span>L, out_channels=<span class="num">3</span>L,
+       channels=<span class="func">c</span>(<span class="num">32</span>L,<span class="num">64</span>L,<span class="num">128</span>L,<span class="num">256</span>L,<span class="num">512</span>L),
+       strides=<span class="func">c</span>(<span class="num">2</span>L,<span class="num">2</span>L,<span class="num">2</span>L,<span class="num">2</span>L),
+       num_res_units=<span class="num">2</span>L, norm=<span class="str">"BATCH"</span>)$<span class="func">cuda</span>()
+loss &lt;- monai$losses$<span class="func">DiceCELoss</span>(to_onehot_y=<span class="kw">TRUE</span>, softmax=<span class="kw">TRUE</span>)
+opt  &lt;- torch$optim$<span class="func">AdamW</span>(m$<span class="func">parameters</span>(), lr=<span class="num">2e-4</span>)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="陷阱" data-en="PITFALLS">陷阱</div>
+<h2 data-zh="醫療影像 8 大常見陷阱" data-en="8 common pitfalls">8 大常見陷阱</h2>
+<ol>
+<li data-lang="zh"><strong>DICOM 隱資訊洩漏</strong>：scanner ID、protocol、機構等成「捷徑特徵」，造成跨機構表現崩潰。</li>
+<li data-lang="en"><strong>DICOM metadata leakage</strong>: scanner ID, protocol, institution as shortcut features → cross-institution performance collapse.</li>
+<li data-lang="zh"><strong>Spacing / orientation 未統一</strong>：3D 重採樣到固定 voxel spacing 是基本動作。</li>
+<li data-lang="en"><strong>Inconsistent spacing/orientation</strong>: resample 3D to fixed voxel spacing — must.</li>
+<li data-lang="zh"><strong>Class imbalance</strong>：罕見器官 / 病灶 1% 也常見，需 Dice + Focal + 加權取樣。</li>
+<li data-lang="en"><strong>Class imbalance</strong>: rare organs/lesions ~1% — use Dice + Focal + weighted sampling.</li>
+<li data-lang="zh"><strong>Test-time augmentation</strong>：TTA 通常加 0.5–2 個 Dice，很值得。</li>
+<li data-lang="en"><strong>Test-time augmentation</strong>: TTA usually adds 0.5–2 Dice points.</li>
+<li data-lang="zh"><strong>Mask 標註不一致</strong>：多 annotator 重疊區可用 SoftDice / 多標籤合併。</li>
+<li data-lang="en"><strong>Inconsistent masks</strong>: multi-annotator overlap → SoftDice or merge.</li>
+<li data-lang="zh"><strong>Domain shift</strong>：CT vs MRI 跨模、不同醫院。Test-time adaptation 與 federated learning（Ch19）救命。</li>
+<li data-lang="en"><strong>Domain shift</strong>: CT vs MRI, different hospitals. TTA &amp; federated learning (Ch19) help.</li>
+<li data-lang="zh"><strong>Hidden labels via reports</strong>：直接從 radiology report 抽取「弱標籤」要當心 noise。</li>
+<li data-lang="en"><strong>Weak labels from reports</strong>: noisy supervision — handle with care.</li>
+<li data-lang="zh"><strong>Reproducibility</strong>：固定種子、版本化 DICOM、log 環境，否則 cross-center 重現極難。</li>
+<li data-lang="en"><strong>Reproducibility</strong>: fix seeds, version DICOM, log env — cross-center reproducibility is otherwise unrealistic.</li>
+</ol>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 「nnU-Net Revisited (2024)」最主要的結論是？</p>
+<p data-lang="en">1. The main conclusion of "nnU-Net Revisited (2024)" is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. CNN-based U-Net + nnU-Net 自動配置 + 適當算力，仍是 3D 分割 SOTA recipe</span><span data-lang="en">A. CNN U-Net + nnU-Net auto-config + adequate compute remains the SOTA 3D recipe</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. Transformer 在所有 3D 任務都贏過 CNN</span><span data-lang="en">B. Transformers beat CNNs on all 3D tasks</span></div>
+<div class="quiz-opt" data-correct="0">C. nnU-Net 已被淘汰</div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 影像 AI 應停止用 CNN</span><span data-lang="en">D. Imaging AI should stop using CNNs</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>看似舊式的 CNN+nnU-Net 仍是工業最強配方。</span><span data-lang="en"><strong>A.</strong> Old-school CNN+nnU-Net is still the strongest recipe in practice.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. MedSAM 與 nnU-Net 相比的核心優勢？</p>
+<p data-lang="en">2. MedSAM's core advantage over nnU-Net?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 完全 unattended 全自動</span><span data-lang="en">A. Fully unattended automatic</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 少樣本 / 零樣本 + prompt-based 通用性</span><span data-lang="en">B. Few/zero-shot + prompt-based universality</span></div>
+<div class="quiz-opt" data-correct="0">C. 計算最快</div>
+<div class="quiz-opt" data-correct="0">D. Dice 永遠最高</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>MedSAM 是 Foundation Model，配 prompt 才靈活。</span><span data-lang="en"><strong>B.</strong> MedSAM is a foundation model — prompts give it flexibility.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 為什麼要在訓練前 resample voxel spacing？</p>
+<p data-lang="en">3. Why resample voxel spacing before training?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 確保模型學到的是「生物尺度」而不是「scanner 解析度」</span><span data-lang="en">A. So the model learns biological scale, not scanner resolution</span></div>
+<div class="quiz-opt" data-correct="0">B. 加快 PyTorch 啟動</div>
+<div class="quiz-opt" data-correct="0">C. 減少 GPU 記憶體</div>
+<div class="quiz-opt" data-correct="0">D. 必要的 HIPAA 規定</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>不同 scanner 解析度差異是最常見的 domain shift 來源。</span><span data-lang="en"><strong>A.</strong> Scanner-resolution differences are the most common domain shift source.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch08-variant-interpretation.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="變異解讀與罕病診斷" data-en="Variant Interpretation &amp; Rare Disease">變異解讀與罕病診斷</span></a>
+<a href="ch10-digital-pathology.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="數位病理與全玻片影像" data-en="Digital Pathology &amp; WSI">數位病理與全玻片影像</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 09</footer>
+<script src="i18n.js"></script>
+</body></html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch07 · 多體學整合與空間組</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html" class="active">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK B · CHAPTER 07 / 20</div>
+  <h1 data-zh="多體學整合與空間組" data-en="Multi-omics & Spatial Integration">多體學整合與空間組</h1>
+  <p class="subtitle" data-lang="zh">RNA + ATAC + 蛋白 + 空間位置——一個細胞的「全相」要怎麼用一個模型同時看？</p>
+  <p class="subtitle" data-lang="en">RNA + ATAC + protein + spatial coordinates — how to view a cell's full picture through one model?</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="為何整合" data-en="WHY INTEGRATE">為何整合</h2>
+<h2 data-zh="一個細胞有多重身分" data-en="A cell wears many hats">一個細胞有多重身分</h2>
+<div data-lang="zh">
+<p>RNA 表現只告訴你「正在轉錄什麼」；ATAC 告訴你「染色質開放在哪裡」；CITE-seq 告訴你「細胞表面有什麼蛋白」；空間轉錄組告訴你「細胞跟誰當鄰居」。<strong>多體學整合的目標不是把訊號堆疊，而是學一個共同的潛在空間</strong>，讓不同模態互相校正、互相補位。</p>
+<p>2024 起，scverse 生態（scvi-tools / Squidpy / SpatialData）讓多模態工作流終於有一致的資料容器與 API。</p>
+</div>
+<div data-lang="en">
+<p>RNA tells you "what's being transcribed"; ATAC tells you "which chromatin is open"; CITE-seq tells you "surface proteins"; spatial transcriptomics tells you "who lives next to whom." The goal of multi-omics integration is <strong>not stacking signals but learning a shared latent space</strong> where modalities calibrate and complement each other.</p>
+<p>Since 2024, the scverse ecosystem (scvi-tools / Squidpy / SpatialData) finally offers consistent containers and APIs for multi-modal workflows.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="主流方法" data-en="LEADING METHODS">主流方法</div>
+<h2 data-zh="六種整合方法的位置" data-en="Six methods on the map">六種整合方法</h2>
+<table class="comp-table"><thead><tr><th data-zh="方法" data-en="Method">方法</th><th data-zh="範式" data-en="Paradigm">範式</th><th data-zh="模態" data-en="Modalities">模態</th><th data-zh="重點" data-en="Highlight">重點</th></tr></thead><tbody>
+<tr><td><strong>MOFA+</strong> (GB 2020)</td><td data-zh="變分因子分解" data-en="Variational factor analysis">變分因子分解</td><td>RNA / ATAC / Protein / Methyl</td><td data-zh="可解釋因子；MEFISTO 加入時空" data-en="Interpretable factors; MEFISTO adds spatial-temporal">可解釋因子，MEFISTO 擴展到時空</td></tr>
+<tr><td><strong>totalVI</strong> (2021)</td><td data-zh="VAE，RNA + 蛋白" data-en="VAE for RNA + protein">VAE</td><td>CITE-seq (RNA + ADT)</td><td data-zh="2024 benchmark 仍是 CITE-seq 冠軍" data-en="Still top on CITE-seq in 2024 benchmark">CITE-seq 冠軍</td></tr>
+<tr><td><strong>MultiVI</strong> (2023)</td><td>VAE</td><td>RNA + ATAC ± Protein</td><td data-zh="缺模態樣本也能整合" data-en="Handles missing modalities">處理缺模態</td></tr>
+<tr><td><strong>scMM / Seurat v5 WNN</strong></td><td data-zh="圖加權鄰居" data-en="Weighted neighbor graph">圖加權</td><td data-zh="任意 + ATAC" data-en="Any + ATAC">任意</td><td data-zh="Seurat 內建、好接生態" data-en="Built into Seurat ecosystem">Seurat 內建</td></tr>
+<tr><td><strong>SpatialGlue</strong> (Nat Methods 2024)</td><td>GNN + dual-attention</td><td data-zh="空間 multi-omics" data-en="Spatial multi-omics">空間 multi-omics</td><td data-zh="同時整合空間 + 多模態 SOTA" data-en="SOTA on spatial × multi-modal">空間 × 多模 SOTA</td></tr>
+<tr><td><strong>SCIMITAR / SIMBA / CellFM</strong></td><td data-zh="Transformer FM" data-en="Transformer FM">Transformer FM</td><td data-zh="跨模態零樣本" data-en="Cross-modal zero-shot">跨模態零樣本</td><td data-zh="可推到未見資料" data-en="Generalizes to unseen data">推廣到未見資料</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="空間組" data-en="SPATIAL OMICS">空間組</div>
+<h2 data-zh="空間轉錄組三個世代與分析重點" data-en="Three generations of spatial transcriptomics">空間轉錄組三個世代與分析重點</h2>
+<div class="card-grid cols-3">
+<div class="card"><h4>10x Visium / Stereo-seq</h4>
+<div data-lang="zh"><p><strong>第一代</strong>，spot 等級（~50 µm）；分析重點：deconvolution（cell2location、STdeconvolve）。</p></div>
+<div data-lang="en"><p><strong>Gen 1</strong>, spot-level (~50 µm); analysis: deconvolution (cell2location, STdeconvolve).</p></div></div>
+<div class="card"><h4>Visium HD / Slide-seq v2</h4>
+<div data-lang="zh"><p><strong>第二代</strong>，亞細胞至單細胞解析度；分析：Bayes / GNN spatial clustering（BayesSpace、SpaGCN）。</p></div>
+<div data-lang="en"><p><strong>Gen 2</strong>, sub-cellular to single-cell; analysis: Bayes / GNN spatial clustering (BayesSpace, SpaGCN).</p></div></div>
+<div class="card"><h4>MERFISH / CosMx / Xenium</h4>
+<div data-lang="zh"><p><strong>第三代</strong>，單分子原位定量；分析：細胞通訊（NCEM、COMMOT）、組織建模（Squidpy）。</p></div>
+<div data-lang="en"><p><strong>Gen 3</strong>, single-molecule in situ; analysis: cell-cell communication (NCEM, COMMOT), tissue modeling (Squidpy).</p></div></div>
+</div>
+<div class="callout bio"><span class="callout-icon">🧬</span><div>
+<span data-lang="zh"><strong>SpatialData 容器：</strong>2024 起 scverse 推 SpatialData，一個 OME-Zarr 為基底的多模態空間容器，可同時放 images、shapes、tables、points——終於統一了 spatial 工作流的「資料怎麼擺」。</span>
+<span data-lang="en"><strong>SpatialData container:</strong> Since 2024, scverse's SpatialData (OME-Zarr based) holds images, shapes, tables, points together — finally unifying how spatial workflows store data.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="totalVI 整合 CITE-seq" data-en="totalVI integration on CITE-seq">totalVI 整合 CITE-seq</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> scvi, scanpy <span class="kw">as</span> sc
+adata = sc.<span class="func">read_h5ad</span>(<span class="str">"citeseq.h5ad"</span>)
+<span class="comment"># adata.obsm['protein_expression'] holds ADT counts</span>
+scvi.model.TOTALVI.<span class="func">setup_anndata</span>(adata,
+    protein_expression_obsm_key=<span class="str">"protein_expression"</span>,
+    batch_key=<span class="str">"batch"</span>)
+m = scvi.model.<span class="func">TOTALVI</span>(adata, latent_distribution=<span class="str">"normal"</span>)
+m.<span class="func">train</span>(max_epochs=<span class="num">400</span>)
+adata.obsm[<span class="str">"X_totalVI"</span>] = m.<span class="func">get_latent_representation</span>()
+adata.obsm[<span class="str">"denoised_protein"</span>] = m.<span class="func">get_normalized_expression</span>()[<span class="num">1</span>]</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate); <span class="kw">library</span>(zellkonverter)
+scvi &lt;- <span class="func">import</span>(<span class="str">"scvi"</span>); sc &lt;- <span class="func">import</span>(<span class="str">"scanpy"</span>)
+adata &lt;- sc$<span class="func">read_h5ad</span>(<span class="str">"citeseq.h5ad"</span>)
+scvi$model$TOTALVI$<span class="func">setup_anndata</span>(adata,
+    protein_expression_obsm_key=<span class="str">"protein_expression"</span>,
+    batch_key=<span class="str">"batch"</span>)
+m &lt;- scvi$model$<span class="func">TOTALVI</span>(adata)
+m$<span class="func">train</span>(max_epochs=<span class="num">400</span>L)
+adata$obsm$update(<span class="func">list</span>(X_totalVI=m$<span class="func">get_latent_representation</span>()))</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策樹" data-en="DECISION TREE">決策樹</div>
+<h2 data-zh="該選哪個整合方法？" data-en="Pick your integration method">該選哪個整合方法？</h2>
+<div class="decision-tree">
+<h4 data-zh="你的資料是？" data-en="Your data is?">你的資料是？</h4>
+<div class="dt-node"><span class="dt-q">RNA + ATAC</span><span class="dt-arrow">→</span><span data-lang="zh">MultiVI（缺模態樣本）；GLUE / Pamona（無配對）。</span><span data-lang="en">MultiVI (missing modality), GLUE / Pamona (unpaired).</span></div>
+<div class="dt-node"><span class="dt-q">CITE-seq</span><span class="dt-arrow">→</span><span data-lang="zh">totalVI；經典分析 Seurat WNN。</span><span data-lang="en">totalVI; classic Seurat WNN.</span></div>
+<div class="dt-node"><span class="dt-q">空間</span><span class="dt-arrow">→</span><span data-lang="zh">SpatialGlue（多模空間 SOTA）；STAGATE / SpaGCN（純空間）。</span><span data-lang="en">SpatialGlue (multi-modal spatial SOTA); STAGATE / SpaGCN (pure spatial).</span></div>
+<div class="dt-node"><span class="dt-q">想可解釋因子</span><span class="dt-arrow">→</span><span data-lang="zh">MOFA+ / MEFISTO。</span><span data-lang="en">MOFA+ / MEFISTO.</span></div>
+<div class="dt-node"><span class="dt-q">跨模零樣本</span><span class="dt-arrow">→</span><span data-lang="zh">CellFM / SCIMITAR。</span><span data-lang="en">CellFM / SCIMITAR.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. MOFA+ 最大的優點是？</p>
+<p data-lang="en">1. The biggest advantage of MOFA+ is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 跑得最快</span><span data-lang="en">A. The fastest</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 因子可解釋、可關聯臨床變項</span><span data-lang="en">B. Interpretable factors that can be linked to clinical variables</span></div>
+<div class="quiz-opt" data-correct="0">C. 完全免微調</div>
+<div class="quiz-opt" data-correct="0">D. 不需要安裝</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>MOFA+ 的稀疏因子常能直接對應到生物學意義。</span><span data-lang="en"><strong>B.</strong> MOFA+'s sparse factors often map to biological meaning.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. SpatialGlue 的核心技術是？</p>
+<p data-lang="en">2. SpatialGlue's core technique is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. PCA</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. GNN + 雙重注意力（空間 × 模態）</span><span data-lang="en">B. GNN + dual attention (spatial × modality)</span></div>
+<div class="quiz-opt" data-correct="0">C. Random forest</div>
+<div class="quiz-opt" data-correct="0">D. UMAP</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>Nature Methods 2024：dual-attention 同時整合空間 + 模態。</span><span data-lang="en"><strong>B.</strong> Nature Methods 2024: dual attention integrates spatial + modality.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 對 CITE-seq 的 RNA + ADT 整合，2024 benchmark 表現最好的方法是？</p>
+<p data-lang="en">3. The best method for CITE-seq RNA+ADT integration (2024 benchmark)?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. Harmony</div>
+<div class="quiz-opt" data-correct="1">B. totalVI</div>
+<div class="quiz-opt" data-correct="0">C. PCA</div>
+<div class="quiz-opt" data-correct="0">D. ComBat</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>totalVI 是 CITE-seq 專為設計，至今仍 top。</span><span data-lang="en"><strong>B.</strong> totalVI was purpose-built for CITE-seq and still leads.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch06-single-cell-foundation.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="單細胞 Foundation Models" data-en="Single-cell Foundation Models">單細胞 Foundation Models</span></a>
+<a href="ch08-variant-interpretation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="變異解讀與罕病診斷" data-en="Variant Interpretation &amp; Rare Disease">變異解讀與罕病診斷</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 07</footer>
+<script src="i18n.js"></script>
+</body></html>

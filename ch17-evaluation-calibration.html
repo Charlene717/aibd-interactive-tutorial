@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch17 · 模型評估、校準與公平性</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html" class="active">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK E · CHAPTER 17 / 20</div>
+  <h1 data-zh="模型評估、校準與公平性" data-en="Evaluation, Calibration & Fairness">模型評估、校準與公平性</h1>
+  <p class="subtitle" data-lang="zh">AUC 高 ≠ 臨床有用——TRIPOD-AI 2024 規範要求的所有指標一次看完。</p>
+  <p class="subtitle" data-lang="en">High AUC ≠ clinically useful — all metrics required by TRIPOD-AI 2024, in one place.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="三層級評估" data-en="THREE LAYERS">三層級評估</div>
+<h2 data-zh="生醫 AI 評估的三層級" data-en="Three layers of evaluation">三層級評估</h2>
+<div class="card-grid cols-3">
+<div class="card"><h4>① <span data-zh="區分能力 (Discrimination)" data-en="Discrimination">區分能力</span></h4>
+<div data-lang="zh"><p>能不能分出正/負？AUROC、AUPRC、F1、敏感度/特異度。罕病 / 不平衡更看 AUPRC。</p></div>
+<div data-lang="en"><p>Can it separate positive vs negative? AUROC, AUPRC, F1, sensitivity/specificity. Rare/imbalanced → emphasize AUPRC.</p></div></div>
+<div class="card"><h4>② <span data-zh="校準 (Calibration)" data-en="Calibration">校準</span></h4>
+<div data-lang="zh"><p>「預測機率 = 真實機率」嗎？Brier、Reliability Diagram、Hosmer-Lemeshow、ECE。</p></div>
+<div data-lang="en"><p>Does predicted probability = true probability? Brier, reliability diagram, Hosmer-Lemeshow, ECE.</p></div></div>
+<div class="card"><h4>③ <span data-zh="臨床效益 (Clinical Utility)" data-en="Clinical utility">臨床效益</span></h4>
+<div data-lang="zh"><p>用了真的有幫助嗎？Decision Curve Analysis、Number Needed to Screen、Cost-Effectiveness。</p></div>
+<div data-lang="en"><p>Does it really help? Decision curve analysis, NNS, cost-effectiveness.</p></div></div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>核心警示：</strong>區分能力可以「藉懲罰罕例」拉高 AUC，但實際 threshold 下臨床淨效益可能為零或負——這就是為什麼 <em>三層級都要報</em>。</span>
+<span data-lang="en"><strong>Critical warning:</strong> Discrimination can be inflated at rare-class cost; net clinical benefit at usable thresholds may be zero or negative — that's why <em>all three layers must be reported</em>.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="TRIPOD-AI 2024" data-en="TRIPOD-AI 2024">TRIPOD-AI 2024</div>
+<h2 data-zh="2024 TRIPOD-AI 的 27 項要點精選" data-en="Highlights of the 27 TRIPOD-AI 2024 items">TRIPOD-AI 2024 要點</h2>
+<table class="comp-table"><thead><tr><th data-zh="主題" data-en="Topic">主題</th><th data-zh="必報項目" data-en="Must report">必報項目</th></tr></thead><tbody>
+<tr><td data-zh="研究目的與設計" data-en="Aim &amp; design">研究目的與設計</td><td data-zh="人口、結果、預期用途、開發/驗證/影響評估階段" data-en="Population, outcome, intended use, dev/val/impact stage">人口、結果、預期用途、階段</td></tr>
+<tr><td data-zh="資料來源" data-en="Data source">資料來源</td><td data-zh="連結方式、缺值、選擇偏差、隱私處理" data-en="Linkage, missing, selection bias, privacy">連結、缺值、選擇偏差</td></tr>
+<tr><td data-zh="模型開發" data-en="Model development">模型開發</td><td data-zh="特徵工程、超參、隨機種子、計算環境" data-en="Feature engineering, hyperparams, seeds, compute env">特徵、超參、種子、環境</td></tr>
+<tr><td data-zh="評估指標" data-en="Metrics">評估指標</td><td data-zh="區分 + 校準 + 臨床效益 三層級" data-en="Discrimination + calibration + clinical utility">三層級全報</td></tr>
+<tr><td data-zh="公平性" data-en="Fairness">公平性</td><td data-zh="子族 AUC + 公平性指標（Ch04）" data-en="Subgroup AUC + fairness metrics (Ch04)">子族 AUC + Demographic Parity 等</td></tr>
+<tr><td data-zh="外部驗證" data-en="External validation">外部驗證</td><td data-zh="跨機構 / 跨時間 / 跨族裔" data-en="Cross-institution / time / ancestry">跨機構、跨時間、跨族裔</td></tr>
+<tr><td data-zh="模型卡 / 資料卡" data-en="Model / data card">模型卡 / 資料卡</td><td data-zh="預期用途、限制、訓練資料概述" data-en="Intended use, limits, training data summary">用途、限制、訓練資料</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="校準" data-en="CALIBRATION">校準</div>
+<h2 data-zh="校準錯了會怎樣？" data-en="What happens with miscalibration?">校準錯了會怎樣？</h2>
+<div data-lang="zh">
+<p>校準錯誤對臨床致命：若模型說「死亡風險 30%」但真實只有 5%，醫師基於這個過高估計可能採取激進治療，反而傷害病人。常見修正方法：</p>
+<ul>
+<li data-lang="zh"><strong>Platt scaling</strong>：logit 的 logistic 回歸校準。</li>
+<li data-lang="en"><strong>Platt scaling</strong>: logistic regression on logits.</li>
+<li data-lang="zh"><strong>Isotonic regression</strong>：非參數，但需較多資料。</li>
+<li data-lang="en"><strong>Isotonic regression</strong>: non-parametric but data-hungry.</li>
+<li data-lang="zh"><strong>Temperature scaling</strong>：DL 最常用，單一參數 T。</li>
+<li data-lang="en"><strong>Temperature scaling</strong>: most common for DL — single parameter T.</li>
+<li data-lang="zh"><strong>Beta calibration</strong>：對機率邊緣端更穩。</li>
+<li data-lang="en"><strong>Beta calibration</strong>: more robust at probability extremes.</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="校準、AUPRC、子族 AUC、Decision Curve" data-en="Calibration, AUPRC, subgroup AUC, decision curve">完整評估管線</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score, average_precision_score, brier_score_loss
+<span class="kw">from</span> sklearn.calibration <span class="kw">import</span> calibration_curve, CalibratedClassifierCV
+<span class="kw">from</span> fairlearn.metrics <span class="kw">import</span> MetricFrame
+<span class="comment"># 1. Discrimination</span>
+<span class="func">print</span>(<span class="str">"AUROC ="</span>, <span class="func">roc_auc_score</span>(y, p))
+<span class="func">print</span>(<span class="str">"AUPRC ="</span>, <span class="func">average_precision_score</span>(y, p))
+<span class="comment"># 2. Calibration</span>
+<span class="func">print</span>(<span class="str">"Brier ="</span>, <span class="func">brier_score_loss</span>(y, p))
+prob_true, prob_pred = <span class="func">calibration_curve</span>(y, p, n_bins=<span class="num">10</span>)
+<span class="comment"># 3. Subgroup AUC</span>
+mf = <span class="func">MetricFrame</span>(metrics={<span class="str">"AUROC"</span>: roc_auc_score},
+                 y_true=y, y_pred=p, sensitive_features=race)
+<span class="func">print</span>(mf.<span class="func">by_group</span>)
+<span class="comment"># 4. Decision Curve (用 dcurves)</span>
+<span class="kw">from</span> dcurves <span class="kw">import</span> dca
+df = pd.<span class="func">DataFrame</span>({<span class="str">"y"</span>:y, <span class="str">"model"</span>:p, <span class="str">"all"</span>:<span class="num">1</span>, <span class="str">"none"</span>:<span class="num">0</span>})
+<span class="func">dca</span>(data=df, outcome=<span class="str">"y"</span>, modelnames=[<span class="str">"model"</span>], thresholds=np.<span class="func">arange</span>(.01,.5,.01))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(pROC); <span class="kw">library</span>(PRROC); <span class="kw">library</span>(rmda); <span class="kw">library</span>(CalibrationCurves)
+auc &lt;- <span class="func">auc</span>(y, p); auprc &lt;- PRROC::<span class="func">pr.curve</span>(p[y==<span class="num">1</span>], p[y==<span class="num">0</span>])$auc.integral
+<span class="func">cat</span>(<span class="str">"AUROC:"</span>, auc, <span class="str">"AUPRC:"</span>, auprc, <span class="str">"\n"</span>)
+<span class="comment"># Calibration + DCA</span>
+<span class="func">val.prob.ci.2</span>(p, y)
+dca &lt;- rmda::<span class="func">decision_curve</span>(y ~ p, data = df, thresholds = <span class="func">seq</span>(<span class="num">0.01</span>,<span class="num">0.5</span>,<span class="num">0.01</span>))
+rmda::<span class="func">plot_decision_curve</span>(dca)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 為什麼罕病 AI 應同時報 AUPRC？</p>
+<p data-lang="en">1. Why report AUPRC for rare-disease AI?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. AUROC 在嚴重不平衡下會過樂觀</span><span data-lang="en">A. AUROC is optimistic under severe imbalance</span></div>
+<div class="quiz-opt" data-correct="0">B. AUPRC 跑得快</div>
+<div class="quiz-opt" data-correct="0">C. FDA 規定</div>
+<div class="quiz-opt" data-correct="0">D. AUC 已被廢除</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>不平衡情境 AUPRC 更貼近實際 lift。</span><span data-lang="en"><strong>A.</strong> AUPRC reflects actual lift under imbalance.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. Temperature scaling 屬於哪一類？</p>
+<p data-lang="en">2. Temperature scaling belongs to?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 區分能力提升</div>
+<div class="quiz-opt" data-correct="1">B. 校準</div>
+<div class="quiz-opt" data-correct="0">C. 公平性</div>
+<div class="quiz-opt" data-correct="0">D. 解釋性</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>單參數 T 縮放 logits。</span><span data-lang="en"><strong>B.</strong> Single-parameter T scaling of logits.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. TRIPOD-AI 2024 為什麼要求子族 AUC？</p>
+<p data-lang="en">3. Why does TRIPOD-AI 2024 require subgroup AUC?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 為了複雜化報告</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 整體 AUC 高可能掩蓋特定族群的低表現 / 偏差</span><span data-lang="en">B. Overall AUC may hide subgroup underperformance / bias</span></div>
+<div class="quiz-opt" data-correct="0">C. 因為要套 GDPR</div>
+<div class="quiz-opt" data-correct="0">D. FDA 不要求</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>呼應 Ch04 Obermeyer 案例。</span><span data-lang="en"><strong>B.</strong> Echoes Ch04 Obermeyer.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch16-rag-agentic.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="醫學 RAG 與 Agentic AI" data-en="Medical RAG &amp; Agentic AI">醫學 RAG 與 Agentic AI</span></a>
+<a href="ch18-explainable-ai.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="可解釋 AI 與生醫應用" data-en="Explainable AI for Biomedicine">可解釋 AI 與生醫應用</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 17</footer>
+<script src="i18n.js"></script>
+</body></html>

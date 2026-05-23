@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch12 · AI 藥物發現</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html" class="active">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK C · CHAPTER 12 / 20</div>
+  <h1 data-zh="AI 藥物發現" data-en="AI Drug Discovery">AI 藥物發現</h1>
+  <p class="subtitle" data-lang="zh">從 virtual screening 到分子生成、從 ADMET 預測到自駕實驗室——藥物 R&amp;D 的 AI 化全景。</p>
+  <p class="subtitle" data-lang="en">From virtual screening to molecule generation, from ADMET to self-driving labs — the AI-fication of drug R&amp;D.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="痛點" data-en="THE PAIN">痛點</div>
+<h2 data-zh="為什麼要 AI？$2.6B、10 年、90% 失敗率" data-en="Why AI? $2.6B, 10 years, 90% fail">為什麼要 AI？$2.6B、10 年、90% 失敗率</h2>
+<div data-lang="zh">
+<p>業界共識：一款新藥從靶點識別到上市平均約 $2.6B、10–12 年；臨床階段 90% 失敗。<strong>AI 的角色不是取代化學家或醫師，而是壓縮各階段的「搜尋空間」與「假設驗證循環」</strong>——靶點識別、化合物設計、ADMET 預測、結構優化、臨床試驗模擬，逐段優化。</p>
+<p>2024 起，藥物 AI 進入兩個新紀元：(1) Isomorphic Labs（AlphaFold 衍生）與 Novartis、Eli Lilly 簽下數十億美元合約；(2) Recursion + Exscientia 合併，「自駕實驗室」（self-driving labs）成為新範式。</p>
+</div>
+<div data-lang="en">
+<p>Industry consensus: a new drug takes ~$2.6B and 10–12 years from target ID to market; ~90% fail in clinical phases. <strong>AI's role is not to replace chemists or clinicians but to compress the search space and the hypothesis-validation loop</strong> at each stage — target ID, molecule design, ADMET, lead optimization, trial simulation.</p>
+<p>Since 2024, drug AI hits two new eras: (1) Isomorphic Labs (AlphaFold spin-off) signs multi-billion deals with Novartis and Eli Lilly; (2) Recursion + Exscientia merger turns "self-driving labs" into a new paradigm.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="五大應用" data-en="FIVE APPLICATIONS">五大應用</div>
+<h2 data-zh="AI 在藥物 R&amp;D 的五大切入點" data-en="Five entry points for AI in drug R&amp;D">五大應用點</h2>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="① 靶點識別 (Target ID)" data-en="① Target identification">① 靶點識別</h4>
+<div data-lang="zh"><p>從 OMICS / 知識圖譜辨識可成藥標靶。OpenTargets、PandaOmics（Insilico Medicine）、DEPMAP。</p></div>
+<div data-lang="en"><p>Find druggable targets from omics / knowledge graphs. OpenTargets, PandaOmics (Insilico), DEPMAP.</p></div></div>
+<div class="card"><div class="card-icon">🧪</div><h4 data-zh="② 虛擬篩選 (Virtual Screening)" data-en="② Virtual screening">② 虛擬篩選</h4>
+<div data-lang="zh"><p>對 ZINC / Enamine REAL 數十億分子做結構/序列篩選。Glide、Vina（傳統），Equibind / DiffDock / AF3（深度）。</p></div>
+<div data-lang="en"><p>Screen billions of molecules from ZINC / Enamine REAL. Glide, Vina (classical); Equibind / DiffDock / AF3 (deep).</p></div></div>
+<div class="card"><div class="card-icon">🧬</div><h4 data-zh="③ 分子生成 (de novo)" data-en="③ De novo generation">③ 分子生成</h4>
+<div data-lang="zh"><p>生成符合化學規則 + 標靶結合的分子。REINVENT 4、MolGPT、Chemformer、GENTRL、Pocket2Mol。</p></div>
+<div data-lang="en"><p>Generate molecules satisfying chemistry + target binding. REINVENT 4, MolGPT, Chemformer, GENTRL, Pocket2Mol.</p></div></div>
+<div class="card"><div class="card-icon">⚗️</div><h4 data-zh="④ ADMET / 安全性預測" data-en="④ ADMET / Safety prediction">④ ADMET / 安全性</h4>
+<div data-lang="zh"><p>吸收、分布、代謝、排泄、毒性的多任務 MTL 模型。ADMET-AI（2024 NAR）、Therapeutics Data Commons、SwissADME。</p></div>
+<div data-lang="en"><p>Multi-task ADMET. ADMET-AI (NAR 2024), Therapeutics Data Commons, SwissADME.</p></div></div>
+<div class="card"><div class="card-icon">🔁</div><h4 data-zh="⑤ 結構-活性優化 (SAR)" data-en="⑤ Lead optimization (SAR)">⑤ SAR 優化</h4>
+<div data-lang="zh"><p>多目標貝氏優化 / 強化學習：在保留活性的同時減毒、增水溶。BoltzGPT、QED+SA score 多目標化。</p></div>
+<div data-lang="en"><p>Multi-objective Bayes / RL: keep activity while reducing toxicity, raising solubility. BoltzGPT, multi-obj QED+SA.</p></div></div>
+<div class="card"><div class="card-icon">🤖</div><h4 data-zh="⑥ 自駕實驗室" data-en="⑥ Self-driving labs">⑥ 自駕實驗室</h4>
+<div data-lang="zh"><p>機器人合成 + 自動檢測 + AI 提議下一輪。MIT/Chemspeed/Aspuru-Guzik group；2025 Recursion + Exscientia 合併指標案例。</p></div>
+<div data-lang="en"><p>Robotic synthesis + automated assays + AI proposing next round. MIT/Chemspeed/Aspuru-Guzik group; Recursion+Exscientia merger (2025) is the marquee case.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="用 RDKit + ADMET-AI 評估候選分子" data-en="Evaluate candidates with RDKit + ADMET-AI">用 RDKit + ADMET-AI 評估候選分子</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="comment"># pip install rdkit admet-ai</span>
+<span class="kw">from</span> rdkit <span class="kw">import</span> Chem
+<span class="kw">from</span> rdkit.Chem <span class="kw">import</span> Descriptors, QED
+<span class="kw">from</span> admet_ai <span class="kw">import</span> ADMETModel
+m = <span class="func">ADMETModel</span>()
+smiles = [<span class="str">"CC(=O)Oc1ccccc1C(=O)O"</span>,  <span class="comment"># aspirin</span>
+          <span class="str">"CN1C=NC2=C1C(=O)N(C(=O)N2C)C"</span>]  <span class="comment"># caffeine</span>
+df = m.<span class="func">predict</span>(smiles=smiles)
+<span class="func">print</span>(df[[<span class="str">"smiles"</span>,<span class="str">"hERG"</span>,<span class="str">"BBB_Martins"</span>,<span class="str">"AMES"</span>,<span class="str">"LD50_Zhu"</span>]])
+<span class="kw">for</span> s <span class="kw">in</span> smiles:
+    mol = Chem.<span class="func">MolFromSmiles</span>(s)
+    <span class="func">print</span>(s, <span class="str">"MW="</span>, Descriptors.<span class="func">MolWt</span>(mol),
+              <span class="str">"QED="</span>, <span class="func">round</span>(QED.<span class="func">qed</span>(mol),<span class="num">3</span>))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate); <span class="kw">library</span>(rcdk)
+admet &lt;- <span class="func">import</span>(<span class="str">"admet_ai"</span>)
+m &lt;- admet$<span class="func">ADMETModel</span>()
+smiles &lt;- <span class="func">c</span>(<span class="str">"CC(=O)Oc1ccccc1C(=O)O"</span>, <span class="str">"CN1C=NC2=C1C(=O)N(C(=O)N2C)C"</span>)
+df &lt;- m$<span class="func">predict</span>(smiles=smiles)
+<span class="func">print</span>(df[, <span class="func">c</span>(<span class="str">"smiles"</span>,<span class="str">"hERG"</span>,<span class="str">"BBB_Martins"</span>,<span class="str">"AMES"</span>,<span class="str">"LD50_Zhu"</span>)])
+<span class="comment"># RDKit-equivalent calculations via rcdk</span></pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="架構選型" data-en="ARCHITECTURE PICK">架構選型</div>
+<h2 data-zh="分子表徵與模型對照" data-en="Molecular representation × model">分子表徵與模型對照</h2>
+<table class="comp-table"><thead><tr><th data-zh="表徵" data-en="Representation">表徵</th><th data-zh="優點" data-en="Pros">優點</th><th data-zh="缺點" data-en="Cons">缺點</th><th data-zh="常用模型" data-en="Common models">常用模型</th></tr></thead><tbody>
+<tr><td>SMILES</td><td data-zh="文字、好處理" data-en="Text, easy">文字、好處理</td><td data-zh="非規範化會錯亂" data-en="Non-canonical can confuse">非規範化會錯亂</td><td>MolGPT, Chemformer, REINVENT</td></tr>
+<tr><td>Graph (atom+bond)</td><td data-zh="拓樸明確；GNN 表現強" data-en="Explicit topology; strong GNN performance">拓樸明確</td><td data-zh="缺乏立體化學" data-en="No stereochemistry">缺立體化學</td><td>D-MPNN, GIN, AttentiveFP</td></tr>
+<tr><td>3D conformer</td><td data-zh="保留立體；對結合更準" data-en="Keeps stereo; better for binding">保留立體</td><td data-zh="conformer 取樣難" data-en="Hard to sample conformers">conformer 難</td><td>SchNet, DimeNet, Equiformer</td></tr>
+<tr><td>Fingerprint (ECFP)</td><td data-zh="輕量、可解釋" data-en="Lightweight, interpretable">輕量、可解釋</td><td data-zh="缺長程依賴" data-en="Misses long-range info">缺長程</td><td>RF / XGBoost / scikit-learn</td></tr>
+</tbody></table>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>2024 benchmark 共識：</strong>對活性預測，<em>3D 表徵 + Equivariant GNN</em>（Equiformer、ViSNet）在含結構標靶上佔優；對 ADMET（無結構依賴）<em>D-MPNN + ECFP 集成</em>仍最穩。</span>
+<span data-lang="en"><strong>2024 benchmark consensus:</strong> for activity prediction, <em>3D + equivariant GNN</em> (Equiformer, ViSNet) leads on structure-aware tasks; for ADMET (no structure), <em>D-MPNN + ECFP ensemble</em> is most robust.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. AlphaFold 3 對藥物發現最關鍵的新能力是？</p>
+<p data-lang="en">1. AF3's most critical new drug-discovery capability is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 不需要 GPU</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 在統一模型內預測蛋白-小分子配體結合姿態</span><span data-lang="en">B. Unified prediction of protein–small-molecule binding pose</span></div>
+<div class="quiz-opt" data-correct="0">C. 完全開源</div>
+<div class="quiz-opt" data-correct="0">D. 可以取代臨床試驗</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>配體結合姿態勝過 AutoDock Vina，這是藥物發現的關鍵。</span><span data-lang="en"><strong>B.</strong> AF3 beats AutoDock Vina on pose prediction — central to drug discovery.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 對 ADMET 任務最穩定的表徵是？</p>
+<p data-lang="en">2. The most robust representation for ADMET is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 純 SMILES</div>
+<div class="quiz-opt" data-correct="1">B. D-MPNN + ECFP ensemble</div>
+<div class="quiz-opt" data-correct="0">C. 3D conformer</div>
+<div class="quiz-opt" data-correct="0">D. 無表徵</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>ADMET 不依結構，集成法在 TDC benchmark 最穩。</span><span data-lang="en"><strong>B.</strong> ADMET is structure-agnostic; ensembles are most robust on TDC benchmarks.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 「自駕實驗室 (self-driving lab)」的核心循環是？</p>
+<p data-lang="en">3. The core loop of a "self-driving lab" is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. AI 提議 → 機器人合成 → 自動檢測 → AI 從結果學習 → 下一輪</span><span data-lang="en">A. AI proposes → robotic synthesis → automated assay → AI learns → next round</span></div>
+<div class="quiz-opt" data-correct="0">B. 純粹 in-silico 不做實驗</div>
+<div class="quiz-opt" data-correct="0">C. 完全人工操作</div>
+<div class="quiz-opt" data-correct="0">D. 不需要 ML</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>Active learning + 機器人實驗的閉迴路。</span><span data-lang="en"><strong>A.</strong> Closed-loop active learning + robotic experimentation.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch11-protein-structure.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="蛋白質結構與生成設計" data-en="Protein Structure &amp; Generative Design">蛋白質結構與生成設計</span></a>
+<a href="ch13-clinical-nlp.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="電子病歷與臨床 NLP" data-en="EHR &amp; Clinical NLP">電子病歷與臨床 NLP</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 12</footer>
+<script src="i18n.js"></script>
+</body></html>

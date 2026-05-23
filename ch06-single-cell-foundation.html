@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch06 · 單細胞 Foundation Models</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html" class="active">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK B · CHAPTER 06 / 20</div>
+  <h1 data-zh="單細胞 Foundation Models" data-en="Single-cell Foundation Models">單細胞 Foundation Models</h1>
+  <p class="subtitle" data-lang="zh">scGPT、Geneformer、scFoundation、UCE、CellFM——把 3300 萬個細胞餵進 Transformer 之後會發生什麼？</p>
+  <p class="subtitle" data-lang="en">scGPT, Geneformer, scFoundation, UCE, CellFM — what happens when 33 million cells go through a Transformer?</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
+<h2 data-zh="從「pipeline」到「foundation」" data-en="From pipeline to foundation">從「pipeline」到「foundation」</h2>
+<div data-lang="zh">
+<p>傳統 scRNA-seq 流程是一條 12 步管線：QC → 標準化 → HVG → PCA → cluster → annotation → DE → integration。每一步換 dataset 就要重新調參。</p>
+<p><strong>單細胞 Foundation Model (scFM)</strong> 提供另一條捷徑：先在數千萬個未標註細胞上自監督預訓練，再把幾乎所有下游任務轉成「微調 / 零樣本嵌入查詢」。代表作有 scGPT（33M 細胞，Nature Methods 2024）、Geneformer、scFoundation、UCE、CellFM。</p>
+</div>
+<div data-lang="en">
+<p>The classical scRNA-seq pipeline is 12 steps: QC → normalize → HVG → PCA → cluster → annotate → DE → integrate. Every new dataset means re-tuning.</p>
+<p><strong>Single-cell Foundation Models (scFM)</strong> offer a shortcut: pretrain on tens of millions of unlabeled cells, then turn nearly every downstream task into "fine-tune / zero-shot embedding lookup". Headliners: scGPT (33M cells, Nature Methods 2024), Geneformer, scFoundation, UCE, CellFM.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="主流模型對照" data-en="MODEL COMPARISON">主流模型對照</div>
+<h2 data-zh="2024–2025 五大 scFM" data-en="Five leading scFMs (2024–2025)">2024–2025 五大 scFM</h2>
+<table class="comp-table"><thead><tr><th data-zh="模型" data-en="Model">模型</th><th data-zh="預訓練細胞數" data-en="Pretrain cells">預訓練細胞數</th><th data-zh="輸入" data-en="Input">輸入</th><th data-zh="架構特色" data-en="Architecture">架構特色</th><th data-zh="下游強項" data-en="Strengths">下游強項</th></tr></thead><tbody>
+<tr><td><strong>scGPT</strong> (2024)</td><td>33M</td><td data-zh="基因 + 計數 token 化" data-en="Gene + count tokenization">基因 + 計數 token 化</td><td data-zh="GPT-style decoder" data-en="GPT-style decoder">GPT-style decoder</td><td data-zh="批次整合、cancer cell ID、藥物敏感性" data-en="Batch integration, cancer cell ID, drug sensitivity">批次整合、cancer cell ID</td></tr>
+<tr><td><strong>Geneformer</strong> (2023)</td><td>30M</td><td data-zh="基因表現排序" data-en="Gene rank tokenization">基因表現排序</td><td data-zh="BERT" data-en="BERT">BERT</td><td data-zh="疾病基因擾動預測、in-silico KO" data-en="Disease perturbation, in-silico KO">擾動預測</td></tr>
+<tr><td><strong>scFoundation</strong> (2024)</td><td>50M</td><td data-zh="連續表現值 + 基因" data-en="Continuous + gene">連續表現 + 基因</td><td data-zh="非對稱 Transformer" data-en="Asymmetric Transformer">非對稱 Transformer</td><td data-zh="跨組織零樣本" data-en="Zero-shot cross-tissue">跨組織零樣本</td></tr>
+<tr><td><strong>UCE</strong> (2024)</td><td>33M</td><td data-zh="跨物種" data-en="Cross-species">跨物種</td><td data-zh="蛋白質嵌入做 gene token" data-en="Protein embed as gene token">蛋白質嵌入為 token</td><td data-zh="cross-species zero-shot" data-en="Cross-species zero-shot">跨物種推廣</td></tr>
+<tr><td><strong>CellFM</strong> (2025)</td><td>100M</td><td data-zh="多模態（含 ATAC）" data-en="Multi-modal (incl. ATAC)">多模態</td><td data-zh="ViT-style + MoE" data-en="ViT-style + MoE">ViT + MoE</td><td data-zh="最大資料規模 / 多任務領先" data-en="Largest data, top multi-task">最大規模、多任務領先</td></tr>
+</tbody></table>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>2025 大型 benchmark 結論：</strong>scGPT、Geneformer、CellFM 在「可用性 × 表現」綜合最佳。scGPT 在硬體需求與推論速度上最友善，常作為入門首選。</span>
+<span data-lang="en"><strong>2025 benchmark conclusion:</strong> Top 3 by usability×performance: scGPT, Geneformer, CellFM. scGPT is the most hardware-friendly — the typical first choice.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="關鍵下游任務" data-en="DOWNSTREAM TASKS">關鍵下游任務</div>
+<h2 data-zh="scFM 能做的五件事" data-en="Five things scFMs can do">scFM 能做的五件事</h2>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🏷️</div><h4 data-zh="① 零樣本細胞註釋" data-en="① Zero-shot annotation">① 零樣本細胞註釋</h4>
+<div data-lang="zh"><p>不需要訓練：把細胞嵌入到 reference embedding 空間做 k-NN 比對。HCA 已有 5000 萬細胞的 reference。</p></div>
+<div data-lang="en"><p>No training needed: embed cell and k-NN to a reference space. HCA already has a 50M-cell reference.</p></div></div>
+<div class="card"><div class="card-icon">🔀</div><h4 data-zh="② 批次整合" data-en="② Batch integration">② 批次整合</h4>
+<div data-lang="zh"><p>大模型本身對 batch 不敏感；scGPT、scVI 都比 Harmony / BBKNN 更穩。</p></div>
+<div data-lang="en"><p>Large models are batch-robust; scGPT, scVI tend to beat Harmony / BBKNN.</p></div></div>
+<div class="card"><div class="card-icon">🧠</div><h4 data-zh="③ 基因擾動 / KO 預測" data-en="③ Perturbation / KO prediction">③ 基因擾動 / KO 預測</h4>
+<div data-lang="zh"><p>Geneformer 可預測 in-silico knockout 後的細胞狀態變化；CZI rBio 把它做到 reasoning 等級。</p></div>
+<div data-lang="en"><p>Geneformer predicts post-knockout cell states; CZI rBio elevates this to reasoning-level.</p></div></div>
+<div class="card"><div class="card-icon">💊</div><h4 data-zh="④ 藥物敏感性 / 反應" data-en="④ Drug sensitivity / response">④ 藥物敏感性 / 反應</h4>
+<div data-lang="zh"><p>scGPT 在 GDSC / CCLE 微調可預測癌細胞株對特定化合物的反應。</p></div>
+<div data-lang="en"><p>Fine-tuned scGPT predicts response of cancer cell lines (GDSC, CCLE) to specific compounds.</p></div></div>
+<div class="card"><div class="card-icon">🧫</div><h4 data-zh="⑤ 跨模態 (ATAC / Protein) 推論" data-en="⑤ Cross-modal (ATAC / protein) inference">⑤ 跨模態推論</h4>
+<div data-lang="zh"><p>CellFM 與 totalVI 由表現量預測 protein abundance；MultiVI 由 RNA + ATAC 聯合建模。</p></div>
+<div data-lang="en"><p>CellFM / totalVI predict protein abundance from expression; MultiVI jointly models RNA + ATAC.</p></div></div>
+<div class="card"><div class="card-icon">⚠️</div><h4 data-zh="⑥ 注意：限制" data-en="⑥ Caveats">⑥ 注意：限制</h4>
+<div data-lang="zh"><p>scFM <strong>對訓練分布外的 cell type 仍可能失準</strong>；2025 benchmark 也指出在「小資料集 / 高解析度狀態」上 scVI 仍有競爭力。<em>不要盲信 zero-shot</em>。</p></div>
+<div data-lang="en"><p>scFMs <strong>can still fail out-of-distribution</strong>; 2025 benchmarks show scVI is still competitive on small datasets / high-resolution states. <em>Don't blindly trust zero-shot.</em></p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="scGPT 推論：把 AnnData 嵌入到 reference 空間" data-en="scGPT inference: embed AnnData to reference">scGPT 推論：把 AnnData 嵌入到 reference 空間</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="comment"># pip install scgpt scanpy</span>
+<span class="kw">import</span> scanpy <span class="kw">as</span> sc, scgpt
+adata = sc.<span class="func">read_h5ad</span>(<span class="str">"my_sample.h5ad"</span>)
+sc.pp.<span class="func">normalize_total</span>(adata, target_sum=<span class="num">1e4</span>)
+sc.pp.<span class="func">log1p</span>(adata)
+emb = scgpt.tasks.<span class="func">embed_data</span>(adata,
+        model_dir=<span class="str">"./scgpt_whole_human"</span>,
+        gene_col=<span class="str">"feature_name"</span>,
+        cell_type_key=<span class="kw">None</span>,
+        return_new_adata=<span class="kw">True</span>)
+sc.pp.<span class="func">neighbors</span>(emb, use_rep=<span class="str">"X_scGPT"</span>)
+sc.tl.<span class="func">umap</span>(emb)
+sc.pl.<span class="func">umap</span>(emb, color=<span class="str">"leiden"</span>)</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate); <span class="kw">library</span>(Seurat); <span class="kw">library</span>(zellkonverter)
+sce &lt;- zellkonverter::<span class="func">readH5AD</span>(<span class="str">"my_sample.h5ad"</span>)
+sc &lt;- <span class="func">import</span>(<span class="str">"scanpy"</span>); scgpt &lt;- <span class="func">import</span>(<span class="str">"scgpt"</span>)
+adata &lt;- zellkonverter::<span class="func">SCE2AnnData</span>(sce)
+sc$pp$<span class="func">normalize_total</span>(adata, target_sum=<span class="num">1e4</span>)
+sc$pp$<span class="func">log1p</span>(adata)
+emb &lt;- scgpt$tasks$<span class="func">embed_data</span>(adata, model_dir=<span class="str">"./scgpt_whole_human"</span>,
+            gene_col=<span class="str">"feature_name"</span>, return_new_adata=<span class="kw">TRUE</span>)
+seu &lt;- <span class="func">CreateSeuratObject</span>(counts=<span class="func">t</span>(<span class="func">py_to_r</span>(emb$X)))
+seu[[<span class="str">"scgpt"</span>]] &lt;- <span class="func">CreateDimReducObject</span>(embeddings=<span class="func">py_to_r</span>(emb$obsm[<span class="str">"X_scGPT"</span>]),
+                                          key=<span class="str">"SCGPT_"</span>, assay=<span class="str">"RNA"</span>)
+<span class="func">RunUMAP</span>(seu, reduction=<span class="str">"scgpt"</span>, dims=<span class="num">1</span>:<span class="num">512</span>)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 為什麼 scFM 的「零樣本註釋」在新組織上可能失準？</p>
+<p data-lang="en">1. Why might scFM zero-shot annotation fail on a new tissue?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 訓練資料太多</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 新組織的 cell type 可能不在預訓練分布內</span><span data-lang="en">B. The cell type may be out-of-distribution</span></div>
+<div class="quiz-opt" data-correct="0">C. UMAP 太慢</div>
+<div class="quiz-opt" data-correct="0">D. 沒用 CUDA</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>OOD 是 scFM 已知弱點，仍需 marker 對照或微調。</span><span data-lang="en"><strong>B.</strong> OOD remains a known weakness; verify with markers or fine-tune.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. Geneformer 把基因表現轉成什麼 token？</p>
+<p data-lang="en">2. Geneformer tokenizes gene expression as what?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. log 表現值</span><span data-lang="en">A. log expression values</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 基因在該細胞內的表現量排序 (rank)</span><span data-lang="en">B. Rank of the gene's expression in that cell</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 基因序列</span><span data-lang="en">C. The gene sequence</span></div>
+<div class="quiz-opt" data-correct="0">D. SNP genotype</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>rank-based tokenization 讓模型對技術變異更穩。</span><span data-lang="en"><strong>B.</strong> Rank-based tokenization is robust to technical variation.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 若你只有 8 GB GPU，想做最快上手的 scFM 應用，最推薦哪個？</p>
+<p data-lang="en">3. With only 8 GB GPU, the most accessible scFM is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. UCE</div>
+<div class="quiz-opt" data-correct="0">B. scFoundation</div>
+<div class="quiz-opt" data-correct="1">C. scGPT</div>
+<div class="quiz-opt" data-correct="0">D. CellFM</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>scGPT 推論速度與記憶體佔用最友善，常是入門首選。</span><span data-lang="en"><strong>C.</strong> scGPT has the lightest inference footprint — typical first choice.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch05-genomic-sequence-ai.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="基因體序列 AI" data-en="Genomic Sequence AI">基因體序列 AI</span></a>
+<a href="ch07-multiomics-integration.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="多體學整合與空間組" data-en="Multi-omics &amp; Spatial Integration">多體學整合與空間組</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 06</footer>
+<script src="i18n.js"></script>
+</body></html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch03 · 機器學習與深度學習基礎</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html" class="active">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK A · CHAPTER 03 / 20</div>
+  <h1 data-zh="機器學習與深度學習基礎" data-en="ML & DL Foundations">機器學習與深度學習基礎</h1>
+  <p class="subtitle" data-lang="zh">用最精簡的方式幫你打通：學什麼、為什麼能學、要避免什麼坑。</p>
+  <p class="subtitle" data-lang="en">A compact tour: what to learn, why it works, and what to avoid.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="統計學習觀點" data-en="STATISTICAL VIEW">統計學習觀點</div>
+<h2 data-zh="什麼是「機器在學」？" data-en="What does it mean for a machine to 'learn'?">什麼是「機器在學」？</h2>
+<div data-lang="zh">
+<p>機器學習用一個簡單的方程式描述：給定資料 <em>D = {(xᵢ, yᵢ)}</em>，我們要找到函數 <em>f<sub>θ</sub></em> 使得期望損失 <em>𝔼[L(f<sub>θ</sub>(x), y)]</em> 最小。<strong>關鍵在於三件事</strong>：模型族（function family）、損失函數、最佳化方法。</p>
+<p>傳統統計與 ML 的差別是「先驗假設」程度——線性迴歸假設 y 是 x 的線性組合，深度學習則用組合式非線性逼近任意函數。但兩者共用同一套統計推論基礎：偏差–變異權衡（bias-variance tradeoff）、過擬合、交叉驗證。</p>
+</div>
+<div data-lang="en">
+<p>One equation: given data <em>D = {(xᵢ, yᵢ)}</em>, find function <em>f<sub>θ</sub></em> that minimizes expected loss <em>𝔼[L(f<sub>θ</sub>(x), y)]</em>. <strong>Three ingredients</strong>: the model family, the loss function, the optimizer.</p>
+<p>The classical-stats vs. ML divide is mostly about how strong the prior is — linear regression assumes a linear combination of x; deep nets use compositional nonlinearities to approximate arbitrary functions. They share the same statistical foundation: bias-variance tradeoff, overfitting, cross-validation.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="學習範式" data-en="LEARNING PARADIGMS">學習範式</div>
+<h2 data-zh="五大學習範式對照" data-en="Five learning paradigms at a glance">五大學習範式對照</h2>
+<table class="comp-table"><thead><tr><th data-zh="範式" data-en="Paradigm">範式</th><th data-zh="標籤需求" data-en="Labels">標籤需求</th><th data-zh="典型任務" data-en="Typical task">典型任務</th><th data-zh="生醫範例" data-en="Biomedical example">生醫範例</th></tr></thead><tbody>
+<tr><td><strong>Supervised</strong></td><td data-zh="(x, y) 配對" data-en="(x, y) pairs">(x, y) 配對</td><td data-zh="迴歸、分類、分割" data-en="Regression, classification, segmentation">迴歸、分類、分割</td><td data-zh="CheXpert 14 類病灶分類" data-en="CheXpert 14-class classification">CheXpert 14 類病灶分類</td></tr>
+<tr><td><strong>Unsupervised</strong></td><td>—</td><td data-zh="降維、聚類、密度估計" data-en="Dim. reduction, clustering, density">降維、聚類、密度估計</td><td data-zh="scRNA-seq UMAP + Leiden" data-en="scRNA-seq UMAP + Leiden">scRNA-seq UMAP + Leiden</td></tr>
+<tr><td><strong>Self-supervised</strong></td><td data-zh="從資料自身構造" data-en="Constructed from data">從資料自身構造</td><td data-zh="預訓練表徵" data-en="Pretrain representations">預訓練表徵</td><td data-zh="ESM-2 遮蔽胺基酸預測" data-en="ESM-2 masked amino-acid prediction">ESM-2 遮蔽胺基酸預測</td></tr>
+<tr><td><strong>Semi-supervised</strong></td><td data-zh="少量標註 + 大量無標註" data-en="A little labeled + lots unlabeled">少量標註 + 大量無標註</td><td data-zh="標籤稀少時的分類" data-en="Classification with scarce labels">標籤稀少時的分類</td><td data-zh="病理切片少量金標準 + 大量未標註" data-en="Few gold-standard pathology slides + many unlabeled">病理切片少量金標準 + 大量未標註</td></tr>
+<tr><td><strong>Reinforcement</strong></td><td data-zh="獎勵訊號" data-en="Reward signal">獎勵訊號</td><td data-zh="序列決策" data-en="Sequential decision making">序列決策</td><td data-zh="動態給藥、RLHF 微調 Med-LLM" data-en="Dynamic dosing, RLHF for Med-LLM">動態給藥、RLHF 微調 Med-LLM</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="基本元件" data-en="BUILDING BLOCKS">基本元件</div>
+<h2 data-zh="從感知器到 Transformer" data-en="From perceptron to Transformer">從感知器到 Transformer</h2>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">📐</div><h4>MLP / 全連接</h4>
+<div data-lang="zh"><p>萬能逼近器。生醫上常用於 tabular 資料（EHR baseline、SNP 風險分數）。注意 batch norm / dropout / 殘差連接。</p></div>
+<div data-lang="en"><p>Universal approximator. Used for tabular biomedical data (EHR baselines, SNP risk scores). Mind batch norm, dropout, residual connections.</p></div></div>
+<div class="card"><div class="card-icon">🖼️</div><h4>CNN</h4>
+<div data-lang="zh"><p>共享卷積核 → 平移不變、局部感受野。U-Net 是醫療影像分割的黃金骨幹。</p></div>
+<div data-lang="en"><p>Shared convolution → translation invariance, local receptive fields. U-Net is the gold backbone for medical image segmentation.</p></div></div>
+<div class="card"><div class="card-icon">🔁</div><h4>RNN / LSTM / Mamba</h4>
+<div data-lang="zh"><p>序列建模舊王。Mamba (2024) 結合 SSM 狀態空間，長序列更高效，已用於 Caduceus、Evo。</p></div>
+<div data-lang="en"><p>Old kings of sequence modeling. Mamba (2024) uses state-space models for long-sequence efficiency — adopted by Caduceus, Evo.</p></div></div>
+<div class="card"><div class="card-icon">🎯</div><h4>Transformer</h4>
+<div data-lang="zh"><p>自注意力捕捉任意距離相依。ESM、scGPT、Med-Gemini、AlphaFold 的核心。Multi-head + 位置編碼 + FFN。</p></div>
+<div data-lang="en"><p>Self-attention captures arbitrary-distance dependencies. The core of ESM, scGPT, Med-Gemini, AlphaFold. Multi-head + positional encoding + FFN.</p></div></div>
+<div class="card"><div class="card-icon">🌊</div><h4>Diffusion / Flow</h4>
+<div data-lang="zh"><p>逐步從雜訊還原成樣本。AlphaFold 3、RFdiffusion、生成分子用。Score matching 或 ODE flow 是核心。</p></div>
+<div data-lang="en"><p>Denoise step-by-step from noise. Used by AlphaFold 3, RFdiffusion, molecule generation. Score matching / ODE flows at the core.</p></div></div>
+<div class="card"><div class="card-icon">🕸️</div><h4>GNN</h4>
+<div data-lang="zh"><p>節點 + 邊的訊息傳遞。分子（atom + bond）、蛋白質殘基圖、PPI 網路、藥物–靶點交互作用都靠它。</p></div>
+<div data-lang="en"><p>Message passing on nodes + edges. Molecules (atoms+bonds), protein-residue graphs, PPI networks, drug-target interactions all use GNNs.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="訓練的工程" data-en="ENGINEERING">訓練的工程</div>
+<h2 data-zh="把模型練好的 7 個工程關鍵" data-en="7 engineering keys to good training">把模型練好的 7 個工程關鍵</h2>
+<ol>
+<li data-lang="zh"><strong>資料切分</strong>：訓練 / 驗證 / 測試一定要按「個案」而非「樣本」切，避免訊息洩漏。</li>
+<li data-lang="en"><strong>Data splits</strong>: split by <em>subject</em>, not <em>sample</em>, to avoid leakage.</li>
+<li data-lang="zh"><strong>學習率排程</strong>：cosine warmup → decay 是最穩的預設。</li>
+<li data-lang="en"><strong>LR schedule</strong>: cosine warmup → decay is the safest default.</li>
+<li data-lang="zh"><strong>批次大小</strong>：太小不穩、太大過度平均；BN 對小 batch 不友善，改 LayerNorm / GroupNorm。</li>
+<li data-lang="en"><strong>Batch size</strong>: too small unstable, too large over-averages; BN dislikes small batches — use LayerNorm/GroupNorm.</li>
+<li data-lang="zh"><strong>正則化</strong>：Dropout、Weight decay、Mixup、Label smoothing 是醫療影像四大常駐。</li>
+<li data-lang="en"><strong>Regularization</strong>: Dropout, weight decay, Mixup, label smoothing — four staples in medical imaging.</li>
+<li data-lang="zh"><strong>早停 (Early stopping)</strong>：驗證集為準。</li>
+<li data-lang="en"><strong>Early stopping</strong>: based on validation, not training.</li>
+<li data-lang="zh"><strong>類別不平衡</strong>：罕病 1:1000 是常態。Focal loss、class-balanced sampling、re-weighting 三件套。</li>
+<li data-lang="en"><strong>Class imbalance</strong>: rare disease 1:1000 is normal. Focal loss, class-balanced sampling, re-weighting — the trio.</li>
+<li data-lang="zh"><strong>可重現性</strong>：固定種子、記錄環境、版本化資料、log MLflow / W&amp;B。</li>
+<li data-lang="en"><strong>Reproducibility</strong>: fix seeds, snapshot environments, version data, log with MLflow / W&amp;B.</li>
+</ol>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="CODE">實作</div>
+<h2 data-zh="一個迷你二元分類器（基因表現 → 腫瘤 vs 正常）" data-en="A mini binary classifier (expression → tumor vs normal)">一個迷你二元分類器</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> torch, torch.nn <span class="kw">as</span> nn
+<span class="kw">from</span> torch.utils.data <span class="kw">import</span> DataLoader, TensorDataset
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score
+<span class="comment"># X: (n_samples, 20000 genes), y: (n_samples,) 0/1</span>
+Xtr, Xte, ytr, yte = <span class="func">train_test_split</span>(X, y, stratify=y, random_state=<span class="num">7</span>)
+class MLP(nn.Module):
+    <span class="kw">def</span> <span class="func">__init__</span>(self,d):
+        super().<span class="func">__init__</span>()
+        self.net = nn.<span class="func">Sequential</span>(nn.<span class="func">Linear</span>(d,<span class="num">512</span>), nn.<span class="func">GELU</span>(), nn.<span class="func">Dropout</span>(.3),
+                                 nn.<span class="func">Linear</span>(<span class="num">512</span>,<span class="num">64</span>), nn.<span class="func">GELU</span>(),
+                                 nn.<span class="func">Linear</span>(<span class="num">64</span>,<span class="num">1</span>))
+    <span class="kw">def</span> <span class="func">forward</span>(self,x): <span class="kw">return</span> self.<span class="func">net</span>(x).<span class="func">squeeze</span>(-<span class="num">1</span>)
+m = <span class="func">MLP</span>(Xtr.shape[<span class="num">1</span>]).<span class="func">cuda</span>()
+opt = torch.optim.<span class="func">AdamW</span>(m.<span class="func">parameters</span>(), lr=<span class="num">1e-3</span>, weight_decay=<span class="num">1e-4</span>)
+lossf = nn.<span class="func">BCEWithLogitsLoss</span>()
+<span class="kw">for</span> ep <span class="kw">in</span> <span class="func">range</span>(<span class="num">30</span>):
+    m.<span class="func">train</span>(); opt.<span class="func">zero_grad</span>()
+    l = <span class="func">lossf</span>(<span class="func">m</span>(torch.<span class="func">from_numpy</span>(Xtr).<span class="func">cuda</span>()),
+              torch.<span class="func">from_numpy</span>(ytr).<span class="func">float</span>().<span class="func">cuda</span>())
+    l.<span class="func">backward</span>(); opt.<span class="func">step</span>()
+m.<span class="func">eval</span>()
+p = torch.<span class="func">sigmoid</span>(<span class="func">m</span>(torch.<span class="func">from_numpy</span>(Xte).<span class="func">cuda</span>())).<span class="func">detach</span>().<span class="func">cpu</span>().<span class="func">numpy</span>()
+<span class="func">print</span>(<span class="str">"AUROC ="</span>, <span class="func">roc_auc_score</span>(yte, p))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(torch); <span class="kw">library</span>(pROC)
+ds &lt;- <span class="func">dataset</span>(name=<span class="str">"expr"</span>,
+       initialize=<span class="kw">function</span>(X,y){self$X=<span class="func">torch_tensor</span>(X); self$y=<span class="func">torch_tensor</span>(y)},
+       .getitem=<span class="kw">function</span>(i)<span class="func">list</span>(self$X[i,], self$y[i]),
+       .length=<span class="kw">function</span>()<span class="func">nrow</span>(self$X))
+mlp &lt;- <span class="func">nn_module</span>(initialize=<span class="kw">function</span>(d){
+    self$net &lt;- <span class="func">nn_sequential</span>(<span class="func">nn_linear</span>(d,<span class="num">512</span>), <span class="func">nn_gelu</span>(),
+                              <span class="func">nn_dropout</span>(.3), <span class="func">nn_linear</span>(<span class="num">512</span>,<span class="num">1</span>))},
+  forward=<span class="kw">function</span>(x) self$<span class="func">net</span>(x)$<span class="func">squeeze</span>())
+m &lt;- <span class="func">mlp</span>(<span class="func">ncol</span>(X))
+opt &lt;- <span class="func">optim_adamw</span>(m$<span class="func">parameters</span>, lr=<span class="num">1e-3</span>)
+<span class="kw">for</span>(ep <span class="kw">in</span> <span class="num">1</span>:<span class="num">30</span>){opt$<span class="func">zero_grad</span>()
+  l &lt;- <span class="func">nnf_binary_cross_entropy_with_logits</span>(<span class="func">m</span>(<span class="func">torch_tensor</span>(Xtr)),
+        <span class="func">torch_tensor</span>(ytr$<span class="func">to</span>(torch_float())))
+  l$<span class="func">backward</span>(); opt$<span class="func">step</span>()}
+p &lt;- torch::<span class="func">torch_sigmoid</span>(<span class="func">m</span>(<span class="func">torch_tensor</span>(Xte)))$<span class="func">to</span>(<span class="func">torch_float</span>())
+<span class="func">cat</span>(<span class="str">"AUROC ="</span>, pROC::<span class="func">auc</span>(yte, <span class="func">as_array</span>(p)), <span class="str">"\n"</span>)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策樹" data-en="DECISION GUIDE">決策樹</div>
+<h2 data-zh="該選哪一種架構？" data-en="Which architecture should I pick?">該選哪一種架構？</h2>
+<div class="decision-tree">
+<h4 data-zh="輸入是什麼？" data-en="What's the input?">輸入是什麼？</h4>
+<div class="dt-node"><span class="dt-q">Tabular</span><span class="dt-arrow">→</span><span data-lang="zh">優先 XGBoost / LightGBM；資料量大且有結構再考慮 TabTransformer。</span><span data-lang="en">XGBoost / LightGBM first; TabTransformer if data is large &amp; structured.</span></div>
+<div class="dt-node"><span class="dt-q">Image</span><span class="dt-arrow">→</span><span data-lang="zh">2D：ResNet / ConvNeXt / ViT；3D：nnU-Net / MONAI；超大：MedSAM + 微調。</span><span data-lang="en">2D: ResNet/ConvNeXt/ViT; 3D: nnU-Net/MONAI; huge: MedSAM + fine-tune.</span></div>
+<div class="dt-node"><span class="dt-q">Sequence</span><span class="dt-arrow">→</span><span data-lang="zh">短：BERT/RoBERTa；長 DNA：Caduceus/Borzoi；蛋白：ESM-3。</span><span data-lang="en">Short: BERT/RoBERTa; long DNA: Caduceus/Borzoi; protein: ESM-3.</span></div>
+<div class="dt-node"><span class="dt-q">Graph</span><span class="dt-arrow">→</span><span data-lang="zh">GIN / GAT / GraphSAGE，分子常用 D-MPNN。</span><span data-lang="en">GIN / GAT / GraphSAGE; D-MPNN common for molecules.</span></div>
+<div class="dt-node"><span class="dt-q">Time-series EHR</span><span class="dt-arrow">→</span><span data-lang="zh">Temporal Fusion Transformer 或 Mamba。</span><span data-lang="en">Temporal Fusion Transformer or Mamba.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 為什麼 ESM-2 用「遮蔽胺基酸預測」這種自監督？</p>
+<p data-lang="en">1. Why does ESM-2 use a "masked amino-acid prediction" self-supervised task?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 因為標註結構的資料太多</span><span data-lang="en">A. Because labeled structures are abundant</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 因為 UniProt 的序列遠多於可用結構，可以無監督預訓練</span><span data-lang="en">B. Because UniProt sequences vastly outnumber available structures — unsupervised pretraining is possible</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 因為這種任務最容易過擬合</span><span data-lang="en">C. Because the task is the easiest to overfit</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 因為遮蔽預測會比結構預測更精確</span><span data-lang="en">D. Because masked prediction is more accurate than structure prediction</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>2.5 億條序列 → 自監督；只有幾十萬條結構 → 監督式。</span><span data-lang="en"><strong>B.</strong> 250M sequences → self-supervised; ~hundreds of thousands of structures → supervised.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 罕病樣本 1:1000 高度不平衡時，<strong>最不建議</strong>的做法是？</p>
+<p data-lang="en">2. With 1:1000 class imbalance for rare disease, the <strong>least recommended</strong> approach is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 用 Focal loss 強化困難例子</span><span data-lang="en">A. Focal loss to emphasize hard examples</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. Class-balanced sampling</span><span data-lang="en">B. Class-balanced sampling</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">C. 只用 accuracy 當主要指標</span><span data-lang="en">C. Use accuracy as the main metric</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 看 AUPRC、F1、Decision Curve</span><span data-lang="en">D. Look at AUPRC, F1, decision curves</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>1:1000 時，永遠預測「無病」的 accuracy 也有 99.9%，但完全無臨床價值。</span><span data-lang="en"><strong>C.</strong> Predict "no disease" forever and accuracy still = 99.9% — useless clinically.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 把資料「按樣本」（而非按個案）切分為什麼有風險？</p>
+<p data-lang="en">3. Why is "splitting by sample" (not by subject) risky?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 同一個案的多個樣本同時出現在訓練與測試 → 過樂觀</span><span data-lang="en">A. The same subject's samples appearing in both train and test → optimistic bias</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. 增加 GPU 記憶體用量</span><span data-lang="en">B. Higher GPU memory</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 永遠造成 underfit</span><span data-lang="en">C. Always causes underfit</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 違反 GDPR</span><span data-lang="en">D. Violates GDPR</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>「資料洩漏 (data leakage)」是生醫研究最常見的高分陷阱。</span><span data-lang="en"><strong>A.</strong> Data leakage is the most common "fake-high-score" trap in biomedical research.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch02-data-sources.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="生醫大數據的類型與來源" data-en="Biomedical Data Types &amp; Sources">生醫大數據的類型與來源</span></a>
+<a href="ch04-ethics-regulation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="倫理、公平性與法規" data-en="Ethics, Fairness &amp; Regulation">倫理、公平性與法規</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 03</footer>
+<script src="i18n.js"></script>
+</body></html>

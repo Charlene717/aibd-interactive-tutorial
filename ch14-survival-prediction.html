@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch14 · 臨床預測與生存分析</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html" class="active">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK D · CHAPTER 14 / 20</div>
+  <h1 data-zh="臨床預測與生存分析" data-en="Clinical Prediction & Survival">臨床預測與生存分析</h1>
+  <p class="subtitle" data-lang="zh">Cox、DeepSurv、DeepHit、Time-to-event Transformer——存活時間與審查資料的 AI 化。</p>
+  <p class="subtitle" data-lang="en">Cox, DeepSurv, DeepHit, time-to-event Transformer — AI for time-to-event and censored data.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="基礎" data-en="FOUNDATION">基礎</div>
+<h2 data-zh="生存分析特殊在哪？" data-en="Why is survival analysis special?">生存分析特殊在哪？</h2>
+<div data-lang="zh">
+<p>普通迴歸假設你能觀察到所有結果。<strong>生存分析必須處理「審查 (censoring)」</strong>——某些病人在追蹤結束前還沒發生事件（死亡 / 復發 / 失敗），他們的真實時間是「至少 T」但未知。這個結構讓我們不能直接用 MSE 或交叉熵。</p>
+<p>核心物件是 hazard function <em>h(t|x) = P(T = t | T ≥ t, x)</em>，以及 partial likelihood (Cox)。當 hazard 對 covariates 為線性時，是標準 CoxPH；用 DNN 取代線性層即 <strong>DeepSurv</strong>。</p>
+</div>
+<div data-lang="en">
+<p>Ordinary regression assumes all outcomes are observed. <strong>Survival analysis must handle <em>censoring</em></strong>: some patients haven't had the event by the end of follow-up; their true time is "≥ T". This structure forbids plain MSE / cross-entropy.</p>
+<p>The core object is the hazard <em>h(t|x) = P(T = t | T ≥ t, x)</em> and the partial likelihood (Cox). When hazard is linear in covariates → standard CoxPH; replace the linear layer with a DNN → <strong>DeepSurv</strong>.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="模型家族" data-en="MODEL FAMILY">模型家族</div>
+<h2 data-zh="從 Cox 到 Transformer" data-en="From Cox to Transformer">從 Cox 到 Transformer</h2>
+<table class="comp-table"><thead><tr><th data-zh="模型" data-en="Model">模型</th><th data-zh="風險假設" data-en="Hazard assumption">風險假設</th><th data-zh="輸入" data-en="Input">輸入</th><th data-zh="可處理競爭風險" data-en="Competing risk?">競爭風險</th><th data-zh="一句話" data-en="One-liner">一句話</th></tr></thead><tbody>
+<tr><td><strong>CoxPH</strong></td><td data-zh="比例 + 線性" data-en="Proportional + linear">比例 + 線性</td><td data-zh="tabular" data-en="Tabular">tabular</td><td>—</td><td data-zh="可解釋 baseline" data-en="Interpretable baseline">可解釋 baseline</td></tr>
+<tr><td><strong>DeepSurv</strong></td><td data-zh="比例 + 非線性" data-en="Proportional + non-linear">比例 + 非線性</td><td>tabular</td><td>—</td><td data-zh="把 CoxPH 線性層換 DNN" data-en="Swap linear layer with DNN">CoxPH 的 DNN 版</td></tr>
+<tr><td><strong>DeepHit</strong></td><td data-zh="無比例假設、離散時間" data-en="No proportionality, discrete time">無比例、離散</td><td>tabular</td><td>✓</td><td data-zh="可建模競爭事件" data-en="Models competing events">競爭風險</td></tr>
+<tr><td><strong>Cox-Time / RSF</strong></td><td data-zh="非比例" data-en="Non-proportional">非比例</td><td>tabular</td><td data-zh="RSF ✓" data-en="RSF ✓">RSF ✓</td><td data-zh="Random Survival Forest 仍是強 baseline" data-en="RSF still a strong baseline">RSF 仍強</td></tr>
+<tr><td><strong>SurvTRACE / TFT-Survival</strong></td><td data-zh="序列建模" data-en="Sequence modeling">序列建模</td><td data-zh="EHR 時序 + tabular" data-en="EHR time series + tabular">EHR 時序</td><td>✓</td><td data-zh="Transformer 處理長期序列" data-en="Transformer for long sequences">Transformer 時序</td></tr>
+<tr><td><strong>影像 / WSI Survival</strong></td><td data-zh="MIL + Cox" data-en="MIL + Cox">MIL + Cox</td><td>WSI</td><td data-zh="少數" data-en="Few">少數</td><td data-zh="病理 / 影像直接預測 OS、DFS" data-en="Direct OS / DFS from pathology / imaging">影像直接預測</td></tr>
+</tbody></table>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>2024 食道癌研究：</strong>DeepSurv 與 DeepHit 在 OS / DFS 預測上 C-index 0.74 / 0.735，略勝 CoxPH。<em>但臨床部署前必須做時間獨立 ROC + Brier + Decision Curve。</em></span>
+<span data-lang="en"><strong>2024 esophageal cancer:</strong> DeepSurv &amp; DeepHit reach C-index 0.74/0.735 on OS/DFS — slightly beats CoxPH. <em>Always validate with time-dependent ROC + Brier + decision curves before deployment.</em></span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="評估指標" data-en="EVALUATION">評估指標</div>
+<h2 data-zh="五個必看指標" data-en="Five must-know metrics">五個必看指標</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>① <strong>C-index (Concordance)</strong></h4>
+<div data-lang="zh"><p>把預測風險與實際存活時間配對是否一致；0.5 隨機、1.0 完美。最常用、但對重度審查不敏感。</p></div>
+<div data-lang="en"><p>Pairwise concordance between predicted risk and actual time; 0.5 random, 1.0 perfect. Common but insensitive to heavy censoring.</p></div></div>
+<div class="card"><h4>② <strong>Time-dependent AUC</strong></h4>
+<div data-lang="zh"><p>固定 t* 的 ROC AUC，可看不同時間點區分能力。</p></div>
+<div data-lang="en"><p>ROC AUC at fixed t*, shows discrimination across horizons.</p></div></div>
+<div class="card"><h4>③ <strong>Brier Score / IBS</strong></h4>
+<div data-lang="zh"><p>機率預測的均方誤差；IBS 是時間積分版本。低越好。</p></div>
+<div data-lang="en"><p>MSE of probability predictions; IBS integrates over time. Lower is better.</p></div></div>
+<div class="card"><h4>④ <strong>IPCW Adjustment</strong></h4>
+<div data-lang="zh"><p>Inverse Probability of Censoring Weighting：校正審查機率對指標的偏差。</p></div>
+<div data-lang="en"><p>Inverse Probability of Censoring Weighting corrects for censoring bias.</p></div></div>
+<div class="card"><h4>⑤ <strong>Calibration Plot</strong></h4>
+<div data-lang="zh"><p>觀察「預測 5 年存活」與「實際 5 年存活」的對齊。Hosmer-Lemeshow-like 檢定可量化。</p></div>
+<div data-lang="en"><p>Compare predicted vs observed 5-year survival; Hosmer-Lemeshow-style tests quantify miscalibration.</p></div></div>
+<div class="card"><h4>⑥ <strong>Decision Curve Analysis</strong></h4>
+<div data-lang="zh"><p>不同 threshold 下的「淨效益 (net benefit)」。臨床導入前必看。</p></div>
+<div data-lang="en"><p>Net benefit across thresholds. A must-check before deployment.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="DeepSurv on TCGA" data-en="DeepSurv on TCGA">DeepSurv on TCGA</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="comment"># pip install pycox lifelines</span>
+<span class="kw">import</span> torch, torchtuples <span class="kw">as</span> tt
+<span class="kw">from</span> pycox.models <span class="kw">import</span> CoxPH
+<span class="kw">from</span> pycox.evaluation <span class="kw">import</span> EvalSurv
+net = tt.practical.<span class="func">MLPVanilla</span>(in_features=<span class="num">512</span>, num_nodes=[<span class="num">128</span>,<span class="num">64</span>],
+                                  out_features=<span class="num">1</span>, batch_norm=<span class="kw">True</span>, dropout=<span class="num">.3</span>)
+m = <span class="func">CoxPH</span>(net, tt.optim.<span class="func">Adam</span>(<span class="num">1e-3</span>))
+log = m.<span class="func">fit</span>(x_tr, (dur_tr, evt_tr), batch_size=<span class="num">256</span>, epochs=<span class="num">100</span>,
+            val_data=(x_va,(dur_va,evt_va)))
+m.<span class="func">compute_baseline_hazards</span>()
+surv = m.<span class="func">predict_surv_df</span>(x_te)
+ev = <span class="func">EvalSurv</span>(surv, dur_te, evt_te, censor_surv=<span class="str">"km"</span>)
+<span class="func">print</span>(<span class="str">"C-index:"</span>, ev.<span class="func">concordance_td</span>(),
+          <span class="str">"IBS:"</span>, ev.<span class="func">integrated_brier_score</span>(np.<span class="func">linspace</span>(<span class="num">0</span>,dur_te.<span class="func">max</span>(),<span class="num">100</span>)))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(survival); <span class="kw">library</span>(survminer); <span class="kw">library</span>(survivalmodels)
+<span class="comment"># DeepSurv via survivalmodels (reticulate to pycox)</span>
+df &lt;- <span class="func">readRDS</span>(<span class="str">"tcga_brca.rds"</span>)
+fit &lt;- survivalmodels::<span class="func">deepsurv</span>(formula = <span class="func">Surv</span>(time, status) ~ ., data = df,
+        num_nodes = <span class="func">c</span>(<span class="num">128</span>L,<span class="num">64</span>L), batch_size = <span class="num">256</span>L, epochs = <span class="num">100</span>L)
+pred &lt;- <span class="func">predict</span>(fit, df_test, type = <span class="str">"risk"</span>)
+<span class="func">concordance</span>(<span class="func">Surv</span>(time,status) ~ pred, data = df_test)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. DeepSurv 與 CoxPH 最大差別是？</p>
+<p data-lang="en">1. The main difference between DeepSurv and CoxPH is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. DeepSurv 不需要 partial likelihood</span><span data-lang="en">A. DeepSurv doesn't use partial likelihood</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. DeepSurv 用 DNN 取代 CoxPH 的線性層</span><span data-lang="en">B. DeepSurv swaps the linear layer with a DNN</span></div>
+<div class="quiz-opt" data-correct="0">C. DeepSurv 不能處理審查</div>
+<div class="quiz-opt" data-correct="0">D. DeepSurv 只用 GPU</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>仍保留比例假設 + partial likelihood。</span><span data-lang="en"><strong>B.</strong> Keeps proportionality + partial likelihood.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 「競爭風險」是什麼？</p>
+<p data-lang="en">2. What are "competing risks"?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 多家公司競爭做 AI 醫材</span><span data-lang="en">A. Companies competing for medical AI</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 多種事件互相阻擋（如「死於癌」vs「死於心臟病」）</span><span data-lang="en">B. Multiple events that preclude each other (e.g., death from cancer vs heart disease)</span></div>
+<div class="quiz-opt" data-correct="0">C. 模型過擬合</div>
+<div class="quiz-opt" data-correct="0">D. 隱私法規衝突</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>DeepHit / Fine-Gray 是經典處理方式。</span><span data-lang="en"><strong>B.</strong> DeepHit / Fine-Gray are the classic approaches.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 為什麼臨床導入前一定要看 Decision Curve？</p>
+<p data-lang="en">3. Why is decision curve essential before deployment?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. FDA 強制</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 它顯示在不同 threshold 下模型對「淨臨床效益」的影響</span><span data-lang="en">B. It quantifies net clinical benefit across thresholds</span></div>
+<div class="quiz-opt" data-correct="0">C. 必要的醫工法</div>
+<div class="quiz-opt" data-correct="0">D. 提升 GPU 利用率</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>AUC 高不代表臨床上有用。</span><span data-lang="en"><strong>B.</strong> High AUC ≠ clinical usefulness.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch13-clinical-nlp.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="電子病歷與臨床 NLP" data-en="EHR &amp; Clinical NLP">電子病歷與臨床 NLP</span></a>
+<a href="ch15-multimodal-foundation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="多模態 Foundation Models" data-en="Multimodal Foundation Models">多模態 Foundation Models</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 14</footer>
+<script src="i18n.js"></script>
+</body></html>

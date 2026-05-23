@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch08 · 變異解讀與罕病診斷</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html" class="active">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK B · CHAPTER 08 / 20</div>
+  <h1 data-zh="變異解讀與罕病診斷" data-en="Variant Interpretation & Rare Disease">變異解讀與罕病診斷</h1>
+  <p class="subtitle" data-lang="zh">AlphaMissense、PrimateAI-3D、ESM1b——把 7100 萬個錯義變異一次標好致病性，然後呢？</p>
+  <p class="subtitle" data-lang="en">AlphaMissense, PrimateAI-3D, ESM1b — pathogenicity labels for 71M missense variants. Now what?</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="背景" data-en="BACKGROUND">背景</div>
+<h2 data-zh="罕病診斷的核心難題：VUS" data-en="The core challenge: VUS in rare disease">罕病診斷的核心難題：VUS</h2>
+<div data-lang="zh">
+<p>臨床基因檢測常見的瓶頸不是「找不到變異」，而是 <strong>VUS（Variant of Uncertain Significance）</strong>——找到了，但不知道是不是致病。ClinVar 大約 50% 提交為 VUS。AI 變異效應預測器 (VEP) 的工作就是把「不確定」往「可能致病 / 可能良性」推。</p>
+<p>2023 年 Science 封面：<strong>AlphaMissense</strong> 涵蓋人類 7100 萬個錯義變異，AUROC ≈ 0.96，覆蓋率前所未見。同年 Illumina 推 <strong>PrimateAI-3D</strong>，用非人靈長類變異訓練。2024 起 Meta <strong>ESM1b / ESM-3</strong> 用語言模型 zero-shot 給分。</p>
+</div>
+<div data-lang="en">
+<p>The bottleneck in clinical genetic testing isn't "no variant found" — it's <strong>VUS (Variant of Uncertain Significance)</strong>: variant found but pathogenicity unclear. ~50% of ClinVar submissions are VUS. AI variant effect predictors (VEPs) push "uncertain" toward "likely pathogenic / likely benign".</p>
+<p>Science cover 2023: <strong>AlphaMissense</strong> covers all 71M human missense variants at AUROC ≈ 0.96. The same year, Illumina launched <strong>PrimateAI-3D</strong>, trained on non-human primate variants. Since 2024, Meta's <strong>ESM1b / ESM-3</strong> provides zero-shot scores via language modeling.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="主流預測器" data-en="LEADING PREDICTORS">主流預測器</div>
+<h2 data-zh="2024–2025 五大變異效應預測器" data-en="Top 5 VEPs (2024–2025)">2024–2025 五大變異效應預測器</h2>
+<table class="comp-table"><thead><tr><th data-zh="模型" data-en="Model">模型</th><th data-zh="訓練資料" data-en="Training data">訓練資料</th><th data-zh="AUROC (benchmark)" data-en="AUROC (benchmark)">AUROC</th><th data-zh="優點" data-en="Strengths">優點</th><th data-zh="限制" data-en="Limits">限制</th></tr></thead><tbody>
+<tr><td><strong>AlphaMissense</strong> (Science 2023)</td><td data-zh="AF2 微調 + 人類/靈長類觀察變異" data-en="AF2 fine-tune + human/primate observed">AF2 微調 + 觀察變異</td><td>~0.96 (ClinVar)</td><td data-zh="覆蓋率全人類；商業上需 DeepMind 授權" data-en="Full proteome coverage; commercial license needed">全人類覆蓋</td><td data-zh="臨床真實世界稍弱於 PrimateAI-3D" data-en="Slightly behind PrimateAI-3D in real-world cohorts">真實世界稍弱</td></tr>
+<tr><td><strong>PrimateAI-3D</strong> (medRxiv 2024)</td><td data-zh="非人靈長類觀察變異" data-en="Non-human primate variants">靈長類變異</td><td>~0.94</td><td data-zh="罕病 cohort 真實表現領先" data-en="Best real-world rare-disease cohort performance">罕病真實領先</td><td data-zh="AUROC 略低於 AM；私有授權" data-en="Lower AUROC; proprietary">私有授權</td></tr>
+<tr><td><strong>ESM1b / ESM-3</strong></td><td data-zh="UniProt 250M 序列 zero-shot" data-en="UniProt 250M zero-shot">UniProt 250M</td><td>~0.92</td><td data-zh="開源、跨物種推廣強" data-en="Open-weights, strong cross-species generalization">開源</td><td data-zh="不直接學致病性，只學序列機率" data-en="Learns sequence probability, not pathogenicity directly">非致病性 specific</td></tr>
+<tr><td><strong>CADD v1.7</strong></td><td data-zh="多 annotation 整合迴歸" data-en="Annotation-integration regression">多 annotation 迴歸</td><td>~0.88</td><td data-zh="覆蓋非編碼 + 編碼變異" data-en="Covers coding + non-coding">非編碼也涵蓋</td><td data-zh="深度學習新世代略勝" data-en="Beaten by DL on coding">編碼端輸 DL</td></tr>
+<tr><td><strong>REVEL / SpliceAI</strong></td><td data-zh="集成法 / 剪接專用" data-en="Ensemble / splicing-specific">集成 / 剪接</td><td>~0.85–0.93</td><td data-zh="臨床常被 ACMG PP3 採用" data-en="Adopted by ACMG PP3">ACMG 採用</td><td data-zh="非通用 missense 王者" data-en="Not the missense king">不是 missense 第一</td></tr>
+</tbody></table>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>2025 真實世界研究指出：</strong>AlphaMissense 在 ClinVar 高分，但在罕病 cohort 不如 PrimateAI-3D；若把 PrimateAI-3D 加上人類變異重訓 (PrimateAI-3D-plus-human) 表現再升。<em>不要把 benchmark AUROC 當作臨床決策依據。</em></span>
+<span data-lang="en"><strong>2025 real-world finding:</strong> AlphaMissense leads on ClinVar, but PrimateAI-3D leads on rare-disease cohorts; retraining PrimateAI-3D with human variants ("PrimateAI-3D-plus-human") improves further. <em>Don't take benchmark AUROC as clinical truth.</em></span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="ACMG 整合" data-en="ACMG INTEGRATION">ACMG 整合</div>
+<h2 data-zh="AI 分數如何進入 ACMG 2015 / 2023 修訂規範？" data-en="How AI scores feed into ACMG 2015 / 2023 update">AI 分數與 ACMG 規範</h2>
+<div data-lang="zh">
+<p>ACMG/AMP 2015 框架把致病性分成 P/LP/VUS/LB/B，每條證據有 PVS / PS / PM / PP（致病）與 BA / BS / BP（良性）等強度。<strong>AI 分數通常落在 PP3（電腦預測支持致病）/ BP4（電腦預測支持良性）</strong>。2023 修訂的 SVI (Sequence Variant Interpretation) workgroup 文件給了 quantitative thresholds：</p>
+<ul>
+<li data-lang="zh">AlphaMissense ≥ 0.564 ⇒ PP3_Strong；≤ 0.34 ⇒ BP4_Strong（依 cohort 校準）。</li>
+<li data-lang="en">AlphaMissense ≥ 0.564 ⇒ PP3_Strong; ≤ 0.34 ⇒ BP4_Strong (cohort-calibrated).</li>
+<li data-lang="zh">REVEL ≥ 0.932 ⇒ PP3_Very Strong；≤ 0.016 ⇒ BP4_Very Strong。</li>
+<li data-lang="en">REVEL ≥ 0.932 ⇒ PP3_Very Strong; ≤ 0.016 ⇒ BP4_Very Strong.</li>
+<li data-lang="zh">SpliceAI ≥ 0.5 ⇒ PP3 for splice region；&lt; 0.1 ⇒ BP4。</li>
+<li data-lang="en">SpliceAI ≥ 0.5 ⇒ PP3 splice; &lt; 0.1 ⇒ BP4.</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="查詢一個變異的多源 AI 預測" data-en="Query a variant across multiple AI predictors">查詢一個變異的多源 AI 預測</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="comment"># Approach 1: dbNSFP via myvariant.info</span>
+<span class="kw">import</span> myvariant
+mv = myvariant.<span class="func">MyVariantInfo</span>()
+r = mv.<span class="func">getvariant</span>(<span class="str">"chr7:g.140453136A>T"</span>,
+                  fields=<span class="str">"dbnsfp.alphamissense,dbnsfp.primateai,dbnsfp.revel,dbnsfp.cadd_phred"</span>)
+<span class="func">print</span>(r[<span class="str">"dbnsfp"</span>])
+
+<span class="comment"># Approach 2: download bulk AM tsv</span>
+<span class="comment"># https://storage.googleapis.com/dm_alphamissense/AlphaMissense_aa_substitutions.tsv.gz</span></pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(myvariant)
+mv &lt;- <span class="func">MyVariant</span>()
+r &lt;- <span class="func">getVariant</span>(mv, <span class="str">"chr7:g.140453136A>T"</span>,
+        fields=<span class="str">"dbnsfp.alphamissense,dbnsfp.primateai,dbnsfp.revel,dbnsfp.cadd_phred"</span>)
+<span class="func">print</span>(r$dbnsfp)</pre></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>實務原則：</strong>不要只看一個分數。建議至少參考 3 個（如 AlphaMissense + REVEL + ESM1b）並把分歧值報告給臨床遺傳師。可在 dbNSFP v4.6 直接取得 50+ VEP 分數。</span>
+<span data-lang="en"><strong>Rule of thumb:</strong> Never rely on a single score. Use at least 3 (e.g., AlphaMissense + REVEL + ESM1b) and report disagreements to the clinical geneticist. dbNSFP v4.6 includes 50+ VEPs.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="罕病工作流" data-en="RARE DISEASE WORKFLOW">罕病工作流</div>
+<h2 data-zh="從家系 WGS 到報告的 6 步驟" data-en="6 steps from family WGS to report">家系 WGS → 報告的 6 步驟</h2>
+<div class="workflow">
+  <div class="workflow-step" data-step="1"><h4 data-zh="次世代定序 + GATK best practice" data-en="WGS + GATK best practice">WGS + GATK best practice</h4>
+    <p data-lang="zh">DeepVariant 或 GATK HaplotypeCaller；trio 模式可大幅降偽陽性。</p>
+    <p data-lang="en">DeepVariant or GATK HaplotypeCaller; trio mode greatly reduces false positives.</p></div>
+  <div class="workflow-step" data-step="2"><h4 data-zh="VEP / SnpEff 註釋" data-en="VEP / SnpEff annotation">VEP / SnpEff 註釋</h4>
+    <p data-lang="zh">註明 transcript / consequence；同時 join AlphaMissense、REVEL、SpliceAI。</p>
+    <p data-lang="en">Annotate transcript / consequence; join AlphaMissense, REVEL, SpliceAI scores.</p></div>
+  <div class="workflow-step" data-step="3"><h4 data-zh="表型對照（HPO + Phenotype-driven）" data-en="Phenotype matching (HPO)">表型對照</h4>
+    <p data-lang="zh">用 Exomiser / LIRICAL / AMELIE 對齊 HPO 表型與基因。</p>
+    <p data-lang="en">Use Exomiser / LIRICAL / AMELIE to align HPO terms with genes.</p></div>
+  <div class="workflow-step" data-step="4"><h4 data-zh="家系分離分析" data-en="Family segregation">家系分離分析</h4>
+    <p data-lang="zh">驗證孟德爾遺傳模式（隱性/顯性/X-linked），縮小候選清單。</p>
+    <p data-lang="en">Validate inheritance (recessive/dominant/X-linked) to narrow candidates.</p></div>
+  <div class="workflow-step" data-step="5"><h4 data-zh="ACMG 分類" data-en="ACMG classification">ACMG 分類</h4>
+    <p data-lang="zh">綜合 PVS/PS/PM/PP/BP/BS 證據；AI 分數歸於 PP3 / BP4 強度。</p>
+    <p data-lang="en">Combine PVS/PS/PM/PP/BP/BS evidence; AI scores go under PP3 / BP4 strength.</p></div>
+  <div class="workflow-step" data-step="6"><h4 data-zh="臨床確認 + 報告" data-en="Clinical confirmation + report">臨床確認 + 報告</h4>
+    <p data-lang="zh">Sanger 驗證、回饋家庭、若有家族風險變異提供遺傳諮詢。</p>
+    <p data-lang="en">Sanger confirm, return results to family, provide genetic counseling for familial-risk variants.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. ACMG 中，AI 變異預測通常對應到？</p>
+<p data-lang="en">1. In ACMG, AI variant prediction usually maps to?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. PVS1</div>
+<div class="quiz-opt" data-correct="0">B. PS3</div>
+<div class="quiz-opt" data-correct="1">C. PP3 / BP4</div>
+<div class="quiz-opt" data-correct="0">D. BA1</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>SVI 2023 給出 AI 分數的量化強度建議。</span><span data-lang="en"><strong>C.</strong> SVI 2023 gives quantitative thresholds for AI-score evidence strength.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 2025 真實世界研究的最重要結論是？</p>
+<p data-lang="en">2. The key real-world finding (2025) is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. AlphaMissense 完勝 PrimateAI-3D</span><span data-lang="en">A. AlphaMissense fully beats PrimateAI-3D</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. Benchmark AUROC 不能代表臨床表現，PrimateAI-3D 在罕病 cohort 較強</span><span data-lang="en">B. Benchmark AUROC ≠ clinical performance; PrimateAI-3D leads on rare-disease cohorts</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. ESM-3 完勝兩者</span><span data-lang="en">C. ESM-3 beats both fully</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. ClinVar 不再需要</span><span data-lang="en">D. ClinVar is obsolete</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>臨床驗證 ≠ ClinVar AUROC。</span><span data-lang="en"><strong>B.</strong> Clinical validation ≠ ClinVar AUROC.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 為什麼一定要同時參考 ≥3 個 VEP？</p>
+<p data-lang="en">3. Why use ≥3 VEPs?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 為了多花錢</span><span data-lang="en">A. To spend more money</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 各模型訓練資料/歸納偏好不同，相互校驗能降低 false call</span><span data-lang="en">B. Models differ in training data/inductive bias; cross-check lowers false calls</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 因為 dbNSFP 強制</span><span data-lang="en">C. dbNSFP mandates it</span></div>
+<div class="quiz-opt" data-correct="0">D. 提升 GPU 使用率</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>「分歧」本身就是訊號，提示需要功能實驗或臨床判讀。</span><span data-lang="en"><strong>B.</strong> Disagreement is itself a signal — calls for functional or clinical follow-up.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch07-multiomics-integration.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="多體學整合與空間組" data-en="Multi-omics &amp; Spatial Integration">多體學整合與空間組</span></a>
+<a href="ch09-medical-imaging-dl.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="醫療影像深度學習" data-en="Medical Imaging Deep Learning">醫療影像深度學習</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 08</footer>
+<script src="i18n.js"></script>
+</body></html>

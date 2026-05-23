@@ -1,0 +1,162 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch19 · MLOps、隱私與聯邦學習</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html" class="active">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK E · CHAPTER 19 / 20</div>
+  <h1 data-zh="MLOps、隱私與聯邦學習" data-en="MLOps, Privacy & Federated Learning">MLOps、隱私與聯邦學習</h1>
+  <p class="subtitle" data-lang="zh">把模型穩定送進臨床——MLflow、ONNX、BentoML、Federated Learning、Differential Privacy 全套。</p>
+  <p class="subtitle" data-lang="en">Deliver models to the clinic reliably — MLflow, ONNX, BentoML, federated learning, differential privacy.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="MLOps" data-en="MLOPS">MLOps</div>
+<h2 data-zh="生醫 MLOps 的五階段" data-en="Five stages of biomedical MLOps">生醫 MLOps 的五階段</h2>
+<div class="workflow">
+  <div class="workflow-step" data-step="1"><h4 data-zh="資料版本化" data-en="Data versioning">資料版本化</h4>
+    <p data-lang="zh">DVC / lakeFS / Pachyderm；DICOM、FASTQ、AnnData 都需要可重現的版本。</p>
+    <p data-lang="en">DVC / lakeFS / Pachyderm; DICOM, FASTQ, AnnData need reproducible versioning.</p></div>
+  <div class="workflow-step" data-step="2"><h4 data-zh="實驗追蹤" data-en="Experiment tracking">實驗追蹤</h4>
+    <p data-lang="zh">MLflow / Weights &amp; Biases / Neptune；每次 run 記錄超參、metric、artifact、commit。</p>
+    <p data-lang="en">MLflow / W&amp;B / Neptune; log hyperparams, metrics, artifacts, commits per run.</p></div>
+  <div class="workflow-step" data-step="3"><h4 data-zh="模型打包與部署" data-en="Model packaging & serving">模型打包與部署</h4>
+    <p data-lang="zh">ONNX 跨框架；BentoML / Triton / vLLM 服務化；Docker / Singularity 環境鎖定。</p>
+    <p data-lang="en">ONNX for cross-framework; BentoML / Triton / vLLM for serving; Docker / Singularity for environment lock.</p></div>
+  <div class="workflow-step" data-step="4"><h4 data-zh="監控與漂移偵測" data-en="Monitoring & drift detection">監控與漂移偵測</h4>
+    <p data-lang="zh">Evidently / Arize / WhyLogs 偵測 data drift、prediction drift、子族表現衰退。</p>
+    <p data-lang="en">Evidently / Arize / WhyLogs detect data drift, prediction drift, subgroup degradation.</p></div>
+  <div class="workflow-step" data-step="5"><h4 data-zh="再訓練與版本治理" data-en="Retraining & governance">再訓練與版本治理</h4>
+    <p data-lang="zh">符合 FDA PCCP（Ch04）的「變更協定」；每次更新留下 audit trail。</p>
+    <p data-lang="en">Align retraining with FDA PCCP's modification protocol (Ch04); keep audit trails for every update.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="隱私技術" data-en="PRIVACY TECH">隱私技術</div>
+<h2 data-zh="四把隱私武器" data-en="Four privacy weapons">四把隱私武器</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>① <strong>去識別化 (De-identification)</strong></h4>
+<div data-lang="zh"><p>HIPAA Safe Harbor 18 種識別子刪除；DICOM 標籤遮罩；NER 自動找 PHI。最基本但不夠。</p></div>
+<div data-lang="en"><p>Remove 18 HIPAA identifiers; DICOM tag masking; NER-based PHI scrubbing. Necessary but insufficient.</p></div></div>
+<div class="card"><h4>② <strong>差分隱私 (DP)</strong></h4>
+<div data-lang="zh"><p>訓練時對梯度加雜訊，保證個人記錄對最終模型影響 &lt; ε。Opacus（PyTorch）、TensorFlow Privacy。</p></div>
+<div data-lang="en"><p>Add noise to gradients during training so any record affects the final model by &lt; ε. Opacus, TensorFlow Privacy.</p></div></div>
+<div class="card"><h4>③ <strong>聯邦學習 (Federated Learning)</strong></h4>
+<div data-lang="zh"><p>資料不出機構，只交換模型權重 / 梯度。Flower / NVIDIA FLARE / OpenFL；2024 NPJ Digital Medicine 報告 DP+FL 可在 1.57M WSI 上達中央訓練同等表現。</p></div>
+<div data-lang="en"><p>Data stays on-site; only weights/gradients move. Flower / NVIDIA FLARE / OpenFL; 2024 NPJ Digital Med shows DP+FL matches centralized training on 1.57M WSI.</p></div></div>
+<div class="card"><h4>④ <strong>安全多方計算 / 同態加密</strong></h4>
+<div data-lang="zh"><p>SMPC / HE 讓多方在不揭露原始資料的條件下聯合推論。計算成本仍高，2024 起逐漸落地於跨國臨床試驗。</p></div>
+<div data-lang="en"><p>SMPC / HE enable joint inference without revealing raw data. Compute costs remain high; entering multinational trials in 2024+.</p></div></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>2024 聯邦學習 EHR 報告：</strong>多醫院糖尿病研究中，FL 把資料外洩風險降 40%，並把預測表現提升 15%。FL+DP 是 2024-2026 的「機構合作」黃金搭檔。</span>
+<span data-lang="en"><strong>2024 federated EHR finding:</strong> in multi-hospital diabetes work, FL lowered breach risk 40% and improved prediction 15%. FL+DP is the 2024-2026 gold combo for institutional collaboration.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="工具棧" data-en="TOOLING STACK">工具棧</div>
+<h2 data-zh="2024-2026 生醫 AI 工具棧" data-en="2024-2026 biomedical AI stack">參考工具棧</h2>
+<table class="comp-table"><thead><tr><th data-zh="層級" data-en="Layer">層級</th><th data-zh="工具" data-en="Tools">工具</th></tr></thead><tbody>
+<tr><td data-zh="資料 / 容器" data-en="Data / Containers">資料 / 容器</td><td>DICOM / FHIR / OMOP, DVC, lakeFS, Pachyderm</td></tr>
+<tr><td data-zh="訓練框架" data-en="Training">訓練框架</td><td>PyTorch, JAX, HuggingFace, MONAI, scvi-tools</td></tr>
+<tr><td data-zh="實驗追蹤" data-en="Tracking">實驗追蹤</td><td>MLflow, W&amp;B, Neptune, Comet</td></tr>
+<tr><td data-zh="服務化" data-en="Serving">服務化</td><td>BentoML, NVIDIA Triton, vLLM, Ray Serve, TorchServe</td></tr>
+<tr><td data-zh="跨框架" data-en="Interop">跨框架</td><td>ONNX, TorchScript</td></tr>
+<tr><td data-zh="監控" data-en="Monitoring">監控</td><td>Evidently, Arize, WhyLogs, Prometheus + Grafana</td></tr>
+<tr><td data-zh="隱私" data-en="Privacy">隱私</td><td>Opacus, TensorFlow Privacy, PySyft, NVIDIA FLARE, Flower</td></tr>
+<tr><td data-zh="雲端醫療" data-en="Healthcare cloud">雲端醫療</td><td>NIH STRIDES, AWS HealthLake, Google Cloud Healthcare API, Azure Health Data Services</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="MLflow 紀錄 + Opacus DP 訓練" data-en="MLflow logging + Opacus DP training">MLflow + Opacus</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> mlflow, torch
+<span class="kw">from</span> opacus <span class="kw">import</span> PrivacyEngine
+mlflow.<span class="func">set_experiment</span>(<span class="str">"ehr_30day_readmit"</span>)
+<span class="kw">with</span> mlflow.<span class="func">start_run</span>():
+    mlflow.<span class="func">log_params</span>({<span class="str">"lr"</span>: <span class="num">1e-3</span>, <span class="str">"bs"</span>: <span class="num">256</span>, <span class="str">"epochs"</span>: <span class="num">20</span>, <span class="str">"dp_eps"</span>: <span class="num">5.0</span>})
+    opt = torch.optim.<span class="func">AdamW</span>(model.<span class="func">parameters</span>(), lr=<span class="num">1e-3</span>)
+    privacy = <span class="func">PrivacyEngine</span>()
+    model, opt, train_loader = privacy.<span class="func">make_private_with_epsilon</span>(
+        module=model, optimizer=opt, data_loader=train_loader,
+        target_epsilon=<span class="num">5.0</span>, target_delta=<span class="num">1e-5</span>, epochs=<span class="num">20</span>,
+        max_grad_norm=<span class="num">1.0</span>)
+    <span class="kw">for</span> ep <span class="kw">in</span> <span class="func">range</span>(<span class="num">20</span>):
+        ...  <span class="comment"># train</span>
+    mlflow.<span class="func">log_metric</span>(<span class="str">"auroc"</span>, val_auroc)
+    mlflow.pytorch.<span class="func">log_model</span>(model, <span class="str">"model"</span>)</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(mlflow); <span class="kw">library</span>(reticulate)
+opacus &lt;- <span class="func">import</span>(<span class="str">"opacus"</span>); torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>)
+mlflow::<span class="func">mlflow_set_experiment</span>(<span class="str">"ehr_30day_readmit"</span>)
+mlflow::<span class="func">mlflow_start_run</span>()
+mlflow::<span class="func">mlflow_log_param</span>(<span class="str">"lr"</span>, <span class="num">1e-3</span>)
+mlflow::<span class="func">mlflow_log_param</span>(<span class="str">"dp_eps"</span>, <span class="num">5.0</span>)
+<span class="comment"># Opacus 訓練流程同 Python</span></pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. 為什麼 FDA PCCP 要求 audit trail？</p>
+<p data-lang="en">1. Why does FDA PCCP require audit trails?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 追蹤每次模型更新對安全與效能的影響</span><span data-lang="en">A. Track impact of every update on safety &amp; performance</span></div>
+<div class="quiz-opt" data-correct="0">B. 證明工程師有加班</div>
+<div class="quiz-opt" data-correct="0">C. 廣告用</div>
+<div class="quiz-opt" data-correct="0">D. 避免訓練</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>對應 PCCP 三件套之「影響評估 + 變更協定」。</span><span data-lang="en"><strong>A.</strong> Matches PCCP's "impact assessment + modification protocol."</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 差分隱私的 ε 值越小代表？</p>
+<p data-lang="en">2. A smaller ε in DP means?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 更弱的隱私</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 更強的隱私保證，但效用下降</span><span data-lang="en">B. Stronger privacy guarantee, lower utility</span></div>
+<div class="quiz-opt" data-correct="0">C. 更快訓練</div>
+<div class="quiz-opt" data-correct="0">D. 完全不可用</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>ε 是隱私-效用 trade-off 旋鈕。</span><span data-lang="en"><strong>B.</strong> ε is the privacy-utility tradeoff knob.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 聯邦學習的核心特性？</p>
+<p data-lang="en">3. Federated learning's defining feature?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 資料不出機構；只交換模型權重 / 梯度</span><span data-lang="en">A. Data stays on-site; only weights/gradients are exchanged</span></div>
+<div class="quiz-opt" data-correct="0">B. 多 GPU 訓練</div>
+<div class="quiz-opt" data-correct="0">C. 完全去除偏差</div>
+<div class="quiz-opt" data-correct="0">D. 無加密</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>FL+DP 是 2024 跨機構合作標配。</span><span data-lang="en"><strong>A.</strong> FL+DP is the 2024 standard for cross-institution work.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch18-explainable-ai.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="可解釋 AI 與生醫應用" data-en="Explainable AI for Biomedicine">可解釋 AI 與生醫應用</span></a>
+<a href="ch20-future-paradigms.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="未來：AI 帶來的範式轉移" data-en="Future: The Coming Paradigm Shift">未來：AI 帶來的範式轉移</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 19</footer>
+<script src="i18n.js"></script>
+</body></html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Quiz · AI × 生醫大數據 (200 題)</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+.quiz-controls{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;background:var(--c-surface);border:1px solid var(--c-border-light);border-radius:var(--radius-lg);padding:12px 18px;margin:16px 0}
+.quiz-stats{display:flex;gap:10px;font-size:.9rem;color:var(--c-ink-light)}
+.quiz-stats b{color:var(--c-accent-dark)}
+.qbox{background:var(--c-surface);border:1px solid var(--c-border-light);border-radius:var(--radius-lg);padding:24px;margin-bottom:18px}
+.qbox.correct{border-color:#059669;background:#ecfdf5}
+.qbox.wrong{border-color:#dc2626;background:#fef2f2}
+.qbox .qtag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.5px;color:var(--c-accent);background:var(--c-accent-light);padding:2px 8px;border-radius:10px;margin-right:8px}
+.qbox .qtype{display:inline-block;font-size:.7rem;color:var(--c-ink-muted);margin-left:6px}
+.qbox h4{font-family:var(--font-body);font-size:1rem;font-weight:600;margin:8px 0 12px;line-height:1.6}
+.qopt{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--c-bg);border:1px solid var(--c-border-light);border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:.92rem}
+.qopt:hover{border-color:var(--c-accent);background:var(--c-accent-light)}
+.qopt.sel{border-color:var(--c-accent);background:var(--c-accent-light)}
+.qopt.ok{border-color:#059669;background:#d1fae5}
+.qopt.bad{border-color:#dc2626;background:#fee2e2}
+.qexp{margin-top:10px;padding:10px 14px;background:var(--c-accent-light);border-left:3px solid var(--c-accent);font-size:.88rem;border-radius:0 8px 8px 0;display:none}
+.qexp.show{display:block}
+.q-submit{background:var(--c-accent);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-weight:600;cursor:pointer;font-size:.9rem;margin-top:8px}
+.q-submit:hover{background:var(--c-accent-dark)}
+.score-banner{background:linear-gradient(135deg,var(--c-accent),var(--c-highlight));color:#fff;padding:24px;border-radius:var(--radius-lg);margin:20px 0;text-align:center}
+.score-banner h3{font-family:var(--font-display);font-size:1.6rem;margin-bottom:6px}
+</style>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="../index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="../ch01-ai-bio-era.html">Ch01</a></li><li><a href="../ch10-digital-pathology.html">Ch10</a></li><li><a href="../ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html">Refs</a></li><li><a href="index.html" class="active">Quiz</a></li>
+  </ul>
+</div></nav>
+
+<header class="page-hero">
+  <div class="step-badge">QUIZ · 200 QUESTIONS</div>
+  <h1 data-zh="🧠 AI 與生醫大數據 互動式考題" data-en="🧠 AI Meets Biomed Big Data Interactive Quiz">🧠 AI 與生醫大數據 互動式考題</h1>
+  <p class="subtitle" data-lang="zh">章節練習、隨機 20 題、錯題複習、完整模擬考；單選 / 多選 / 是非。</p>
+  <p class="subtitle" data-lang="en">By-chapter, random-20, wrong-answer review, full mock exam; single / multi / true-false.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="模式" data-en="MODES">模式</div>
+<div class="quiz-controls" id="modeRow"></div>
+<div class="quiz-controls" id="chapRow" style="display:none"></div>
+
+<div class="quiz-meta">
+  <div class="quiz-stats">
+    <span data-zh="模式" data-en="Mode">模式</span>：<b id="curMode">—</b>
+    <span data-zh="題數" data-en="Total">題數</span>：<b id="curTotal">0</b>
+    <span data-zh="答對" data-en="Correct">答對</span>：<b id="curCorrect">0</b>
+    <span data-zh="答錯" data-en="Wrong">答錯</span>：<b id="curWrong">0</b>
+  </div>
+  <div>
+    <button class="toggle-btn toggle-btn-sm" onclick="resetWrong()"><span data-zh="清空錯題" data-en="Clear wrong list">清空錯題</span></button>
+  </div>
+</div>
+
+<div id="qList"></div>
+<div id="endBanner"></div>
+</section>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Quiz</footer>
+<script src="../i18n.js"></script>
+<script>
+// ===== Question bank: 200 questions =====
+// type: 'single' | 'multi' | 'tf'; ans = correct index/indices/boolean; ch = 1..20
+const QB = [
+/* ----- Ch01 ----- */
+{ch:1,type:'single',q:'下列哪一項不是促成 2021 年以後 AI × 生醫爆發的關鍵？',o:['UK Biobank / HCA 大規模資料','Transformer 架構與 GPU','放寬醫療資料隱私法規','開源權重 (ESM、scGPT)'],ans:2,exp:'GDPR / HIPAA / EU AI Act 反而更嚴格。'},
+{ch:1,type:'single',q:'AlphaFold 3 相對於 AF2 最關鍵的新能力？',o:['縮小參數量','聯合預測蛋白-核酸-配體-離子','完全開放商用','取代質譜'],ans:1,exp:'Nature 630:493–500 (2024) diffusion decoder。'},
+{ch:1,type:'single',q:'Foundation Model 與傳統監督式 DL 最大差別？',o:['不需要 GPU','只用小資料','大規模自監督預訓練 + 微調','必須用 RL'],ans:2,exp:'scGPT / ESM-3 / UNI 共通範式。'},
+{ch:1,type:'tf',q:'2024 起，幾乎每個生醫子領域都已有自己的 Foundation Model。',o:['對','錯'],ans:0,exp:'基因體、單細胞、病理、影像、臨床、蛋白均有 FM。'},
+{ch:1,type:'single',q:'AlphaFold 2 在哪一年發表？',o:['2017','2019','2021','2023'],ans:2,exp:'Nature 596 (2021)。'},
+{ch:1,type:'multi',q:'下列哪些屬於 2024 年的代表性 AI × 生醫進展？(複選)',o:['AlphaFold 3','scGPT','AlphaMissense Nature 封面','Med-Gemini 91.1% MedQA','BLAST 演算法'],ans:[0,1,3],exp:'AlphaMissense 為 2023 Science，BLAST 為 1990 年代。'},
+{ch:1,type:'single',q:'ImageNet 時刻指的是？',o:['免費的醫學影像比賽','深度學習在電腦視覺超越傳統','一個資料集名稱','AI 比賽冠軍'],ans:1,exp:'AlexNet 2012 帶動視覺 DL 浪潮。'},
+{ch:1,type:'single',q:'下列哪一項是 2025 年 CZI 推出的代表性產品？',o:['rBio (virtual cell reasoning)','GPT-5','LLaMA-4','PaLM-3'],ans:0,exp:'CZI rBio 為 2025 重要里程碑。'},
+{ch:1,type:'tf',q:'Borzoi 的脈絡長度大於 Enformer。',o:['對','錯'],ans:0,exp:'Borzoi ~524 kb > Enformer ~200 kb。'},
+{ch:1,type:'single',q:'本教程共有幾章？',o:['10','15','20','25'],ans:2,exp:'20 章 / 5 區塊。'},
+
+/* ----- Ch02 ----- */
+{ch:2,type:'single',q:'OMOP CDM 與 FHIR 的差別？',o:['OMOP=分析導向；FHIR=交換導向','OMOP 只用於癌症','FHIR 是基因體格式','兩者等價'],ans:0,exp:'OHDSI 大規模研究用 OMOP；HL7 FHIR 即時交換。'},
+{ch:2,type:'single',q:'適合跨族裔藥物反應研究的資料？',o:['TCGA','UK Biobank','All of Us','ENCODE'],ans:2,exp:'All of Us 強調多元族裔代表性。'},
+{ch:2,type:'single',q:'HIPAA Safe Harbor 規定刪除幾種識別子？',o:['5','10','18','33'],ans:2,exp:'18 項識別子。'},
+{ch:2,type:'multi',q:'下列哪些是空間轉錄組技術？(複選)',o:['10x Visium','Xenium','MERFISH','BLAST'],ans:[0,1,2],exp:'BLAST 是序列比對工具。'},
+{ch:2,type:'single',q:'TCGA 有多少種癌症？',o:['12','22','33','55'],ans:2,exp:'33 cancer types。'},
+{ch:2,type:'single',q:'GTEx v9 涵蓋幾個健康組織？',o:['12','24','54','108'],ans:2,exp:'54 tissues。'},
+{ch:2,type:'tf',q:'UK Biobank 受試者多數為歐裔。',o:['對','錯'],ans:0,exp:'約 94% 歐裔。'},
+{ch:2,type:'single',q:'HCA 已標註多少細胞數量級？',o:['5 千','5 萬','5 百萬','5 千萬'],ans:3,exp:'>50M 細胞。'},
+{ch:2,type:'multi',q:'下列哪些是公開 EHR / 影像資料集？(複選)',o:['MIMIC-IV','CheXpert','NIH ChestX-ray14','UniProt'],ans:[0,1,2],exp:'UniProt 為蛋白序列庫。'},
+{ch:2,type:'single',q:'下列哪一個是 AlphaFold DB 規模？',o:['200 萬','2000 萬','2 億','20 億'],ans:2,exp:'200M+ 預測結構。'},
+
+/* ----- Ch03 ----- */
+{ch:3,type:'single',q:'ESM-2 採用何種自監督？',o:['Masked amino acid prediction','Contrastive learning','RL','GAN'],ans:0,exp:'BERT-like 遮蔽預測。'},
+{ch:3,type:'single',q:'罕病 1:1000 不平衡時最不建議的指標？',o:['AUPRC','F1','Accuracy','Decision curve'],ans:2,exp:'總是預測陰性也有 99.9% accuracy。'},
+{ch:3,type:'single',q:'資料若按樣本切分而不按個案，可能造成？',o:['記憶體爆炸','過樂觀的測試表現','違反 GDPR','永遠 underfit'],ans:1,exp:'同一個案資訊跨進測試集 = data leakage。'},
+{ch:3,type:'tf',q:'U-Net 適合醫療影像分割。',o:['對','錯'],ans:0,exp:'醫療影像金標準骨幹。'},
+{ch:3,type:'single',q:'Mamba 屬於哪一類架構？',o:['CNN','RNN','State Space Model','Tree'],ans:2,exp:'2024 起的 SSM 新世代序列模型。'},
+{ch:3,type:'single',q:'Diffusion model 的關鍵思想？',o:['一次性生成','從雜訊逐步還原樣本','PCA','直接回歸'],ans:1,exp:'denoising 過程。'},
+{ch:3,type:'multi',q:'下列哪些是常用正則化技巧？(複選)',o:['Dropout','Weight decay','Mixup','Higher learning rate'],ans:[0,1,2],exp:'高 LR 不是正則化。'},
+{ch:3,type:'single',q:'Loss + Optimizer + Architecture 是 ML 三件套，下列哪個不在內？',o:['CrossEntropy','AdamW','ResNet','SQL'],ans:3,exp:'SQL 為資料查詢語言。'},
+{ch:3,type:'tf',q:'GNN 適合分子（atom+bond）建模。',o:['對','錯'],ans:0,exp:'D-MPNN / GIN 常見。'},
+{ch:3,type:'single',q:'EHR 時序預測常用的 Transformer 變體？',o:['ViT','TFT','BERT','DALL-E'],ans:1,exp:'Temporal Fusion Transformer。'},
+
+/* ----- Ch04 ----- */
+{ch:4,type:'single',q:'EU AI Act 把醫療 AI 列為？',o:['Minimal','Limited','High','Unacceptable'],ans:2,exp:'MDR/IVDR 範圍內自動 high-risk。'},
+{ch:4,type:'single',q:'FDA PCCP 的核心承諾？',o:['免做臨床試驗','在預核准協定下迭代更新','完全 open source','免責'],ans:1,exp:'PCCP = description + protocol + impact assessment。'},
+{ch:4,type:'single',q:'Obermeyer 2019 核心教訓？',o:['模型參數太少','用支出作為健康需求的代理會放大歧視','黑人較健康','AI 不該用於醫療'],ans:1,exp:'代理變數本身可以是偏差。'},
+{ch:4,type:'tf',q:'EU AI Act 2024/1689 高風險條款 2026-08 全面適用。',o:['對','錯'],ans:0,exp:'醫材延至 2027-08。'},
+{ch:4,type:'multi',q:'下列哪些屬於公平性指標？(複選)',o:['Demographic Parity','Equal Opportunity','Equalized Odds','Adam Optimizer'],ans:[0,1,2],exp:'Adam 是優化器。'},
+{ch:4,type:'single',q:'Chouldechova 2017 不可能性定理指出？',o:['校準/均等機率/預測值同等 三者不能同時成立（除非基期相同）','所有 AI 都不公平','永遠選 Equal Opportunity','GDPR 衝突'],ans:0,exp:'三大公平性指標衝突。'},
+{ch:4,type:'tf',q:'TRIPOD-AI 2024 要求子族 AUC 報告。',o:['對','錯'],ans:0,exp:'BMJ 2024 公布。'},
+{ch:4,type:'single',q:'PCCP 三件套不包括下列哪一項？',o:['Description of modifications','Modification protocol','Impact assessment','Marketing budget'],ans:3,exp:'PCCP 為技術文件。'},
+{ch:4,type:'single',q:'代理變數的最大風險？',o:['加 GPU','學到結構性偏差而非真實需求','增加 epoch','降低 AUC'],ans:1,exp:'Obermeyer 案例。'},
+{ch:4,type:'multi',q:'下列哪些是上市前自查項目？(複選)',o:['TRIPOD-AI','CONSORT-AI','SPIRIT-AI','HTML5 規範'],ans:[0,1,2],exp:'HTML5 與醫療無關。'},
+
+/* ----- Ch05 ----- */
+{ch:5,type:'single',q:'Caduceus 核心架構特色？',o:['Vanilla Transformer','Mamba SSM + RC-equivariant','CNN+PWM','RNN+Attention'],ans:1,exp:'SSM + 反向互補等變。'},
+{ch:5,type:'single',q:'In-silico mutagenesis 是？',o:['細胞編輯實驗','用模型對 ref vs alt 推論求差異','PCR primer','CRISPR screen'],ans:1,exp:'序列 AI 經典解釋法。'},
+{ch:5,type:'single',q:'2024 序列 AI benchmark 共識？',o:['Caduceus 全勝','沒有單一模型在所有任務勝出','只看 AUROC','CADD 落後最多'],ans:1,exp:'任務本質決定 inductive bias。'},
+{ch:5,type:'single',q:'Enformer 的脈絡長度約？',o:['1 kb','20 kb','200 kb','2 Mb'],ans:2,exp:'~200 kb。'},
+{ch:5,type:'tf',q:'Borzoi 是 Enformer 的衍生模型。',o:['對','錯'],ans:0,exp:'同團隊改良。'},
+{ch:5,type:'single',q:'Nucleotide Transformer v2 的訓練模型最大為多少參數？',o:['100M','500M','2.5B','100B'],ans:2,exp:'NT-v2 2.5B 多物種。'},
+{ch:5,type:'multi',q:'下列哪些屬於 DNA Foundation Models？(複選)',o:['Enformer','Borzoi','Caduceus','AlphaFold 3'],ans:[0,1,2],exp:'AF3 是蛋白模型。'},
+{ch:5,type:'single',q:'GPN-MSA 屬於哪一類方法？',o:['Alignment-based','Functional supervision','Diffusion','RLHF'],ans:0,exp:'保守度為基底。'},
+{ch:5,type:'single',q:'Caduceus 在多長序列上超過 Enformer？',o:['超過 1 kb','超過 100 kb（從 TSS）','超過 1 Mb','從不'],ans:1,exp:'長尾距離 Caduceus 勝。'},
+{ch:5,type:'tf',q:'BPE tokenization 通常增加模型參數量。',o:['對','錯'],ans:1,exp:'BPE 降冗餘 token，反而減量。'},
+
+/* ----- Ch06 ----- */
+{ch:6,type:'single',q:'scFM 為什麼在新組織零樣本可能失準？',o:['訓練太多','OOD 細胞型態','UMAP 慢','沒 CUDA'],ans:1,exp:'分布外推 (OOD)。'},
+{ch:6,type:'single',q:'Geneformer 採用何種 token？',o:['log 表現值','基因表現排序 (rank)','序列','genotype'],ans:1,exp:'rank tokenization 對技術變異穩。'},
+{ch:6,type:'single',q:'8 GB GPU 想做 scFM 最推薦？',o:['UCE','scFoundation','scGPT','CellFM'],ans:2,exp:'scGPT 推論最輕。'},
+{ch:6,type:'multi',q:'下列哪些是 2024-2025 主流 scFM？(複選)',o:['scGPT','Geneformer','scFoundation','UCE','CellFM','BLAST'],ans:[0,1,2,3,4],exp:'BLAST 為傳統工具。'},
+{ch:6,type:'tf',q:'scGPT 預訓於 33M 細胞。',o:['對','錯'],ans:0,exp:'Nature Methods 2024。'},
+{ch:6,type:'single',q:'2025 benchmark 中 scGPT/Geneformer/CellFM 入圍前三的依據？',o:['只看跑分','使用性 × 效能綜合','只看記憶體','只看訓練時間'],ans:1,exp:'usability × performance。'},
+{ch:6,type:'single',q:'scFM 可做下列哪一項？',o:['零樣本細胞註釋','批次整合','藥物敏感性預測','以上皆是'],ans:3,exp:'all of the above。'},
+{ch:6,type:'tf',q:'CellFM 是多模態（含 ATAC）FM。',o:['對','錯'],ans:0,exp:'2025 100M cells。'},
+{ch:6,type:'single',q:'2025 benchmark 提示在何種情境 scVI 仍有競爭力？',o:['超大資料','小資料 / 高解析度狀態','需 zero-shot','不需 GPU'],ans:1,exp:'scFM 並非永遠勝。'},
+{ch:6,type:'single',q:'scGPT 架構類型？',o:['CNN','GPT-style decoder','GAN','RL'],ans:1,exp:'GPT-style。'},
+
+/* ----- Ch07 ----- */
+{ch:7,type:'single',q:'MOFA+ 最大優勢？',o:['最快','可解釋因子並可關聯臨床','免微調','不需安裝'],ans:1,exp:'稀疏因子。'},
+{ch:7,type:'single',q:'SpatialGlue 核心技術？',o:['PCA','GNN + dual attention（空間 × 模態）','RF','UMAP'],ans:1,exp:'Nat Methods 2024。'},
+{ch:7,type:'single',q:'CITE-seq 整合 2024 benchmark 之冠？',o:['Harmony','totalVI','PCA','ComBat'],ans:1,exp:'totalVI 為 CITE-seq 量身打造。'},
+{ch:7,type:'multi',q:'下列哪些是多體學整合方法？(複選)',o:['MOFA+','totalVI','MultiVI','SpatialGlue','BLAST'],ans:[0,1,2,3],exp:'BLAST 為序列比對。'},
+{ch:7,type:'tf',q:'SpatialData 是 scverse 提出的空間 multi-omics 容器。',o:['對','錯'],ans:0,exp:'2024 推出。'},
+{ch:7,type:'single',q:'10x Visium 屬於空間轉錄組第幾代？',o:['1','2','3','4'],ans:0,exp:'第一代 spot 等級。'},
+{ch:7,type:'single',q:'MERFISH / Xenium 屬於？',o:['第一代 bulk','第二代 sub-cellular','第三代單分子','非空間'],ans:2,exp:'單分子原位。'},
+{ch:7,type:'single',q:'MultiVI 主要優勢？',o:['可處理缺模態樣本','加速 PCR','取代 Harmony','取代 scGPT'],ans:0,exp:'缺模態仍能整合。'},
+{ch:7,type:'multi',q:'下列哪些屬於 scverse 生態？(複選)',o:['scvi-tools','Squidpy','SpatialData','AlphaFold','SnpEff'],ans:[0,1,2],exp:'AF / SnpEff 為其他生態。'},
+{ch:7,type:'tf',q:'MEFISTO 是 MOFA+ 在時空資料的延伸。',o:['對','錯'],ans:0,exp:'功能性整合。'},
+
+/* ----- Ch08 ----- */
+{ch:8,type:'single',q:'ACMG 中 AI 變異預測通常對應到？',o:['PVS1','PS3','PP3/BP4','BA1'],ans:2,exp:'計算證據強度。'},
+{ch:8,type:'single',q:'2025 真實世界研究最重要結論？',o:['AM 完勝 PrimateAI-3D','Benchmark AUROC ≠ 臨床表現','ESM-3 完勝','ClinVar 失效'],ans:1,exp:'PrimateAI-3D 在罕病 cohort 較強。'},
+{ch:8,type:'single',q:'為何要參考 ≥3 個 VEP？',o:['多花錢','歸納偏好不同，相互校驗降低 false call','dbNSFP 強制','GPU'],ans:1,exp:'分歧本身就是訊號。'},
+{ch:8,type:'tf',q:'AlphaMissense 涵蓋全人類 7100 萬個錯義變異。',o:['對','錯'],ans:0,exp:'Science 2023。'},
+{ch:8,type:'multi',q:'下列哪些是常見 VEP？(複選)',o:['AlphaMissense','PrimateAI-3D','ESM1b','REVEL','BLAST'],ans:[0,1,2,3],exp:'BLAST 不是 VEP。'},
+{ch:8,type:'single',q:'SVI 2023 給出何種建議？',o:['AI 分數量化強度對應 PP3/BP4','禁用 AI','所有變異視為 VUS','只用 CADD'],ans:0,exp:'量化 thresholds。'},
+{ch:8,type:'single',q:'ACMG 對「致病性」分幾級？',o:['3','5','7','10'],ans:1,exp:'P/LP/VUS/LB/B。'},
+{ch:8,type:'single',q:'家系 trio 模式可大幅降低？',o:['訓練時間','偽陽性','GPU 記憶體','HIPAA 風險'],ans:1,exp:'家系分離分析。'},
+{ch:8,type:'tf',q:'AlphaMissense 是 AlphaFold 衍生模型。',o:['對','錯'],ans:0,exp:'AF2 微調 + 觀察變異。'},
+{ch:8,type:'single',q:'罕病 phenotype matching 工具包括？',o:['Exomiser / LIRICAL / AMELIE','Adam / SGD','U-Net / nnU-Net','MOFA+'],ans:0,exp:'HPO-driven 工具。'},
+
+/* ----- Ch09 ----- */
+{ch:9,type:'single',q:'nnU-Net Revisited (2024) 主要結論？',o:['CNN U-Net + nnU-Net 自動配置仍是 SOTA recipe','Transformer 全勝 CNN','nnU-Net 已淘汰','停止用 CNN'],ans:0,exp:'arXiv 2404.09556。'},
+{ch:9,type:'single',q:'MedSAM 相比 nnU-Net 核心優勢？',o:['全自動','少樣本 / 零樣本 + prompt 通用','最快','Dice 最高'],ans:1,exp:'FM 範式。'},
+{ch:9,type:'single',q:'訓練前 resample voxel spacing 目的？',o:['滿足 HIPAA','學到「生物尺度」而非 scanner 解析度','加快啟動','降 GPU 用量'],ans:1,exp:'domain shift 必修課。'},
+{ch:9,type:'multi',q:'醫療影像 8 大坑包括？(複選)',o:['DICOM metadata leakage','Spacing 不一','類別不平衡','Domain shift','資料太少'],ans:[0,1,2,3],exp:'資料少屬於另類，但前 4 為必修。'},
+{ch:9,type:'tf',q:'TTA（test-time augmentation）通常可加 0.5–2 Dice。',o:['對','錯'],ans:0,exp:'業界經驗。'},
+{ch:9,type:'single',q:'MONAI 主要用於？',o:['Spreadsheet','3D 醫療影像 PyTorch 生態','音訊','基因體'],ans:1,exp:'NVIDIA-Stanford 開源。'},
+{ch:9,type:'single',q:'MedSAM 訓練資料規模？',o:['1.57M image-mask 對','15K','100','100B'],ans:0,exp:'2024 Nat Commun 報告。'},
+{ch:9,type:'single',q:'醫療影像分割 SOTA 常用的 loss？',o:['BCE','DiceCE / Tversky','MSE','Hinge'],ans:1,exp:'Dice + CE 組合穩定。'},
+{ch:9,type:'tf',q:'nnSAM 結合 nnU-Net 與 SAM 提升表現。',o:['對','錯'],ans:0,exp:'2024 多項報告。'},
+{ch:9,type:'multi',q:'2D 影像分類常用骨幹？(複選)',o:['ResNet','ConvNeXt','ViT','LinearSVC'],ans:[0,1,2],exp:'LinearSVC 為傳統 ML。'},
+
+/* ----- Ch10 ----- */
+{ch:10,type:'single',q:'為何 WSI 採用 MIL？',o:['整張過大、只能 patch；slide-label 可得但 patch-label 不可得','MIL 比 CNN 快','H&E 太鮮豔','HIPAA 要求'],ans:0,exp:'弱監督聚合。'},
+{ch:10,type:'single',q:'CONCH 與 UNI 的核心差別？',o:['CONCH 非 ViT','CONCH 是視覺-語言模型（含 caption pairs）','UNI 更小','授權差異'],ans:1,exp:'CoCa-style with 1.17M 對。'},
+{ch:10,type:'single',q:'染色標準化 (Macenko / Reinhard) 目的？',o:['降跨機構 H&E 變異','加速 GPU','滿足 FDA','取代 patch'],ans:0,exp:'業界常規。'},
+{ch:10,type:'multi',q:'下列哪些是 2024 病理 FM？(複選)',o:['UNI','CONCH','Virchow','Prov-GigaPath','BLAST'],ans:[0,1,2,3],exp:'BLAST 為序列。'},
+{ch:10,type:'tf',q:'Prov-GigaPath 採用 LongNet 處理 slide-level。',o:['對','錯'],ans:0,exp:'Nature 2024 (Microsoft)。'},
+{ch:10,type:'single',q:'WSI 一張通常多大？',o:['~1 MB','~10 MB','~1–10 GB','~1 TB'],ans:2,exp:'gigapixel 影像。'},
+{ch:10,type:'single',q:'CLAM 是？',o:['Foundation Model','MIL aggregator','資料庫','演算法畫圖工具'],ans:1,exp:'Mahmood Lab 經典 MIL。'},
+{ch:10,type:'tf',q:'2025 MSI benchmark 中 CONCH 用 ProtoNet 取得最佳外部驗證 balanced accuracy。',o:['對','錯'],ans:0,exp:'2025 報告 0.775–0.778。'},
+{ch:10,type:'single',q:'OpenSlide 用途？',o:['DICOM 讀取','WSI 讀取','基因體比對','PyTorch 訓練'],ans:1,exp:'病理 WSI 處理。'},
+{ch:10,type:'single',q:'Virchow 訓練資料規模？',o:['1.5M WSI','100 WSI','1 GB','永久未公開'],ans:0,exp:'Paige 1.5M。'},
+
+/* ----- Ch11 ----- */
+{ch:11,type:'single',q:'AlphaFold 3 與 AF2 架構關鍵差異？',o:['Diffusion decoder 取代 IPA','取消 MSA','改 RNN','取消 GPU'],ans:0,exp:'多模建模能力來自 diffusion。'},
+{ch:11,type:'single',q:'RFdiffusion3 主要升級？',o:['只生 α-helix','原子級設計、10× 加速、支援 DNA binder/酶','取消開源','取代 ProteinMPNN'],ans:1,exp:'2025 IPD 旗艦。'},
+{ch:11,type:'single',q:'ProteinMPNN 用途？',o:['結構預測','Inverse folding：結構→序列','影像分割','GWAS'],ans:1,exp:'設計循環中鋪 side chain。'},
+{ch:11,type:'multi',q:'下列哪些屬於蛋白質設計循環？(複選)',o:['RFdiffusion3','ProteinMPNN','AlphaFold 3 驗證','BLAST'],ans:[0,1,2],exp:'BLAST 非 design。'},
+{ch:11,type:'tf',q:'ESMFold 不需要 MSA。',o:['對','錯'],ans:0,exp:'語言模型 zero-shot 結構。'},
+{ch:11,type:'single',q:'AlphaFold 3 在抗體-抗原預測的比較對象？',o:['Vanilla CNN','AlphaFold-Multimer v2','Random Forest','ESMFold'],ans:1,exp:'AF3 顯著勝出。'},
+{ch:11,type:'single',q:'AF3 配體姿態預測對手包括？',o:['AutoDock Vina','AlphaMissense','MOFA+','GPT-4'],ans:0,exp:'勝過專用 docking。'},
+{ch:11,type:'tf',q:'ESM-3 是多模態生成蛋白語言模型。',o:['對','錯'],ans:0,exp:'2024 Science。'},
+{ch:11,type:'single',q:'抗體 CDR 設計常用模型？',o:['IgLM / AntiFold','BERT','U-Net','Mamba'],ans:0,exp:'專為抗體可變區。'},
+{ch:11,type:'multi',q:'下列哪些屬於蛋白質結構預測模型？(複選)',o:['AlphaFold 3','ESMFold','AF2','RoseTTAFold All-Atom','PCA'],ans:[0,1,2,3],exp:'PCA 為降維。'},
+
+/* ----- Ch12 ----- */
+{ch:12,type:'single',q:'AF3 對藥物發現最關鍵新能力？',o:['不需 GPU','蛋白-配體結合姿態統一預測','完全開源','取代臨床試驗'],ans:1,exp:'勝過 AutoDock Vina。'},
+{ch:12,type:'single',q:'ADMET 最穩定表徵？',o:['純 SMILES','D-MPNN + ECFP ensemble','3D conformer','無表徵'],ans:1,exp:'結構無依任務的常勝。'},
+{ch:12,type:'single',q:'self-driving lab 核心循環？',o:['AI 提議→機器人合成→自動檢測→AI 學習→下一輪','純 in-silico','完全人工','不要 ML'],ans:0,exp:'active learning + 機器人。'},
+{ch:12,type:'multi',q:'下列哪些是分子生成工具？(複選)',o:['REINVENT 4','MolGPT','Chemformer','Pocket2Mol','BLAST'],ans:[0,1,2,3],exp:'BLAST 非生成。'},
+{ch:12,type:'tf',q:'Isomorphic Labs 是 AlphaFold 衍生公司。',o:['對','錯'],ans:0,exp:'DeepMind 衍生。'},
+{ch:12,type:'single',q:'QED 是？',o:['Quantitative Estimate of Drug-likeness','量子糾纏','量子電池','Quant ED'],ans:0,exp:'藥物相似度。'},
+{ch:12,type:'single',q:'TDC 是？',o:['Therapeutics Data Commons','Total Drug Compound','Trial Data Center','Tabular DataConnector'],ans:0,exp:'藥物 ML benchmark。'},
+{ch:12,type:'tf',q:'Equivariant GNN（Equiformer 等）在含結構標靶的活性預測上佔優。',o:['對','錯'],ans:0,exp:'2024 benchmark。'},
+{ch:12,type:'single',q:'藥物 R&D 平均時間（年）？',o:['1–2','5–7','10–12','20'],ans:2,exp:'平均 10–12 年。'},
+{ch:12,type:'multi',q:'下列哪些是 ADMET 任務？(複選)',o:['hERG inhibition','BBB penetration','AMES mutagenicity','3D 結構預測'],ans:[0,1,2],exp:'3D 結構不在 ADMET。'},
+
+/* ----- Ch13 ----- */
+{ch:13,type:'single',q:'目前 MedQA 最高分模型？',o:['BioBERT','ClinicalBERT','Med-PaLM 2','Med-Gemini-L 1.0 (91.1%)'],ans:3,exp:'2024 Nature Med。'},
+{ch:13,type:'single',q:'2024 MIMIC-CDM 核心警示？',o:['高 MedQA 分數 LLM 在實際臨床仍系統性犯錯','LLM 完全不能用','MIMIC 失效','RLHF 沒效'],ans:0,exp:'exam ≠ clinic。'},
+{ch:13,type:'single',q:'為何要處理「否定」？',o:['美觀','"no fever" 與 "fever" 臨床完全相反','加速','法規'],ans:1,exp:'NegEx 為經典工具。'},
+{ch:13,type:'multi',q:'下列哪些是醫療 LLM？(複選)',o:['GatorTron','Med-PaLM 2','Med-Gemini','MedGemma','LLaMA-1'],ans:[0,1,2,3],exp:'LLaMA-1 非醫療專用。'},
+{ch:13,type:'tf',q:'GatorTron 由 University of Florida Health 開發。',o:['對','錯'],ans:0,exp:'UF Health + NVIDIA。'},
+{ch:13,type:'single',q:'BioBERT 在哪些語料上預訓？',o:['News','PubMed + PMC','GitHub','Twitter'],ans:1,exp:'生醫文本。'},
+{ch:13,type:'single',q:'Concept Normalization 對應到？',o:['UMLS / SNOMED CT / ICD-10','BLAST','PCR','RFdiffusion'],ans:0,exp:'醫學辭典對映。'},
+{ch:13,type:'tf',q:'MedGemma 為 Google 開源醫療 LLM。',o:['對','錯'],ans:0,exp:'Gemma 家族醫療版。'},
+{ch:13,type:'single',q:'臨床 NLP 「結構化抽取」常見輸出？',o:['OMOP CDM 結構化資料','MP3 檔','PNG','SVG'],ans:0,exp:'從文本到結構化。'},
+{ch:13,type:'multi',q:'部署臨床 LLM 應遵守哪些原則？(複選)',o:['不直接生成決定，由醫師簽署','RAG 接知識庫','本地 / 私有雲','取消監控'],ans:[0,1,2],exp:'監控不能省。'},
+
+/* ----- Ch14 ----- */
+{ch:14,type:'single',q:'DeepSurv 與 CoxPH 差別？',o:['無 partial likelihood','DNN 取代線性層','不能處理審查','只用 GPU'],ans:1,exp:'仍保留比例假設。'},
+{ch:14,type:'single',q:'競爭風險指？',o:['公司競爭','多種事件互相阻擋','過擬合','GDPR 衝突'],ans:1,exp:'DeepHit / Fine-Gray。'},
+{ch:14,type:'single',q:'為何需 Decision Curve？',o:['FDA 強制','顯示不同 threshold 對淨臨床效益的影響','醫工法','GPU'],ans:1,exp:'AUC 高 ≠ 有用。'},
+{ch:14,type:'multi',q:'下列哪些是生存分析模型？(複選)',o:['CoxPH','DeepSurv','DeepHit','RSF','U-Net'],ans:[0,1,2,3],exp:'U-Net 為分割。'},
+{ch:14,type:'tf',q:'C-index 0.5 表示模型隨機。',o:['對','錯'],ans:0,exp:'1.0 完美。'},
+{ch:14,type:'single',q:'Brier Score 越低代表？',o:['預測機率越接近真實','越過擬合','越過審查','越快'],ans:0,exp:'機率預測 MSE。'},
+{ch:14,type:'single',q:'IPCW 是？',o:['Inverse Probability of Censoring Weighting','International Pediatric Cardiology Workgroup','Image Patch CNN Wrapper','None'],ans:0,exp:'校正審查偏差。'},
+{ch:14,type:'tf',q:'Calibration plot 屬於評估存活模型的標配。',o:['對','錯'],ans:0,exp:'校準很重要。'},
+{ch:14,type:'single',q:'pycox 主要用於？',o:['影像','生存分析 DL','文本','分子'],ans:1,exp:'pycox + lifelines。'},
+{ch:14,type:'multi',q:'下列哪些是生存模型評估指標？(複選)',o:['C-index','time-dependent AUC','Brier','IBS','SHAP'],ans:[0,1,2,3],exp:'SHAP 為解釋。'},
+
+/* ----- Ch15 ----- */
+{ch:15,type:'single',q:'CLIP-style late fusion 最大優勢？',o:['易加新模態 + zero-shot 分類','早期細節對齊強','不用對比學習','不用 GPU'],ans:0,exp:'缺早期對齊。'},
+{ch:15,type:'single',q:'Med-Gemini 屬於哪種整合？',o:['Late fusion','Cross-attention only','Token-mixed','Late ensemble'],ans:2,exp:'Gemini token-mixed。'},
+{ch:15,type:'single',q:'為何影像-文字檢索可做零樣本分類？',o:['類別包裝成 prompt，計算與圖相似度','模型有所有類別','記住訓練資料','隨機猜'],ans:0,exp:'CLIP 關鍵。'},
+{ch:15,type:'multi',q:'下列哪些是多模醫療 FM？(複選)',o:['BiomedCLIP','LLaVA-Med','Med-Gemini','RoentGen','PCA'],ans:[0,1,2,3],exp:'PCA 非 FM。'},
+{ch:15,type:'tf',q:'RoentGen 是反向生成 X-ray 的 diffusion 模型。',o:['對','錯'],ans:0,exp:'Stable Diffusion 微調。'},
+{ch:15,type:'single',q:'BiomedCLIP 主要訓練資料？',o:['ImageNet','PubMed 影像-描述對','GitHub','TikTok'],ans:1,exp:'生醫圖文。'},
+{ch:15,type:'single',q:'LLaVA-Med 整合範式？',o:['Late fusion','Cross-attention（影像 token 注入 LLM）','PCA','GNN'],ans:1,exp:'多輪 VQA。'},
+{ch:15,type:'tf',q:'PathChat 是病理 VQA 模型。',o:['對','錯'],ans:0,exp:'UNI/CONCH + LLM。'},
+{ch:15,type:'single',q:'CONCH 用何種對齊目標？',o:['CoCa-style','Triplet','Hinge','MSE'],ans:0,exp:'CoCa contrastive + captioning。'},
+{ch:15,type:'multi',q:'下列哪些是視覺-語言任務？(複選)',o:['VQA','image-text retrieval','report generation','RAG only text'],ans:[0,1,2],exp:'純文字 RAG 不算 VL。'},
+
+/* ----- Ch16 ----- */
+{ch:16,type:'single',q:'MedRAG 比 CoT 最多提升？',o:['1%','5%','18%','50%'],ans:2,exp:'MIRAGE 報告。'},
+{ch:16,type:'single',q:'"lost-in-the-middle" 意指？',o:['Retriever 死當','過多 context 反讓中段被忽略','遺忘訓練','找不到答案'],ans:1,exp:'context 不是越多越好。'},
+{ch:16,type:'single',q:'MedAgents 核心？',o:['多 LLM 扮演專科互相討論','更大 LLM','多 GPU','RLHF'],ans:0,exp:'多代理拆分推理。'},
+{ch:16,type:'multi',q:'下列哪些是醫療 RAG / agentic 框架？(複選)',o:['LangGraph','OpenAI Assistants v2','Anthropic MCP','U-Net'],ans:[0,1,2],exp:'U-Net 為影像。'},
+{ch:16,type:'tf',q:'i-MedRAG 在 MedQA 用 GPT-3.5 可達 69.68%。',o:['對','錯'],ans:0,exp:'2024 PSB。'},
+{ch:16,type:'single',q:'BM25 + dense 混合 retrieval 通常？',o:['永遠輸給單獨','勝過任一單獨方法','沒差','失敗'],ans:1,exp:'業界常用。'},
+{ch:16,type:'single',q:'RAG 為何能緩解 LLM 幻覺？',o:['給予外部文件作 grounding','增加參數','取消 RLHF','加 GPU'],ans:0,exp:'grounded generation。'},
+{ch:16,type:'tf',q:'cross-encoder re-rank 通常加在 top-k 之後。',o:['對','錯'],ans:0,exp:'前 k → top-m 精篩。'},
+{ch:16,type:'single',q:'MIRAGE 由多少問題組成？',o:['100','1000','7663','100000'],ans:2,exp:'5 大醫療 QA 資料集。'},
+{ch:16,type:'multi',q:'醫療 RAG 必做的安全步驟？(複選)',o:['引用追溯','人類監督','子族公平性審計','取消監控'],ans:[0,1,2],exp:'監控不能省。'},
+
+/* ----- Ch17 ----- */
+{ch:17,type:'single',q:'為何罕病 AI 應報 AUPRC？',o:['AUROC 在不平衡下過樂觀','跑得快','FDA 規定','AUC 已廢除'],ans:0,exp:'AUPRC 對 imbalance 敏感。'},
+{ch:17,type:'single',q:'Temperature scaling 屬於？',o:['區分能力','校準','公平性','解釋性'],ans:1,exp:'單參數 T。'},
+{ch:17,type:'single',q:'TRIPOD-AI 為何要求子族 AUC？',o:['複雜化','整體 AUC 高可能掩蓋特定族群','GDPR','FDA 不要求'],ans:1,exp:'呼應 Obermeyer。'},
+{ch:17,type:'multi',q:'三層級評估指？(複選)',o:['區分','校準','臨床效益','美工'],ans:[0,1,2],exp:'三層需全報。'},
+{ch:17,type:'tf',q:'Brier Score 同時考量區分與校準。',o:['對','錯'],ans:0,exp:'機率預測 MSE。'},
+{ch:17,type:'single',q:'校準錯誤對臨床的危害？',o:['不影響','低估或高估真實風險、誤導治療決策','只影響跑分','只影響 GPU'],ans:1,exp:'臨床致命。'},
+{ch:17,type:'single',q:'Decision Curve 顯示？',o:['不同 threshold 下淨效益','GPU 利用率','資料筆數','超參'],ans:0,exp:'Vickers Elkin 2006。'},
+{ch:17,type:'multi',q:'下列哪些是校準方法？(複選)',o:['Platt scaling','Isotonic regression','Temperature scaling','Adam optimizer'],ans:[0,1,2],exp:'Adam 為優化器。'},
+{ch:17,type:'tf',q:'AUROC 高代表臨床上一定有用。',o:['對','錯'],ans:1,exp:'反例多。'},
+{ch:17,type:'single',q:'ECE 是？',o:['Expected Calibration Error','External Cohort Evaluation','Equal Care Equation','Evaluation Centric Effort'],ans:0,exp:'校準誤差量化。'},
+
+/* ----- Ch18 ----- */
+{ch:18,type:'single',q:'"attention ≠ explanation" 意思？',o:['高 attention 不一定對應真正影響預測的 token','attention 永遠錯','沒意義','刪除全部'],ans:0,exp:'需 IG/probing/counterfactual。'},
+{ch:18,type:'single',q:'最易被醫師接受的 XAI？',o:['KernelSHAP','attention map','Concept Bottleneck','saliency'],ans:2,exp:'臨床語言概念。'},
+{ch:18,type:'single',q:'deletion test 是？',o:['刪除高歸因像素看預測下降，量化忠實度','刪整張影像','刪模型','刪 PHI'],ans:0,exp:'faithfulness 標準工具。'},
+{ch:18,type:'multi',q:'下列哪些是局部 XAI？(複選)',o:['LIME','SHAP local','Integrated Gradients','Permutation importance（全域）'],ans:[0,1,2],exp:'Permutation 為 global。'},
+{ch:18,type:'tf',q:'SHAP 基於 Shapley 值。',o:['對','錯'],ans:0,exp:'Lundberg Lee 2017。'},
+{ch:18,type:'single',q:'Grad-CAM 用最後一層 conv 做？',o:['梯度加權的 heatmap','直接分類','PCA','UMAP'],ans:0,exp:'視覺解釋。'},
+{ch:18,type:'single',q:'Integrated Gradients 性質？',o:['不需 baseline','滿足完整性','只用於 NLP','需 RL'],ans:1,exp:'completeness。'},
+{ch:18,type:'tf',q:'counterfactual XAI 提供「如果改變 X 預測會如何」的解釋。',o:['對','錯'],ans:0,exp:'actionable explanation。'},
+{ch:18,type:'single',q:'TreeSHAP 最適合？',o:['XGBoost / RF','BERT','U-Net','GNN'],ans:0,exp:'樹模型專用且快。'},
+{ch:18,type:'multi',q:'2024 XAI 醫學影像系統評論的警示？(複選)',o:['多研究只看 attribution map','缺乏 faithfulness 量化','缺乏 sanity check','SHAP 永遠錯'],ans:[0,1,2],exp:'SHAP 並非永遠錯。'},
+
+/* ----- Ch19 ----- */
+{ch:19,type:'single',q:'FDA PCCP 要求 audit trail 目的？',o:['追蹤每次更新對安全與效能的影響','加班證明','廣告用','避免訓練'],ans:0,exp:'PCCP 三件套。'},
+{ch:19,type:'single',q:'DP 中 ε 越小代表？',o:['弱隱私','強隱私但效用降','加快','不可用'],ans:1,exp:'隱私-效用權衡。'},
+{ch:19,type:'single',q:'聯邦學習核心特性？',o:['資料不出機構，只交換權重 / 梯度','多 GPU','去除偏差','無加密'],ans:0,exp:'FL+DP 為標準合作模式。'},
+{ch:19,type:'multi',q:'下列哪些是 MLOps 工具？(複選)',o:['MLflow','BentoML','ONNX','Evidently','BLAST'],ans:[0,1,2,3],exp:'BLAST 為序列。'},
+{ch:19,type:'tf',q:'Opacus 是 PyTorch 的 differential privacy 套件。',o:['對','錯'],ans:0,exp:'Meta 開源。'},
+{ch:19,type:'single',q:'資料版本化工具？',o:['DVC / lakeFS / Pachyderm','Git LFS（不夠）','Excel','Slack'],ans:0,exp:'醫療資料需專用版控。'},
+{ch:19,type:'single',q:'NVIDIA Triton 用於？',o:['模型服務','分子模擬','基因組裝','EHR ETL'],ans:0,exp:'高效推論伺服器。'},
+{ch:19,type:'tf',q:'2024 FL+DP 報告顯示可在 1.57M WSI 達中央訓練同等表現。',o:['對','錯'],ans:0,exp:'NPJ Digital Medicine。'},
+{ch:19,type:'single',q:'Evidently / Arize / WhyLogs 主要做？',o:['資料 / 預測 drift 監控','加 GPU','HIPAA 合規','UI 設計'],ans:0,exp:'監控 ML 上線後狀態。'},
+{ch:19,type:'multi',q:'隱私技術包括？(複選)',o:['De-id','DP','FL','SMPC / HE','PCA'],ans:[0,1,2,3],exp:'PCA 為降維。'},
+
+/* ----- Ch20 ----- */
+{ch:20,type:'single',q:'生醫研究範式可能轉變方向？',o:['90% 實驗 → 10% 計算','90% 計算 → 10% 關鍵實驗','100% 實驗','100% 計算'],ans:1,exp:'CZI 等推動。'},
+{ch:20,type:'single',q:'CZI rBio 創新點？',o:['用 virtual cell 模擬訓練推理模型','只用 RLHF','只用 GAN','只用 PCA'],ans:0,exp:'2025 CZI。'},
+{ch:20,type:'multi',q:'下列哪些是未來六大趨勢？(複選)',o:['Virtual Cell','自駕實驗室','Digital Twin','AI 臨床試驗','重啟 BLAST'],ans:[0,1,2,3],exp:'BLAST 不在內。'},
+{ch:20,type:'tf',q:'Biohub 投入 $500M Virtual Biology Initiative。',o:['對','錯'],ans:0,exp:'2024-2025。'},
+{ch:20,type:'single',q:'Recursion + Exscientia 合併代表？',o:['自駕實驗室成為主流','AlphaFold 取代化學','AI 取代醫師','LLM 衰退'],ans:0,exp:'2025 指標案例。'},
+{ch:20,type:'single',q:'EU AI Act 高風險條款全面適用日期？',o:['2025-02','2025-08','2026-08','2030-01'],ans:2,exp:'醫材延至 2027-08。'},
+{ch:20,type:'tf',q:'AI 取代生醫研究者是 2026 的普遍預期。',o:['對','錯'],ans:1,exp:'更可能是 AI 賦能。'},
+{ch:20,type:'single',q:'AI 介入後最值得擔心的問題之一？',o:['醫師「臨床決策技能去技能化」','沒有 GPU','LLM 不夠大','資料太少'],ans:0,exp:'需主動緩解。'},
+{ch:20,type:'multi',q:'下列哪些是十年內仍待解的問題？(複選)',o:['Foundation Models 對 OOD 的歸納','Causal AI 的反事實干預','FL+DP 達到中央同等','AI 鴻溝 (LMIC)','HTML5 規格'],ans:[0,1,2,3],exp:'HTML 不在此列。'},
+{ch:20,type:'single',q:'本教程結尾的核心訊息？',o:['AI 不取代研究者，但善用 AI 的人會領先','AI 將取代所有人','AI 完全沒用','AI 只屬於藥廠'],ans:0,exp:'結語。'}
+];
+
+// ===== UI logic =====
+let mode='intro', list=[], wrong=JSON.parse(localStorage.getItem('aibd_wrong')||'[]');
+const $=(s,p=document)=>p.querySelector(s);
+function setMode(m){mode=m;$('#curMode').textContent=
+  ({intro:'—',full:'完整模擬 200 題',rand:'隨機 20 題',chap:'章節練習',wrong:'錯題複習'})[m];}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+function renderModes(){
+  const opts=[['intro','請選模式'],['full','完整模擬考 (200)'],['rand','隨機 20 題'],['chap','章節練習'],['wrong','錯題複習']];
+  $('#modeRow').innerHTML=opts.map(([k,l])=>`<button class="toggle-btn ${mode===k?'active':''}" onclick="onMode('${k}')">${l}</button>`).join('');
+}
+function renderChaps(){
+  let html='';
+  for(let i=1;i<=20;i++) html+=`<button class="toggle-btn toggle-btn-sm" onclick="loadChap(${i})">Ch${String(i).padStart(2,'0')}</button>`;
+  $('#chapRow').innerHTML=html;
+}
+function onMode(m){
+  setMode(m); renderModes();
+  $('#chapRow').style.display=(m==='chap')?'flex':'none';
+  if(m==='full'){list=shuffle(QB); render();}
+  else if(m==='rand'){list=shuffle(QB).slice(0,20); render();}
+  else if(m==='wrong'){
+    if(!wrong.length){$('#qList').innerHTML='<p style="color:var(--c-ink-muted)">尚無錯題紀錄</p>';$('#endBanner').innerHTML=''; updateMeta(); return;}
+    list=wrong.map(idx=>QB[idx]); render();
+  } else {$('#qList').innerHTML='';$('#endBanner').innerHTML='';updateMeta();}
+}
+function loadChap(c){list=QB.filter(q=>q.ch===c); render();}
+function updateMeta(){
+  const total=list.length;
+  const correct=document.querySelectorAll('.qbox.correct').length;
+  const wrongN=document.querySelectorAll('.qbox.wrong').length;
+  $('#curTotal').textContent=total;$('#curCorrect').textContent=correct;$('#curWrong').textContent=wrongN;
+}
+function render(){
+  $('#endBanner').innerHTML='';
+  if(!list.length){$('#qList').innerHTML='<p style="color:var(--c-ink-muted)">本範圍尚無題目</p>';updateMeta();return;}
+  $('#qList').innerHTML=list.map((q,i)=>{
+    const typeName={single:'單選',multi:'複選',tf:'是非'}[q.type];
+    return `<div class="qbox" id="qb${i}">
+      <span class="qtag">Ch${String(q.ch).padStart(2,'0')}</span><span class="qtype">${typeName}</span>
+      <h4>${i+1}. ${q.q}</h4>
+      <div>${q.o.map((t,oi)=>`<div class="qopt" data-i="${oi}" onclick="pick(${i},${oi})">${t}</div>`).join('')}</div>
+      <button class="q-submit" onclick="submit(${i})">送出</button>
+      <div class="qexp" id="ex${i}"></div>
+    </div>`;
+  }).join('');
+  list.forEach(q=>q._sel=null);
+  updateMeta();
+}
+function pick(qi,oi){
+  const q=list[qi]; const box=$('#qb'+qi);
+  if(box.classList.contains('correct')||box.classList.contains('wrong'))return;
+  if(q.type==='multi'){
+    q._sel=q._sel||[];
+    const idx=q._sel.indexOf(oi);
+    if(idx>=0){q._sel.splice(idx,1);} else {q._sel.push(oi);}
+    box.querySelectorAll('.qopt').forEach(el=>{
+      el.classList.toggle('sel', q._sel.includes(+el.dataset.i));
+    });
+  } else {
+    q._sel=oi;
+    box.querySelectorAll('.qopt').forEach(el=>{
+      el.classList.toggle('sel', +el.dataset.i===oi);
+    });
+  }
+}
+function submit(qi){
+  const q=list[qi]; const box=$('#qb'+qi);
+  if(box.classList.contains('correct')||box.classList.contains('wrong'))return;
+  let ok=false;
+  if(q.type==='multi'){
+    const sel=(q._sel||[]).slice().sort();
+    const ans=q.ans.slice().sort();
+    ok = sel.length===ans.length && sel.every((v,i)=>v===ans[i]);
+  } else {
+    ok = q._sel===q.ans;
+  }
+  // mark options
+  box.querySelectorAll('.qopt').forEach(el=>{
+    const oi=+el.dataset.i;
+    const isAns = Array.isArray(q.ans)? q.ans.includes(oi) : q.ans===oi;
+    if(isAns) el.classList.add('ok');
+    const selOk = Array.isArray(q._sel)? q._sel.includes(oi) : q._sel===oi;
+    if(selOk && !isAns) el.classList.add('bad');
+  });
+  box.classList.add(ok?'correct':'wrong');
+  const ex=$('#ex'+qi);
+  ex.classList.add('show');
+  ex.innerHTML='<b>'+(ok?'✓ 答對':'✗ 答錯')+'</b> · '+(q.exp||'');
+  // track wrong
+  const idx=QB.indexOf(q);
+  if(!ok && !wrong.includes(idx)){wrong.push(idx);localStorage.setItem('aibd_wrong',JSON.stringify(wrong));}
+  if(ok){const w=wrong.indexOf(idx);if(w>=0){wrong.splice(w,1);localStorage.setItem('aibd_wrong',JSON.stringify(wrong));}}
+  updateMeta();
+  // banner if all done
+  if(document.querySelectorAll('.qbox').length === document.querySelectorAll('.qbox.correct, .qbox.wrong').length){
+    const c=document.querySelectorAll('.qbox.correct').length;
+    const t=list.length;
+    $('#endBanner').innerHTML=`<div class="score-banner"><h3>得分 ${c} / ${t} (${Math.round(c/t*100)}%)</h3><p>${wrong.length} 題仍在錯題庫中，可用「錯題複習」回顧。</p></div>`;
+  }
+}
+function resetWrong(){if(confirm('確定清空錯題庫？'))localStorage.setItem('aibd_wrong','[]'),wrong=[],alert('已清空');}
+renderModes(); renderChaps(); setMode('intro');
+</script>
+</body></html>

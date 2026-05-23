@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch02 · 生醫大數據的類型與來源</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html" class="active">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK A · CHAPTER 02 / 20</div>
+  <h1 data-zh="生醫大數據的類型與來源" data-en="Biomedical Data Types & Sources">生醫大數據的類型與來源</h1>
+  <p class="subtitle" data-lang="zh">在訓練模型之前，你需要先知道資料從哪裡來、長什麼樣子，以及隱私邊界在哪。</p>
+  <p class="subtitle" data-lang="en">Before training a model, you need to know where data comes from, what it looks like, and where the privacy boundaries are.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="概覽" data-en="OVERVIEW">概覽</div>
+<h2 data-zh="生醫資料的四象限" data-en="The four quadrants of biomedical data">生醫資料的四象限</h2>
+<div data-lang="zh"><p>把生醫大數據概念化的最快方法，是放在「分子 ↔ 個體」與「研究用 ↔ 臨床用」兩個軸上。每個象限的取得管道、隱私限制與適用模型都不同。</p></div>
+<div data-lang="en"><p>The fastest way to conceptualize biomedical big data is along two axes: "molecular ↔ individual" and "research ↔ clinical." Each quadrant differs in access, privacy and best-fit models.</p></div>
+<table class="comp-table"><thead><tr><th></th><th data-zh="分子層級" data-en="Molecular">分子層級</th><th data-zh="個體層級" data-en="Individual">個體層級</th></tr></thead><tbody>
+<tr><td data-zh="研究用" data-en="Research"><strong>研究用</strong></td>
+  <td data-zh="基因體（WGS、scRNA、ATAC）、蛋白體、代謝體；TCGA / GTEx / HCA / ENCODE" data-en="Genomics (WGS, scRNA, ATAC), proteomics, metabolomics; TCGA / GTEx / HCA / ENCODE">基因體（WGS、scRNA、ATAC）、蛋白體、代謝體；TCGA / GTEx / HCA / ENCODE</td>
+  <td data-zh="表型 + 影像 + 問卷；UK Biobank、All of Us、生統世代追蹤" data-en="Phenotype + imaging + survey; UK Biobank, All of Us, longitudinal cohorts">表型 + 影像 + 問卷；UK Biobank、All of Us、生統世代追蹤</td></tr>
+<tr><td data-zh="臨床用" data-en="Clinical"><strong>臨床用</strong></td>
+  <td data-zh="伴隨診斷分子檢測、循環腫瘤 DNA、單基因檢測" data-en="Companion diagnostics, ctDNA, single-gene tests">伴隨診斷分子檢測、循環腫瘤 DNA、單基因檢測</td>
+  <td data-zh="EHR（FHIR / OMOP CDM）、PACS 影像、穿戴裝置、Claims" data-en="EHR (FHIR / OMOP CDM), PACS imaging, wearables, claims">EHR（FHIR / OMOP CDM）、PACS 影像、穿戴裝置、Claims</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="關鍵公開資料集" data-en="KEY PUBLIC DATASETS">關鍵公開資料集</div>
+<h2 data-zh="十個你應該認識的資料庫" data-en="Ten databases you must know">十個你應該認識的資料庫</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>🧬 UK Biobank</h4>
+<div data-lang="zh"><p>50 萬英國成人，WGS + 1100 種血液生化、MRI、加速度計、EHR 連結。需申請 access；2024 起新增蛋白體 5400 種 Olink。</p></div>
+<div data-lang="en"><p>500K UK adults: WGS + 1,100 blood biomarkers + MRI + accelerometer + EHR linkage. Application required; 2024 added 5,400-target Olink proteomics.</p></div></div>
+<div class="card"><h4>🇺🇸 All of Us (NIH)</h4>
+<div data-lang="zh"><p>美國 1M+ 多樣族裔，WGS + EHR + 問卷 + 穿戴。2024 公布 245K WGS，亞裔、西語裔占比顯著高於 UK Biobank。</p></div>
+<div data-lang="en"><p>1M+ diverse Americans: WGS + EHR + surveys + wearables. 245K WGS released in 2024; markedly more Asian/Hispanic representation than UK Biobank.</p></div></div>
+<div class="card"><h4>🎗️ TCGA / GTEx</h4>
+<div data-lang="zh"><p>TCGA：33 癌種 11K 患者 multi-omics；GTEx v9：54 健康組織 17K bulk-RNA。是癌症 vs. 正常組織比較的金標準。</p></div>
+<div data-lang="en"><p>TCGA: 33 cancer types, 11K patients, multi-omics; GTEx v9: 54 tissues, 17K bulk RNA-seq. Gold standard for cancer-vs-normal comparison.</p></div></div>
+<div class="card"><h4>🔬 Human Cell Atlas (HCA)</h4>
+<div data-lang="zh"><p>>50M 細胞、跨 33 個器官；scGPT 與 Geneformer 的核心預訓練語料；CELLxGENE 提供 web 探索。</p></div>
+<div data-lang="en"><p>>50M cells across 33 organs; the core pretraining corpus for scGPT and Geneformer; explored via CELLxGENE.</p></div></div>
+<div class="card"><h4>📚 PubMed / PMC</h4>
+<div data-lang="zh"><p>3700 萬+ 文獻摘要、PMC 800 萬全文。BioBERT、PubMedBERT、Med-PaLM 2 預訓練語料。</p></div>
+<div data-lang="en"><p>37M+ abstracts; 8M PMC full-text. Pretraining source for BioBERT, PubMedBERT, Med-PaLM 2.</p></div></div>
+<div class="card"><h4>🧪 UniProt + AlphaFold DB</h4>
+<div data-lang="zh"><p>UniProt 2.5 億蛋白序列；AlphaFold DB 已涵蓋 200M+ 預測結構。ESM-2/3 / AF3 主要演進舞台。</p></div>
+<div data-lang="en"><p>250M protein sequences in UniProt; 200M+ predicted structures in AlphaFold DB. The main stage for ESM-2/3 / AF3.</p></div></div>
+<div class="card"><h4>🩻 MIMIC-IV / CheXpert / NIH Chest X-ray</h4>
+<div data-lang="zh"><p>MIMIC-IV：40 萬重症 EHR + 報告；CheXpert：22 萬胸 X 光；NIH ChestX-ray14：11 萬影像。臨床 NLP 與影像 DL 入門必備。</p></div>
+<div data-lang="en"><p>MIMIC-IV: 400K ICU EHR + reports; CheXpert: 220K chest X-rays; NIH ChestX-ray14: 110K images. Essential for clinical NLP & imaging DL.</p></div></div>
+<div class="card"><h4>📡 ENCODE / Roadmap Epigenomics</h4>
+<div data-lang="zh"><p>跨組織 ChIP-seq、ATAC、DNase。Enformer、Borzoi 的監督訊號來源。</p></div>
+<div data-lang="en"><p>Cross-tissue ChIP-seq, ATAC, DNase. The supervision signal for Enformer, Borzoi.</p></div></div>
+<div class="card"><h4>💊 ChEMBL / PubChem / BindingDB</h4>
+<div data-lang="zh"><p>ChEMBL：240 萬化合物、1900 萬生物活性；BindingDB：280 萬結合資料。藥物設計 ML 標配。</p></div>
+<div data-lang="en"><p>ChEMBL: 2.4M compounds, 19M bioactivities; BindingDB: 2.8M binding records. Standard for drug-design ML.</p></div></div>
+<div class="card"><h4>🌐 OMOP CDM / FHIR</h4>
+<div data-lang="zh"><p>不是資料集，而是<strong>標準格式</strong>。OHDSI 透過 OMOP CDM 串接全球 800M+ 患者紀錄做聯邦研究；FHIR 是 HL7 制訂的 RESTful 醫療資訊交換標準。</p></div>
+<div data-lang="en"><p>Not datasets but <strong>standards</strong>. OHDSI links 800M+ patient records globally via OMOP CDM; FHIR is HL7's RESTful health-data exchange standard.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="資料模態" data-en="MODALITIES">資料模態</div>
+<h2 data-zh="八種主要模態與其特性" data-en="Eight main modalities & their quirks">八種主要模態與其特性</h2>
+<table class="comp-table"><thead><tr>
+<th data-zh="模態" data-en="Modality">模態</th><th data-zh="維度" data-en="Dimensionality">維度</th><th data-zh="主要挑戰" data-en="Main challenge">主要挑戰</th><th data-zh="常見模型" data-en="Common models">常見模型</th></tr></thead><tbody>
+<tr><td data-zh="DNA 序列" data-en="DNA sequence">DNA 序列</td><td data-zh="長序列 (10⁵–10⁹ bp)" data-en="Long sequences (10⁵–10⁹ bp)">長序列 (10⁵–10⁹ bp)</td><td data-zh="長程依賴、稀疏訊號" data-en="Long-range dependencies, sparse signal">長程依賴、稀疏訊號</td><td>Enformer, Caduceus, NT v2</td></tr>
+<tr><td data-zh="蛋白質序列/結構" data-en="Protein seq/structure">蛋白質序列/結構</td><td data-zh="20 字母 × ~300 aa；3D" data-en="20-letter × ~300 aa; 3D">20 字母 × ~300 aa；3D</td><td data-zh="序列-結構耦合、配體" data-en="Seq-structure coupling, ligands">序列-結構耦合、配體</td><td>ESM-3, AlphaFold 3</td></tr>
+<tr><td data-zh="單細胞表現" data-en="Single-cell expression">單細胞表現</td><td data-zh="20K 基因 × 10⁵–10⁷ 細胞" data-en="20K genes × 10⁵–10⁷ cells">20K 基因 × 10⁵–10⁷ 細胞</td><td data-zh="稀疏 (90%+ 零)、批次效應" data-en="Sparsity (90%+ zeros), batch effects">稀疏 (90%+ 零)、批次效應</td><td>scVI, scGPT, Geneformer</td></tr>
+<tr><td data-zh="醫療影像" data-en="Medical imaging">醫療影像</td><td data-zh="2D / 3D / 4D；DICOM" data-en="2D/3D/4D; DICOM">2D / 3D / 4D；DICOM</td><td data-zh="標註成本高、設備差異" data-en="Costly labels, scanner variation">標註成本高、設備差異</td><td>nnU-Net, MedSAM, MONAI</td></tr>
+<tr><td data-zh="病理 WSI" data-en="Pathology WSI">病理 WSI</td><td data-zh="千兆像素 (100K × 100K)" data-en="Gigapixel (100K × 100K)">千兆像素 (100K × 100K)</td><td data-zh="多尺度、染色差異" data-en="Multi-scale, stain variation">多尺度、染色差異</td><td>UNI, CONCH, Virchow</td></tr>
+<tr><td data-zh="EHR" data-en="EHR">EHR</td><td data-zh="多表格 + 時序 + 文本" data-en="Tables + time series + text">多表格 + 時序 + 文本</td><td data-zh="缺值、編碼異質、隱私" data-en="Missingness, coding heterogeneity, privacy">缺值、編碼異質、隱私</td><td>Med-Gemini, GatorTron</td></tr>
+<tr><td data-zh="穿戴 / 訊號" data-en="Wearables/signals">穿戴 / 訊號</td><td data-zh="1D 高頻時序" data-en="1D high-frequency time series">1D 高頻時序</td><td data-zh="標籤雜訊、artefact" data-en="Noisy labels, artifacts">標籤雜訊、artefact</td><td>1D-CNN, Transformer</td></tr>
+<tr><td data-zh="生物影像 (顯微鏡)" data-en="Bio-imaging (microscopy)">生物影像 (顯微鏡)</td><td data-zh="多通道螢光、live-cell" data-en="Multi-channel fluorescence, live-cell">多通道螢光、live-cell</td><td data-zh="跨實驗變異、追蹤" data-en="Cross-experiment variation, tracking">跨實驗變異、追蹤</td><td>Cellpose, StarDist, Mesmer</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實務工作流" data-en="WORKFLOW">實務工作流</div>
+<h2 data-zh="申請到分析：四步驟" data-en="From access to analysis: four steps">申請到分析：四步驟</h2>
+<div class="workflow">
+  <div class="workflow-step" data-step="1"><h4 data-zh="權限申請與 IRB" data-en="Access request & IRB">權限申請與 IRB</h4>
+    <p data-lang="zh">UK Biobank / All of Us / dbGaP 都需要 IRB 通過、研究計畫書與資料安全聲明。預留 2–4 個月。</p>
+    <p data-lang="en">UK Biobank, All of Us, dbGaP all require IRB approval, a research protocol, and a data security plan. Budget 2–4 months.</p></div>
+  <div class="workflow-step" data-step="2"><h4 data-zh="標準化與品質檢查" data-en="Standardization & QC">標準化與品質檢查</h4>
+    <p data-lang="zh">EHR → OMOP CDM / FHIR；影像 → 重採樣與 z-score；基因體 → GATK best practice + lift-over。記得跑 Outlier、Missingness、Cohort drift。</p>
+    <p data-lang="en">EHR → OMOP CDM / FHIR; imaging → resample + z-score; genomics → GATK best practice + lift-over. Always run outlier, missingness, cohort drift checks.</p></div>
+  <div class="workflow-step" data-step="3"><h4 data-zh="可重現環境與版本管理" data-en="Reproducible environment & versioning">可重現環境與版本管理</h4>
+    <p data-lang="zh">用 Docker / Singularity 鎖環境；用 DVC / lakeFS / Pachyderm 追資料版本；Git LFS 不夠用。</p>
+    <p data-lang="en">Lock environments with Docker/Singularity; track data versions with DVC/lakeFS/Pachyderm; Git LFS is not enough.</p></div>
+  <div class="workflow-step" data-step="4"><h4 data-zh="去識別化與最小必要" data-en="De-identification & minimization">去識別化與最小必要</h4>
+    <p data-lang="zh">HIPAA Safe Harbor 18 項識別子刪除；採資料最小化原則；高敏資料留在 enclave / TRE 不下載。</p>
+    <p data-lang="en">Remove the 18 HIPAA Safe Harbor identifiers; apply data minimization; keep sensitive data in enclaves / TREs without download.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="讀進 GTEx 表現量 + UK Biobank 表型" data-en="Read GTEx expression + UK Biobank phenotype">讀進 GTEx 表現量 + UK Biobank 表型</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd, anndata <span class="kw">as</span> ad
+<span class="comment"># GTEx bulk RNA-seq matrix (TPM)</span>
+tpm = pd.<span class="func">read_csv</span>(<span class="str">"GTEx_v9_tpm.gct"</span>, sep=<span class="str">"\t"</span>, skiprows=<span class="num">2</span>, index_col=<span class="num">0</span>)
+meta = pd.<span class="func">read_csv</span>(<span class="str">"GTEx_v9_sample_attr.tsv"</span>, sep=<span class="str">"\t"</span>, index_col=<span class="num">0</span>)
+adata = ad.<span class="func">AnnData</span>(X=tpm.T.values, var=pd.<span class="func">DataFrame</span>(index=tpm.index),
+                  obs=meta.<span class="func">loc</span>[tpm.columns])
+<span class="comment"># UK Biobank phenotype subset via DNAnexus / RAP</span>
+ukbb = pd.<span class="func">read_csv</span>(<span class="str">"ukbb_baseline.tsv"</span>, sep=<span class="str">"\t"</span>)
+<span class="func">print</span>(adata, ukbb.shape)</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(data.table); <span class="kw">library</span>(SummarizedExperiment)
+tpm  &lt;- <span class="func">fread</span>(<span class="str">"GTEx_v9_tpm.gct"</span>, skip=<span class="num">2</span>)
+meta &lt;- <span class="func">fread</span>(<span class="str">"GTEx_v9_sample_attr.tsv"</span>)
+se &lt;- <span class="func">SummarizedExperiment</span>(assays=<span class="func">list</span>(tpm=<span class="func">as.matrix</span>(tpm[,-<span class="num">1</span>:-<span class="num">2</span>])),
+                           rowData=tpm[,<span class="num">1</span>:<span class="num">2</span>], colData=meta)
+ukbb &lt;- <span class="func">fread</span>(<span class="str">"ukbb_baseline.tsv"</span>)
+<span class="func">cat</span>(<span class="str">"se: "</span>, <span class="func">dim</span>(se), <span class="str">" | ukbb: "</span>, <span class="func">dim</span>(ukbb), <span class="str">"\n"</span>)</pre></div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>常見坑：</strong>不同來源的 gene symbol 不一致（HGNC 名 vs Ensembl ID vs Refseq）。一定要先在 BioMart 或 mygene 跑一輪映射。</span>
+<span data-lang="en"><strong>Common pitfall:</strong> gene symbols differ across sources (HGNC vs Ensembl ID vs Refseq). Always map via BioMart or mygene first.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. OMOP CDM 與 FHIR 最大的差別是？</p>
+<p data-lang="en">1. The biggest difference between OMOP CDM and FHIR is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. OMOP 為「分析導向」標準（人口流行病學）；FHIR 為「交換導向」標準（API 即時資料）</span><span data-lang="en">A. OMOP is "analytics-oriented" (epidemiology); FHIR is "exchange-oriented" (real-time APIs)</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. OMOP 只用於癌症</span><span data-lang="en">B. OMOP is only for cancer</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. FHIR 是基因體格式</span><span data-lang="en">C. FHIR is a genomics format</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 兩者完全等價</span><span data-lang="en">D. They are equivalent</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>實務上常先 FHIR 收集，再 ETL 到 OMOP 做大規模研究。</span><span data-lang="en"><strong>A.</strong> In practice, FHIR ingests; OMOP enables large-scale research.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. 下列哪個資料來源最適合做<strong>跨族裔藥物反應</strong>研究？</p>
+<p data-lang="en">2. Which dataset is most suitable for <strong>cross-ancestry drug response</strong> research?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. TCGA</span><span data-lang="en">A. TCGA</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. UK Biobank（94% 歐裔）</span><span data-lang="en">B. UK Biobank (94% European)</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">C. All of Us（多樣族裔 + 處方紀錄）</span><span data-lang="en">C. All of Us (diverse ancestry + prescription records)</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. ENCODE</span><span data-lang="en">D. ENCODE</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>All of Us 設計上就強調少數族裔代表性。</span><span data-lang="en"><strong>C.</strong> All of Us was designed for ancestry diversity.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. HIPAA Safe Harbor 規定刪除幾種識別子？</p>
+<p data-lang="en">3. HIPAA Safe Harbor mandates removal of how many identifiers?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. 5</div>
+<div class="quiz-opt" data-correct="0">B. 10</div>
+<div class="quiz-opt" data-correct="1">C. 18</div>
+<div class="quiz-opt" data-correct="0">D. 33</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>18 種識別子（姓名、地址、日期、電話、IP、生物特徵 …）。</span><span data-lang="en"><strong>C.</strong> 18 identifiers (name, address, dates, phone, IP, biometrics …).</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch01-ai-bio-era.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="AI × 生醫的時代背景" data-en="The Era of AI × Biomedicine">AI × 生醫的時代背景</span></a>
+<a href="ch03-ml-dl-foundations.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="機器學習與深度學習基礎" data-en="ML &amp; DL Foundations">機器學習與深度學習基礎</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 02</footer>
+<script src="i18n.js"></script>
+</body></html>

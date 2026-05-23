@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch15 · 多模態 Foundation Models</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html" class="active">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK D · CHAPTER 15 / 20</div>
+  <h1 data-zh="多模態 Foundation Models" data-en="Multimodal Foundation Models">多模態 Foundation Models</h1>
+  <p class="subtitle" data-lang="zh">影像 + 文字 + 報告 + EHR + 訊號——醫療 AI 進入「同時看與說」的時代。</p>
+  <p class="subtitle" data-lang="en">Image + text + report + EHR + signal — medical AI in the era of "seeing &amp; speaking together."</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="為什麼多模態" data-en="WHY MULTIMODAL">為什麼多模態</h2>
+<h2 data-zh="醫療診斷天生是多模態的" data-en="Medicine is inherently multimodal">醫療診斷天生是多模態的</h2>
+<div data-lang="zh">
+<p>胸 X 光 + 病史 + 抽血 + 心電圖 + 生命徵象——沒有醫生只看單一資料下診斷。但 2020 年前的醫療 AI 多半「單模態」，每個模型只專一資料。<strong>多模態 Foundation Model</strong> 透過共同的嵌入空間，把不同模態接到同一個語意層，從而：</p>
+<ul>
+<li data-lang="zh">用影像 + 報告做零樣本分類（CLIP-style）。</li>
+<li data-lang="en">Zero-shot classification from image + report (CLIP-style).</li>
+<li data-lang="zh">由影像直接生成放射報告草稿。</li>
+<li data-lang="en">Generate radiology report drafts directly from images.</li>
+<li data-lang="zh">跨模態檢索：以症狀文字找相似影像、以影像找相似病歷。</li>
+<li data-lang="en">Cross-modal retrieval: text symptoms → similar images, image → similar charts.</li>
+<li data-lang="zh">VQA（Visual Question Answering）：醫生口述問題，AI 對影像作答。</li>
+<li data-lang="en">VQA: clinician asks in natural language, AI answers about the image.</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="模型陣容" data-en="MODEL LINEUP">模型陣容</div>
+<h2 data-zh="2024 多模態醫療 FM 對照" data-en="Multimodal medical FMs (2024)">2024 多模態醫療 FM 對照</h2>
+<table class="comp-table"><thead><tr><th data-zh="模型" data-en="Model">模型</th><th data-zh="模態" data-en="Modalities">模態</th><th data-zh="架構" data-en="Architecture">架構</th><th data-zh="關鍵能力" data-en="Key capability">關鍵能力</th></tr></thead><tbody>
+<tr><td><strong>Med-Gemini</strong> (Google 2024)</td><td data-zh="影像、文字、EHR、訊號" data-en="Image, text, EHR, signal">影像 / 文字 / EHR / 訊號</td><td>Gemini-based</td><td>MedQA 91.1%、多模 reasoning</td></tr>
+<tr><td><strong>BiomedCLIP</strong> (MS 2023)</td><td>影像 + 文字</td><td>CLIP + PubMed</td><td data-zh="生醫影像-文字零樣本檢索" data-en="Zero-shot image-text retrieval">生醫零樣本檢索</td></tr>
+<tr><td><strong>LLaVA-Med</strong> (NeurIPS 2023)</td><td>影像 + 對話</td><td>LLaVA + biomed</td><td data-zh="多輪醫療影像 VQA" data-en="Multi-turn medical VQA">醫療 VQA</td></tr>
+<tr><td><strong>Path-Foundation / PathChat</strong></td><td data-zh="病理 + 文字" data-en="Pathology + text">病理 + 文字</td><td>UNI / CONCH + LLM</td><td>WSI VQA / 報告</td></tr>
+<tr><td><strong>RoentGen</strong> (Stanford 2023)</td><td data-zh="文字 → CXR 生成" data-en="Text → CXR generation">文字 → CXR</td><td data-zh="Stable Diffusion fine-tune" data-en="Stable Diffusion fine-tune">SD 微調</td><td data-zh="從報告反向生成 X 光" data-en="Generate X-ray from report">反向生成</td></tr>
+<tr><td><strong>CONCH / VisualMed</strong></td><td>病理影像 + 文字</td><td>ViT + CoCa</td><td data-zh="病理跨模態" data-en="Pathology cross-modal">病理跨模態</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="架構模式" data-en="ARCH PATTERNS">架構模式</div>
+<h2 data-zh="三種主流結合方式" data-en="Three integration patterns">三種主流結合方式</h2>
+<div class="card-grid cols-3">
+<div class="card"><h4>① Late fusion (CLIP-style)</h4>
+<div data-lang="zh"><p>各模態各自 encoder → 同維度向量 → cosine 對齊。優點：簡單、易加新模態；缺點：早期細節對齊弱。</p></div>
+<div data-lang="en"><p>Per-modal encoders → same-dim vectors → cosine alignment. Pros: simple, easy to add modalities. Cons: weak early alignment.</p></div></div>
+<div class="card"><h4>② Cross-attention</h4>
+<div data-lang="zh"><p>用 cross-attention 把一模態的 query 注入另一模態（如 LLaVA-Med 把影像 token 注入 LLM）。</p></div>
+<div data-lang="en"><p>Cross-attention queries one modality from another (e.g., LLaVA-Med injects image tokens into the LLM).</p></div></div>
+<div class="card"><h4>③ Token-mixed</h4>
+<div data-lang="zh"><p>把所有模態 token 化後丟同一 Transformer。Med-Gemini、ESM-3 用這個範式。</p></div>
+<div data-lang="en"><p>Tokenize all modalities into one Transformer. Used by Med-Gemini, ESM-3.</p></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
+<h2 data-zh="BiomedCLIP 跨模零樣本" data-en="BiomedCLIP zero-shot cross-modal">BiomedCLIP 跨模零樣本</h2>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">from</span> open_clip <span class="kw">import</span> create_model_from_pretrained, get_tokenizer
+<span class="kw">from</span> PIL <span class="kw">import</span> Image
+<span class="kw">import</span> torch
+m, prep = <span class="func">create_model_from_pretrained</span>(<span class="str">"hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224"</span>)
+tok = <span class="func">get_tokenizer</span>(<span class="str">"hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224"</span>)
+img = <span class="func">prep</span>(Image.<span class="func">open</span>(<span class="str">"chest_xray.png"</span>)).<span class="func">unsqueeze</span>(<span class="num">0</span>)
+labels = [<span class="str">"pneumonia"</span>, <span class="str">"normal"</span>, <span class="str">"effusion"</span>, <span class="str">"pneumothorax"</span>]
+texts = <span class="func">tok</span>([<span class="str">"this is a chest x-ray showing "</span>+l <span class="kw">for</span> l <span class="kw">in</span> labels])
+<span class="kw">with</span> torch.<span class="func">no_grad</span>():
+    img_feat = m.<span class="func">encode_image</span>(img); txt_feat = m.<span class="func">encode_text</span>(texts)
+    img_feat = img_feat / img_feat.<span class="func">norm</span>(dim=-<span class="num">1</span>, keepdim=<span class="kw">True</span>)
+    txt_feat = txt_feat / txt_feat.<span class="func">norm</span>(dim=-<span class="num">1</span>, keepdim=<span class="kw">True</span>)
+    sim = (<span class="num">100.0</span> * img_feat @ txt_feat.<span class="func">T</span>).<span class="func">softmax</span>(-<span class="num">1</span>)
+<span class="kw">for</span> l, p <span class="kw">in</span> <span class="func">zip</span>(labels, sim[<span class="num">0</span>]): <span class="func">print</span>(l, <span class="func">round</span>(p.<span class="func">item</span>(),<span class="num">3</span>))</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate); <span class="kw">library</span>(magick)
+open_clip &lt;- <span class="func">import</span>(<span class="str">"open_clip"</span>); torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>)
+ck &lt;- <span class="str">"hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224"</span>
+out &lt;- open_clip$<span class="func">create_model_from_pretrained</span>(ck)
+m   &lt;- out[[<span class="num">1</span>]]; prep &lt;- out[[<span class="num">2</span>]]
+tok &lt;- open_clip$<span class="func">get_tokenizer</span>(ck)
+img &lt;- <span class="func">prep</span>(magick::<span class="func">image_read</span>(<span class="str">"chest_xray.png"</span>))$<span class="func">unsqueeze</span>(<span class="num">0</span>L)
+labels &lt;- <span class="func">c</span>(<span class="str">"pneumonia"</span>,<span class="str">"normal"</span>,<span class="str">"effusion"</span>,<span class="str">"pneumothorax"</span>)
+texts  &lt;- <span class="func">tok</span>(<span class="func">paste</span>(<span class="str">"this is a chest x-ray showing"</span>, labels))</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<div class="quiz-q">
+<p data-lang="zh">1. CLIP-style late fusion 最大優勢？</p>
+<p data-lang="en">1. The biggest advantage of CLIP-style late fusion?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 易加新模態、零樣本分類</span><span data-lang="en">A. Easy to add modalities, zero-shot classification</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. 早期細節對齊最強</span><span data-lang="en">B. Strongest early alignment</span></div>
+<div class="quiz-opt" data-correct="0">C. 不需要對比學習</div>
+<div class="quiz-opt" data-correct="0">D. 不需要 GPU</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>缺點是早期細節對齊較弱。</span><span data-lang="en"><strong>A.</strong> Downside: weaker fine-grained alignment.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">2. Med-Gemini 屬於哪種整合範式？</p>
+<p data-lang="en">2. Med-Gemini follows which integration paradigm?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0">A. Late fusion</div>
+<div class="quiz-opt" data-correct="0">B. Cross-attention only</div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">C. Token-mixed（多模 token 一起進 Transformer）</span><span data-lang="en">C. Token-mixed (all-modal tokens into one Transformer)</span></div>
+<div class="quiz-opt" data-correct="0">D. Late ensemble</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>Gemini 系列原生支持 token-mixed。</span><span data-lang="en"><strong>C.</strong> Gemini family natively supports token-mixing.</span></div>
+</div>
+<div class="quiz-q">
+<p data-lang="zh">3. 為什麼影像-文字檢索可以做「零樣本分類」？</p>
+<p data-lang="en">3. Why can image-text retrieval do "zero-shot classification"?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 把每個類別包裝成 prompt 文字，計算與圖的相似度</span><span data-lang="en">A. Wrap each class as a prompt sentence, compare similarity to the image</span></div>
+<div class="quiz-opt" data-correct="0">B. 模型本來就有所有類別</div>
+<div class="quiz-opt" data-correct="0">C. 它記憶了訓練資料</div>
+<div class="quiz-opt" data-correct="0">D. 隨機猜的</div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>CLIP 的關鍵設計。</span><span data-lang="en"><strong>A.</strong> The core CLIP trick.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="ch14-survival-prediction.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="臨床預測與生存分析" data-en="Clinical Prediction &amp; Survival">臨床預測與生存分析</span></a>
+<a href="ch16-rag-agentic.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="醫學 RAG 與 Agentic AI" data-en="Medical RAG &amp; Agentic AI">醫學 RAG 與 Agentic AI</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 15</footer>
+<script src="i18n.js"></script>
+</body></html>

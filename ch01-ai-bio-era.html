@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ch01 · AI × 生醫的時代背景</title>
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
+  <ul class="top-nav-links">
+    <li><a href="ch01-ai-bio-era.html" class="active">Ch01</a></li><li><a href="ch02-data-sources.html">Ch02</a></li><li><a href="ch03-ml-dl-foundations.html">Ch03</a></li><li><a href="ch04-ethics-regulation.html">Ch04</a></li><li><a href="ch05-genomic-sequence-ai.html">Ch05</a></li><li><a href="ch06-single-cell-foundation.html">Ch06</a></li><li><a href="ch07-multiomics-integration.html">Ch07</a></li><li><a href="ch08-variant-interpretation.html">Ch08</a></li><li><a href="ch09-medical-imaging-dl.html">Ch09</a></li><li><a href="ch10-digital-pathology.html">Ch10</a></li><li><a href="ch11-protein-structure.html">Ch11</a></li><li><a href="ch12-ai-drug-discovery.html">Ch12</a></li><li><a href="ch13-clinical-nlp.html">Ch13</a></li><li><a href="ch14-survival-prediction.html">Ch14</a></li><li><a href="ch15-multimodal-foundation.html">Ch15</a></li><li><a href="ch16-rag-agentic.html">Ch16</a></li><li><a href="ch17-evaluation-calibration.html">Ch17</a></li><li><a href="ch18-explainable-ai.html">Ch18</a></li><li><a href="ch19-mlops-privacy.html">Ch19</a></li><li><a href="ch20-future-paradigms.html">Ch20</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<header class="page-hero">
+  <div class="step-badge">BLOCK A · CHAPTER 01 / 20</div>
+  <h1 data-zh="AI × 生醫的時代背景" data-en="The Era of AI × Biomedicine">AI × 生醫的時代背景</h1>
+  <p class="subtitle" data-lang="zh">從序列、結構到語言模型——理解這一波 AI 風暴為什麼正在重寫生醫研究的版圖。</p>
+  <p class="subtitle" data-lang="en">From sequence to structure to language models — why this AI wave is rewriting the biomedical research playbook.</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="為什麼是現在" data-en="WHY NOW">為什麼是現在</div>
+<h2 data-zh="生醫研究的「ImageNet 時刻」已經到了" data-en="The 'ImageNet moment' for biomedicine has arrived">生醫研究的「ImageNet 時刻」已經到了</h2>
+<div data-lang="zh">
+<p>2012 年 <strong>AlexNet</strong> 用一張 GPU 把 ImageNet 錯誤率砍半，催生了電腦視覺的深度學習革命。十年後，<strong>AlphaFold 2 (2021)</strong> 用相同的「大模型 + 大數據」配方，把蛋白質結構預測拉到接近實驗精度——這是生醫的 ImageNet 時刻。</p>
+<p>到 2024-2026 年，這個典範持續放大：<strong>AlphaFold 3</strong> 在單一模型中預測蛋白質、核酸、配體、離子的聯合結構；<strong>scGPT、Geneformer、UCE</strong> 把 Transformer 應用在數千萬個單細胞上，做到零樣本細胞註釋；<strong>Med-Gemini</strong> 在 USMLE MedQA 拿到 91.1% 的新 SOTA；<strong>AlphaMissense</strong> 把人類所有 7100 萬個錯義變異標上致病性機率。</p>
+<p>這些工作的共通點是：<strong>不是更聰明的算法，而是更大的模型 × 更多的資料 × 更便宜的算力</strong>。生醫資料正在進入 zettabyte 等級，問題從「資料不夠」轉成「如何把對的模型架構套到對的資料上」。</p>
+</div>
+<div data-lang="en">
+<p>In 2012, <strong>AlexNet</strong> halved ImageNet error rates using a single GPU and ignited the deep learning revolution in vision. A decade later, <strong>AlphaFold 2 (2021)</strong> applied the same "big model + big data" recipe to push protein structure prediction to near-experimental accuracy — biomedicine's ImageNet moment.</p>
+<p>By 2024–2026, the paradigm has compounded: <strong>AlphaFold 3</strong> jointly predicts structures of proteins, nucleic acids, ligands and ions in one model; <strong>scGPT, Geneformer, UCE</strong> apply Transformers to tens of millions of single cells for zero-shot annotation; <strong>Med-Gemini</strong> sets a new SOTA at 91.1% on MedQA (USMLE); <strong>AlphaMissense</strong> labels pathogenicity probabilities for all 71M human missense variants.</p>
+<p>Their shared lesson: <strong>not smarter algorithms but bigger models × more data × cheaper compute</strong>. Biomedical data is hitting zettabyte scale; the bottleneck has shifted from "not enough data" to "matching the right architecture to the right data."</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>核心觀察：</strong>2024 年起，幾乎每個生醫子領域都已經出現自己的 Foundation Model——基因體（Caduceus）、單細胞（scGPT）、病理（UNI / CONCH / Virchow）、影像（MedSAM）、臨床（Med-Gemini）、蛋白質（ESM-3 / AlphaFold 3）。本教程要做的，就是帶你看清這張地圖。</span>
+<span data-lang="en"><strong>Key observation:</strong> Since 2024, almost every biomedical subfield has its own foundation model — genomics (Caduceus), single-cell (scGPT), pathology (UNI / CONCH / Virchow), imaging (MedSAM), clinical (Med-Gemini), proteins (ESM-3 / AlphaFold 3). This tutorial maps that landscape for you.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="關鍵里程碑" data-en="MILESTONES">關鍵里程碑</div>
+<h2 data-zh="2018–2026：AI 進入生醫的時間軸" data-en="2018–2026: AI entering biomedicine">2018–2026：AI 進入生醫的時間軸</h2>
+<div class="workflow">
+  <div class="workflow-step" data-step="18"><h4>BERT (2018) & BioBERT (2019)</h4>
+    <p data-lang="zh">語言模型架構成熟。BioBERT 把 BERT 預訓練在 PubMed 與 PMC，開啟臨床/生醫 NLP 新時代。</p>
+    <p data-lang="en">Language-model architecture matures. BioBERT pretrains BERT on PubMed/PMC, launching the modern era of biomedical NLP.</p></div>
+  <div class="workflow-step" data-step="20"><h4>scVI (2018) · Seurat v3 (2019)</h4>
+    <p data-lang="zh">單細胞分析從「PCA + Louvain」進入深度學習；變分自編碼器成為整合主力。</p>
+    <p data-lang="en">Single-cell shifts from "PCA + Louvain" to deep learning; variational autoencoders become the integration workhorse.</p></div>
+  <div class="workflow-step" data-step="21"><h4>AlphaFold 2 (2021)</h4>
+    <p data-lang="zh">CASP14 接近實驗精度。Nature 全文 + 開源權重 + EBI 200M 結構庫，徹底改寫結構生物學。</p>
+    <p data-lang="en">CASP14 near-experimental accuracy. Nature paper + open weights + EBI 200M structure database rewrites structural biology.</p></div>
+  <div class="workflow-step" data-step="22"><h4>ESMFold · ChatGPT (2022)</h4>
+    <p data-lang="zh">Meta ESM-2 用語言模型解 3D 結構；ChatGPT 把 LLM 推向大眾。生醫從業者開始重新評估「會講話的 AI」。</p>
+    <p data-lang="en">Meta's ESM-2 solves 3D structure via language modeling; ChatGPT brings LLMs to the masses. Biomedical practitioners reassess "AI that talks."</p></div>
+  <div class="workflow-step" data-step="23"><h4>AlphaMissense · Med-PaLM 2 (2023)</h4>
+    <p data-lang="zh">Science 封面：AlphaMissense 覆蓋全人類錯義變異。Med-PaLM 2 在 MedQA 達 86.5%。</p>
+    <p data-lang="en">Science cover: AlphaMissense covers all human missense variants. Med-PaLM 2 hits 86.5% on MedQA.</p></div>
+  <div class="workflow-step" data-step="24"><h4>AlphaFold 3 · scGPT · Med-Gemini (2024)</h4>
+    <p data-lang="zh">AF3 統一蛋白-核酸-配體預測；scGPT 33M 細胞預訓練；Med-Gemini 91.1% MedQA；FDA 12 月發布 PCCP 終版指引；EU AI Act 8 月生效。</p>
+    <p data-lang="en">AF3 unifies protein-NA-ligand prediction; scGPT pretrained on 33M cells; Med-Gemini 91.1% MedQA; FDA's final PCCP guidance (Dec 3); EU AI Act in force (Aug 1).</p></div>
+  <div class="workflow-step" data-step="25"><h4>CZI rBio · Virtual Cell (2025)</h4>
+    <p data-lang="zh">Chan Zuckerberg Initiative 推 rBio，第一個用「虛擬細胞模擬」訓練的推理模型；Biohub 投入 $500M Virtual Biology Initiative。</p>
+    <p data-lang="en">CZI launches rBio — the first reasoning model trained on virtual-cell simulations; Biohub commits $500M to the Virtual Biology Initiative.</p></div>
+  <div class="workflow-step" data-step="26"><h4>RFdiffusion 3 · Foundation Models 普及 (2026)</h4>
+    <p data-lang="zh">RFdiffusion3 開源、原子級設計、速度提升 10×。每個生醫子領域至少有一個 open-weights Foundation Model。</p>
+    <p data-lang="en">RFdiffusion3 open-sourced, atom-level design, 10× faster. Every biomedical subfield has at least one open-weights foundation model.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="四股力量" data-en="FOUR DRIVERS">四股力量</div>
+<h2 data-zh="驅動這場革命的四股力量" data-en="The four forces driving the revolution">驅動這場革命的四股力量</h2>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">📊</div><h4 data-zh="① 資料規模" data-en="① Data at scale">① 資料規模</h4>
+<div data-lang="zh"><p>UK Biobank 50 萬人全基因組 + 影像 + EHR；Human Cell Atlas 已標註 5000 萬細胞；TCGA / GTEx / ENCODE 持續擴增。資料是燃料，而生醫的燃料庫從未這麼滿過。</p></div>
+<div data-lang="en"><p>UK Biobank: 500K whole genomes + imaging + EHR; HCA: 50M annotated cells; TCGA/GTEx/ENCODE continue to expand. Data is fuel — biomedicine has never been this well-fueled.</p></div>
+</div>
+<div class="card"><div class="card-icon">⚡</div><h4 data-zh="② 算力與架構" data-en="② Compute & architectures">② 算力與架構</h4>
+<div data-lang="zh"><p>H100/B200 GPU、Transformer + 注意力機制、混合專家 (MoE)、Diffusion Models、Mamba/SSM。生醫從「線性模型 + 統計檢定」進入「上百億參數模型 + 預訓練 + 微調」的時代。</p></div>
+<div data-lang="en"><p>H100/B200 GPUs, Transformer + attention, Mixture-of-Experts, diffusion models, Mamba/SSM. Biomedicine has moved from "linear models + statistical tests" to "tens of billions of parameters + pretrain + fine-tune."</p></div>
+</div>
+<div class="card"><div class="card-icon">🧠</div><h4 data-zh="③ 開源權重與工具" data-en="③ Open weights & tooling">③ 開源權重與工具</h4>
+<div data-lang="zh"><p>Hugging Face、PyTorch、JAX、scverse、MONAI、Bionemo。Foundation Models 多半 open-weights（ESM-3、Geneformer、scGPT、UNI），讓中小實驗室也能站在巨人肩上微調。</p></div>
+<div data-lang="en"><p>Hugging Face, PyTorch, JAX, scverse, MONAI, BioNeMo. Most foundation models are open-weight (ESM-3, Geneformer, scGPT, UNI), letting small labs stand on giants' shoulders and fine-tune.</p></div>
+</div>
+<div class="card"><div class="card-icon">🏛️</div><h4 data-zh="④ 監管與基礎建設" data-en="④ Regulation & infrastructure">④ 監管與基礎建設</h4>
+<div data-lang="zh"><p>FDA PCCP（2024/12）、EU AI Act（2024/1689）、ICH E14、TRIPOD-AI、NIH STRIDES 雲端。第一次有清楚的「AI 醫材」上市路徑與更新機制。</p></div>
+<div data-lang="en"><p>FDA PCCP (Dec 2024), EU AI Act (2024/1689), ICH E14, TRIPOD-AI, NIH STRIDES cloud. For the first time, there is a clear path-to-market and update mechanism for AI medical devices.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="實際印象" data-en="QUICK NUMBERS">實際印象</div>
+<h2 data-zh="幾組讓你瞬間有感的數字" data-en="A few numbers that hit home">幾組讓你瞬間有感的數字</h2>
+<table class="comp-table"><thead>
+<tr><th data-zh="領域" data-en="Domain">領域</th><th data-zh="2018 年" data-en="2018">2018 年</th><th data-zh="2024–2026 年" data-en="2024–2026">2024–2026 年</th><th data-zh="代表模型" data-en="Representative model">代表模型</th></tr></thead><tbody>
+<tr><td data-zh="蛋白質結構預測" data-en="Protein structure">蛋白質結構預測</td><td>RMSD ~6 Å / CASP13</td><td>RMSD ~1.5 Å + 配體 + 核酸</td><td>AlphaFold 3</td></tr>
+<tr><td data-zh="單細胞註釋" data-en="Single-cell annotation">單細胞註釋</td><td data-zh="人工 marker 對照" data-en="manual markers">人工 marker 對照</td><td data-zh="零樣本，跨組織 90%+" data-en="zero-shot, 90%+ across tissues">零樣本，跨組織 90%+</td><td>scGPT, Geneformer, UCE</td></tr>
+<tr><td data-zh="MedQA (USMLE)" data-en="MedQA (USMLE)">MedQA (USMLE)</td><td>~50% (BioBERT)</td><td>91.1% (Med-Gemini)</td><td>Med-Gemini, GPT-4o</td></tr>
+<tr><td data-zh="影像分割 (Dice)" data-en="Imaging segmentation (Dice)">影像分割 (Dice)</td><td>0.75–0.85 (U-Net)</td><td>0.90+ (nnU-Net + MedSAM)</td><td>nnU-Net v2, MedSAM</td></tr>
+<tr><td data-zh="變異致病性 AUROC" data-en="Variant pathogenicity AUROC">變異致病性 AUROC</td><td>~0.85 (REVEL)</td><td>0.96 (AlphaMissense)</td><td>AlphaMissense, PrimateAI-3D</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="第一段程式碼" data-en="HELLO WORLD">第一段程式碼</div>
+<h2 data-zh="Hello, AI × Bio" data-en="Hello, AI × Bio">Hello, AI × Bio</h2>
+<div data-lang="zh"><p>讓我們用最少的程式碼，跑一個跨領域的範例：用 ESM-2 把一段蛋白質序列轉成嵌入向量，並比較兩條序列的相似度。這正是現代生醫 AI 的核心動作：<strong>序列 → 向量 → 下游任務</strong>。</p></div>
+<div data-lang="en"><p>Let's run the minimal cross-field example: use ESM-2 to embed protein sequences and compare two of them. This is the modern AI-for-bio motif: <strong>sequence → vector → downstream task</strong>.</p></div>
+<div class="code-tabs">
+  <div class="code-tab-btns">
+    <button class="code-tab-btn active" data-tab="py">Python</button>
+    <button class="code-tab-btn" data-tab="r">R</button>
+  </div>
+  <div class="code-tab-content active" data-tab="py"><pre><span class="comment"># pip install fair-esm torch</span>
+<span class="kw">import</span> torch, esm
+model, alphabet = esm.pretrained.<span class="func">esm2_t6_8M_UR50D</span>()
+batch_converter = alphabet.<span class="func">get_batch_converter</span>()
+seqs = [(<span class="str">"p1"</span>, <span class="str">"MKTAYIAKQRQISFVKSHFSRQ"</span>),
+        (<span class="str">"p2"</span>, <span class="str">"MKTAYIAKQRQISFVKSHFSRX"</span>)]
+_, _, tokens = <span class="func">batch_converter</span>(seqs)
+<span class="kw">with</span> torch.<span class="func">no_grad</span>():
+    out = <span class="func">model</span>(tokens, repr_layers=[<span class="num">6</span>])
+emb = out[<span class="str">"representations"</span>][<span class="num">6</span>].<span class="func">mean</span>(<span class="num">1</span>)
+sim = torch.<span class="func">cosine_similarity</span>(emb[<span class="num">0</span>], emb[<span class="num">1</span>], dim=<span class="num">0</span>)
+<span class="func">print</span>(<span class="str">f"cosine = {sim.item():.4f}"</span>)</pre></div>
+  <div class="code-tab-content" data-tab="r"><pre><span class="comment"># reticulate + Python ESM —  R 直接呼叫 Python 模型</span>
+<span class="kw">library</span>(reticulate)
+esm  &lt;- <span class="func">import</span>(<span class="str">"esm"</span>)
+torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>)
+pre  &lt;- esm$pretrained$<span class="func">esm2_t6_8M_UR50D</span>()
+model &lt;- pre[[<span class="num">1</span>]]; alpha &lt;- pre[[<span class="num">2</span>]]
+bc &lt;- alpha$<span class="func">get_batch_converter</span>()
+seqs &lt;- <span class="func">list</span>(<span class="func">tuple</span>(<span class="str">"p1"</span>,<span class="str">"MKTAYIAKQRQISFVKSHFSRQ"</span>),
+              <span class="func">tuple</span>(<span class="str">"p2"</span>,<span class="str">"MKTAYIAKQRQISFVKSHFSRX"</span>))
+res &lt;- <span class="func">bc</span>(seqs)
+out &lt;- model(res[[<span class="num">3</span>]], repr_layers=<span class="func">list</span>(<span class="num">6</span>L))
+emb &lt;- out$representations[[<span class="num">6</span>L]]$<span class="func">mean</span>(<span class="num">1</span>L)
+<span class="func">cat</span>(<span class="str">"cosine ="</span>, torch$<span class="func">cosine_similarity</span>(emb[<span class="num">1</span>], emb[<span class="num">2</span>], dim=<span class="num">0</span>L)$<span class="func">item</span>())</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="本書地圖" data-en="ROADMAP">本書地圖</div>
+<h2 data-zh="20 章 / 5 區塊：學習地圖" data-en="20 chapters / 5 blocks: learning roadmap">20 章 / 5 區塊：學習地圖</h2>
+<div class="decision-tree">
+  <h4 data-zh="你應該怎麼讀？" data-en="How should you read this tutorial?">你應該怎麼讀？</h4>
+  <div class="dt-node"><span class="dt-q">A.</span><span class="dt-arrow">→</span><span data-lang="zh">完全初學者：依序 Ch01 → Ch20。</span><span data-lang="en">Newcomer: read Ch01 → Ch20 in order.</span></div>
+  <div class="dt-node"><span class="dt-q">B.</span><span class="dt-arrow">→</span><span data-lang="zh">已有 ML 基礎，想看生醫應用：直接 Block B/C/D 任選感興趣的章節。</span><span data-lang="en">If you know ML and want biomedical use cases: jump to any chapter in Block B/C/D.</span></div>
+  <div class="dt-node"><span class="dt-q">C.</span><span class="dt-arrow">→</span><span data-lang="zh">準備要部署 / 通過 FDA / IRB：先 Ch04 + Ch17 + Ch19。</span><span data-lang="en">Deploying / FDA / IRB-bound: start with Ch04 + Ch17 + Ch19.</span></div>
+  <div class="dt-node"><span class="dt-q">D.</span><span class="dt-arrow">→</span><span data-lang="zh">每章末有 mini-quiz，最後可挑戰 200 題完整測驗。</span><span data-lang="en">Every chapter ends with a mini-quiz; finish with the full 200-question exam.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="quiz-section">
+<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+
+<div class="quiz-q">
+<p data-lang="zh">1. 下列哪一項<strong>不是</strong>促成 2021 年以後 AI × 生醫爆發的關鍵？</p>
+<p data-lang="en">1. Which of the following is <strong>NOT</strong> a key driver behind the AI × Biomedicine boom since 2021?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. UK Biobank / HCA 等大規模公開資料</span><span data-lang="en">A. Large public datasets (UK Biobank, HCA)</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. Transformer 架構與 GPU 算力</span><span data-lang="en">B. Transformer architectures and GPU compute</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">C. 大幅放寬的醫療資料隱私法規</span><span data-lang="en">C. Drastically relaxed medical data privacy regulations</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 開源權重（ESM、Geneformer、scGPT）的釋出</span><span data-lang="en">D. Open-weights releases (ESM, Geneformer, scGPT)</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>正解：C。</strong>事實上 GDPR / HIPAA / EU AI Act 都更嚴格，AI 必須學會在強隱私約束下運作（聯邦學習、差分隱私）。</span><span data-lang="en"><strong>Answer: C.</strong> GDPR/HIPAA/EU AI Act became stricter; AI had to learn to work under tight privacy constraints (federated learning, differential privacy).</span></div>
+</div>
+
+<div class="quiz-q">
+<p data-lang="zh">2. AlphaFold 3 相對於 AlphaFold 2 最關鍵的新能力是？</p>
+<p data-lang="en">2. The most critical new capability of AlphaFold 3 over AlphaFold 2 is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 把模型參數縮小到原本的 1/10</span><span data-lang="en">A. Reducing parameters to 1/10 of AF2</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 在單一模型中聯合預測蛋白質-核酸-配體-離子的結構</span><span data-lang="en">B. Joint prediction of protein–nucleic acid–ligand–ion structures in one model</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 開放完整商業使用</span><span data-lang="en">C. Fully open commercial use</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 取代質譜實驗</span><span data-lang="en">D. Replacing mass spectrometry</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>正解：B。</strong>AF3 採用擴散式架構，<em>Nature 630:493–500 (2024)</em>，把藥物設計關鍵的「配體結合姿態」整進主流程。</span><span data-lang="en"><strong>Answer: B.</strong> AF3's diffusion architecture (<em>Nature 630:493–500, 2024</em>) brings ligand-binding pose — central to drug design — into the main pipeline.</span></div>
+</div>
+
+<div class="quiz-q">
+<p data-lang="zh">3. 「Foundation Model」相較於傳統監督式深度學習最大的差別是？</p>
+<p data-lang="en">3. The biggest difference between a "Foundation Model" and traditional supervised deep learning is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 完全不需要 GPU</span><span data-lang="en">A. It needs no GPU</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. 只在小資料上訓練</span><span data-lang="en">B. It's trained only on small datasets</span></div>
+<div class="quiz-opt" data-correct="1"><span data-lang="zh">C. 先在大量無標註資料上自監督預訓練，再以少量標註資料微調或零樣本應用</span><span data-lang="en">C. Self-supervised pretraining on massive unlabeled data, then few-shot / zero-shot downstream</span></div>
+<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 必須使用強化學習</span><span data-lang="en">D. Must use reinforcement learning</span></div>
+</div>
+<div class="quiz-feedback"><span data-lang="zh"><strong>正解：C。</strong>這正是 scGPT、ESM-3、UNI、Med-Gemini 共通的訓練範式：大規模自監督預訓練 ⇒ 下游任務通用。</span><span data-lang="en"><strong>Answer: C.</strong> This is the shared paradigm of scGPT, ESM-3, UNI, Med-Gemini: massive self-supervised pretraining ⇒ general-purpose downstream.</span></div>
+</div>
+</div>
+</section>
+
+<nav class="page-nav">
+<a href="index.html"><span class="nav-dir" data-zh="← 回到首頁" data-en="← Home">← 回到首頁</span><span class="nav-title" data-zh="20 章學習地圖" data-en="20-Chapter Map">20 章學習地圖</span></a>
+<a href="ch02-data-sources.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Ch02 生醫大數據的類型與來源" data-en="Ch02 Data Types & Sources">Ch02 生醫大數據的類型與來源</span></a>
+</nav>
+
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 01</footer>
+<script src="i18n.js"></script>
+</body></html>
