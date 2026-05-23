@@ -20,7 +20,22 @@
 <main class="content-wrap">
 
 <section class="section">
-<div class="section-label" data-zh="為什麼多模態" data-en="WHY MULTIMODAL">為什麼多模態</h2>
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh"><p>從<strong>剛接觸 CLIP</strong>的學生到<strong>已部署醫療 AI</strong>的工程師，這章是多模態 FM 全圖：</p>
+<ul><li>分辨 Med-Gemini, BiomedCLIP, LLaVA-Med, Path-Foundation, RoentGen 五大模型</li>
+<li>讀懂 Late fusion / Cross-attention / Token-mixed 三種整合範式</li>
+<li>避開「越多模態越好」「文字生成 X 光無倫理問題」迷思</li></ul></div>
+<div data-lang="en"><p>From <strong>CLIP newcomers</strong> to <strong>deployed medical-AI engineers</strong>, this is the multimodal FM panorama:</p>
+<ul><li>Differentiate Med-Gemini, BiomedCLIP, LLaVA-Med, Path-Foundation, RoentGen</li>
+<li>Read late fusion / cross-attention / token-mixed paradigms</li>
+<li>Steer clear of "more modalities is better" and "text-to-X-ray has no ethics issue" myths</li></ul></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="為什麼多模態" data-en="WHY MULTIMODAL">為什麼多模態</div>
 <h2 data-zh="醫療診斷天生是多模態的" data-en="Medicine is inherently multimodal">醫療診斷天生是多模態的</h2>
 <div data-lang="zh">
 <p>胸 X 光 + 病史 + 抽血 + 心電圖 + 生命徵象——沒有醫生只看單一資料下診斷。但 2020 年前的醫療 AI 多半「單模態」，每個模型只專一資料。<strong>多模態 Foundation Model</strong> 透過共同的嵌入空間，把不同模態接到同一個語意層，從而：</p>
@@ -100,6 +115,119 @@ texts  &lt;- <span class="func">tok</span>(<span class="func">paste</span>(<span
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+真正的多模態 AI 不是「把模態拼起來」，是「<em>學會在共同潛在空間裡，讓影像和文字成為彼此的翻譯</em>」。
+<span class="src">— Radford et al. 2021 CLIP paper</span>
+</div>
+<div class="pull-quote" data-lang="en">
+Real multimodal AI isn't "stitching modalities" — it's "<em>making image and text translate each other in a shared latent space</em>".
+<span class="src">— Radford et al. 2021 CLIP paper</span>
+</div>
+
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？CLIP 的 InfoNCE loss" data-en="Deep dive: CLIP's InfoNCE loss">想再深一點？InfoNCE loss</h4>
+<div data-lang="zh">
+<p>CLIP（Radford 2021）的核心訓練目標：給 N 個 (image, text) 配對，學一個圖像 encoder f_I 和文字 encoder f_T，使配對的 cosine similarity 高、未配對的低。</p>
+<div class="math">L_InfoNCE = − (1/N) Σ_i log [ exp(sim(f_I(xᵢ), f_T(tᵢ))/τ) / Σⱼ exp(sim(f_I(xᵢ), f_T(tⱼ))/τ) ]</div>
+<p>對稱地，也訓練 text→image 方向，最終 loss = (L_i2t + L_t2i)/2。τ 是 temperature。N=2 億對 (LAION-400M、LAION-2B) 預訓 → 通用視覺語言對齊。</p>
+<p><strong>BiomedCLIP</strong>（MS 2023）把 image encoder 換 ViT-B、text encoder 換 PubMedBERT，在 PubMed 圖文對上 fine-tune；下游 zero-shot 醫學影像分類勝過原始 CLIP +10pp。</p>
+</div>
+<div data-lang="en">
+<p>CLIP's (Radford 2021) core: given N (image, text) pairs, learn image encoder f_I and text encoder f_T such that paired cosine similarity is high, unpaired low.</p>
+<div class="math">L_InfoNCE = − (1/N) Σ_i log [ exp(sim(f_I(xᵢ), f_T(tᵢ))/τ) / Σⱼ exp(sim(f_I(xᵢ), f_T(tⱼ))/τ) ]</div>
+<p>Symmetric text→image training; final loss = (L_i2t + L_t2i)/2. τ is temperature. Pretrained on N=200M pairs (LAION-400M, LAION-2B) → general vision-language alignment.</p>
+<p><strong>BiomedCLIP</strong> (MS 2023) swaps image encoder for ViT-B and text encoder for PubMedBERT, fine-tunes on PubMed image-text pairs; downstream zero-shot medical-imaging classification beats vanilla CLIP +10pp.</p>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024 · Med-Gemini 在 NEJM Image Challenge</span>
+<h3 data-zh="Med-Gemini 在 NEJM 影像挑戰勝過 80% 住院醫師" data-en="Med-Gemini beats 80% of residents on NEJM Image Challenge">Med-Gemini 在 NEJM Image Challenge</h3>
+<div data-lang="zh">
+<p>NEJM Image Challenge 每週發布一個臨床影像 + 問題，全球醫師線上作答。2024 Google 研究團隊用 Med-Gemini 跑了過去 5 年 240 個 case，整體答對率 <strong>69%</strong>——比 NEJM 讀者平均（44%）高 25pp，比住院醫師（55%）高 14pp。</p>
+<p>更有趣的是 case-level 分析：(1) <strong>純放射科影像</strong> Med-Gemini 強（皮膚科、眼科、影像）；(2) <strong>需病史推理</strong>表現 OK；(3) <strong>需 EHR + 影像 + 實驗室整合</strong>的案例，Med-Gemini 與住院醫師打平。</p>
+<p>關鍵：Med-Gemini 是 <strong>token-mixed multimodal</strong>——影像、文字、表格、ECG 都 tokenize 進同一個 Transformer，跟 LLaVA 的 cross-attention 不同。Google 認為這是「模態統一」的未來方向。</p>
+<p><strong>但也有陷阱：</strong>Med-Gemini 對「<em>看起來像但實則不同</em>」的影像（如 Kaposi vs bacillary angiomatosis）仍會誤判。發表的研究謹慎標明：「Med-Gemini 是 <em>輔助診斷</em>，不是取代臨床推理」。</p>
+</div>
+<div data-lang="en">
+<p>NEJM Image Challenge releases a clinical image + question weekly; global doctors answer online. In 2024 Google ran Med-Gemini on the past 5 years' 240 cases — overall accuracy <strong>69%</strong>, +25pp over NEJM readers (44%), +14pp over residents (55%).</p>
+<p>Case-level analysis: (1) <strong>pure radiology imaging</strong> Med-Gemini strong (derm, ophth, imaging); (2) <strong>history-reasoning</strong> OK; (3) <strong>EHR + imaging + lab integration</strong>, Med-Gemini ties with residents.</p>
+<p>Key: Med-Gemini is <strong>token-mixed multimodal</strong> — images, text, tables, ECGs all tokenize into one Transformer, unlike LLaVA's cross-attention. Google sees this as the future of "unified modality".</p>
+<p><strong>Pitfalls remain:</strong> Med-Gemini misjudges visually similar but distinct conditions (e.g., Kaposi vs bacillary angiomatosis). The paper carefully marks: "Med-Gemini is <em>diagnostic assistance</em>, not a replacement for clinical reasoning".</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：多模態 AI 在影像 + 文字勝過住院醫師，但「複雜臨床推理」仍需人；定位是「副駕」不是「主駕」。</div>
+<div class="punchline" data-lang="en">Lesson: multimodal AI beats residents on image + text, but "complex clinical reasoning" still needs humans; the role is "copilot" not "pilot".</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>CLIP<span class="gloss-en">Contrastive Language-Image Pretraining</span></dt><dd data-lang="zh">OpenAI 2021；圖像-文字對 contrastive 學習，是多模態 FM 鼻祖。</dd><dd data-lang="en">OpenAI 2021; image-text contrastive learning, founder of multimodal FMs.</dd></div>
+<div class="glossary-item"><dt>InfoNCE<span class="gloss-en">contrastive loss</span></dt><dd data-lang="zh">CLIP 用的對比 loss；softmax over batch 的負樣本。</dd><dd data-lang="en">CLIP's contrastive loss; softmax over batch negatives.</dd></div>
+<div class="glossary-item"><dt>Late Fusion<span class="gloss-en">後期融合</span></dt><dd data-lang="zh">各模態獨立 encoder → 共同空間 cosine 對齊。CLIP-style。</dd><dd data-lang="en">Independent encoders per modality → cosine alignment in shared space. CLIP-style.</dd></div>
+<div class="glossary-item"><dt>Cross-attention<span class="gloss-en">跨模態注意力</span></dt><dd data-lang="zh">LLaVA / Flamingo 用：一模態的 token 作 query 進另一模態的 key/value。</dd><dd data-lang="en">LLaVA / Flamingo: query tokens from one modality attend to key/value of another.</dd></div>
+<div class="glossary-item"><dt>Token-mixed<span class="gloss-en">統一 token</span></dt><dd data-lang="zh">所有模態 tokenize 後丟同一 Transformer。Med-Gemini, ESM-3 採此範式。</dd><dd data-lang="en">All modalities tokenize into one Transformer. Used by Med-Gemini, ESM-3.</dd></div>
+<div class="glossary-item"><dt>VQA<span class="gloss-en">視覺問答</span></dt><dd data-lang="zh">Visual Question Answering；給圖 + 問題輸出答案。LLaVA-Med, GPT-4V 主要任務。</dd><dd data-lang="en">Visual Question Answering; image + question → answer. Main task for LLaVA-Med, GPT-4V.</dd></div>
+<div class="glossary-item"><dt>BiomedCLIP<span class="gloss-en">生醫 CLIP</span></dt><dd data-lang="zh">MS 2023；ViT-B + PubMedBERT，PubMed 圖文 fine-tune。</dd><dd data-lang="en">MS 2023; ViT-B + PubMedBERT, fine-tuned on PubMed image-text.</dd></div>
+<div class="glossary-item"><dt>LLaVA-Med<span class="gloss-en">大型語言-視覺助理</span></dt><dd data-lang="zh">NeurIPS 2023；cross-attention 把醫療影像 token 注入 LLM。</dd><dd data-lang="en">NeurIPS 2023; cross-attention injects medical image tokens into LLM.</dd></div>
+<div class="glossary-item"><dt>RoentGen<span class="gloss-en">文字→X 光生成</span></dt><dd data-lang="zh">Stanford 2023；Stable Diffusion 微調生成胸 X 光。涉及倫理疑慮。</dd><dd data-lang="en">Stanford 2023; Stable Diffusion fine-tune generating chest X-rays. Raises ethics concerns.</dd></div>
+<div class="glossary-item"><dt>Image-Text Retrieval<span class="gloss-en">跨模檢索</span></dt><dd data-lang="zh">給文字找最相似圖（或反向）；BiomedCLIP 經典任務。</dd><dd data-lang="en">Text → most similar image (or reverse); BiomedCLIP's canonical task.</dd></div>
+<div class="glossary-item"><dt>Multimodal Hallucination<span class="gloss-en">多模態幻覺</span></dt><dd data-lang="zh">VLM 在影像細節上編造（如「左下肺有實變」但圖上沒有）；MMHal-V 是評估 benchmark。</dd><dd data-lang="en">VLMs fabricate image details (e.g., "consolidation in left lower lobe" but image shows none); MMHal-V is the benchmark.</dd></div>
+<div class="glossary-item"><dt>Projection Head<span class="gloss-en">投影層</span></dt><dd data-lang="zh">CLIP / BiomedCLIP 用 MLP 把 vision/text encoder 輸出投到共同 latent 維度。</dd><dd data-lang="en">CLIP / BiomedCLIP use an MLP to project vision/text encoder outputs to a shared latent dim.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. RoentGen 從文字生成 X 光的倫理？</b>合成資料增廣訓練集 OK，但若用來「fake 病人影像」訓練診斷 AI 會災難——學到的是 RoentGen 的偏差而非真實病理。FDA 2025 草案明令合成資料須附 fidelity 評估。<span class="think">辯論：罕病合成資料能否用於 pivotal study？</span></div>
+<div class="dq" data-lang="en"><b>Q1. Ethics of RoentGen text-to-X-ray?</b>Synthetic augmentation OK; but training diagnostic AI on "fake patient images" is disastrous — it learns RoentGen's biases, not real pathology. FDA 2025 draft requires fidelity assessment for synthetic data.<span class="think">Debate: synthetic rare-disease data for pivotal studies?</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 影像-報告自動生成可信嗎？</b>RadFM, MAIRA-2 等可生成放射報告草稿。問題：(1) hallucination（無中生有）；(2) 漏報（incidental findings）；(3) 法律責任。2024-2025 部署都採「<strong>AI 起草 + 放射科簽署</strong>」混合模式。<span class="think">參考：Mayo Clinic 2024 AI report drafting 內部評估。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Trust AI-generated radiology reports?</b>RadFM, MAIRA-2 can draft. Problems: (1) hallucination; (2) missed incidental findings; (3) legal liability. 2024-2025 deployments use "<strong>AI drafts + radiologist signs</strong>" hybrid.<span class="think">Reference: Mayo Clinic 2024 internal AI report drafting evaluation.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. Token-mixed (Med-Gemini) vs Cross-attention (LLaVA)：誰會贏？</b>Google 押注 token-mixed；Meta / Stanford 多 cross-attention。實證：在 large-scale data 上 token-mixed 略勝（Med-Gemini）；data-poor scenarios cross-attention 更高效率。<span class="think">假設：2026+ 主流會收斂到 token-mixed（隨資料規模成長）。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Token-mixed (Med-Gemini) vs Cross-attention (LLaVA): who wins?</b>Google bets on token-mixed; Meta/Stanford lean cross-attention. Empirically: token-mixed slightly wins on large data (Med-Gemini); cross-attention more efficient with limited data.<span class="think">Hypothesis: 2026+ mainstream converges to token-mixed as data scales.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. 多模態 hallucination 怎麼緩解？</b>三條路：(1) <strong>RAG grounding</strong>（醫療知識庫對齊）；(2) <strong>chain-of-thought + 引用追溯</strong>；(3) <strong>uncertainty quantification</strong>。MMHal-V benchmark 顯示 GPT-4V hallucination 率 ~12%，Med-Gemini ~7%——仍很高。<span class="think">行動：臨床部署永遠 human-in-the-loop。</span></div>
+<div class="dq" data-lang="en"><b>Q4. Mitigating multimodal hallucination?</b>Three paths: (1) <strong>RAG grounding</strong> (medical KB alignment); (2) <strong>chain-of-thought + citation tracing</strong>; (3) <strong>uncertainty quantification</strong>. MMHal-V shows GPT-4V hallucination ~12%, Med-Gemini ~7% — still high.<span class="think">Action: clinical deployment always human-in-the-loop.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="該選哪個多模態起步？" data-en="Which multimodal to start?">起步用哪個？</span></button><div class="accordion-body"><span data-lang="zh">三選：(1) <strong>零樣本醫療影像分類</strong>—BiomedCLIP（HuggingFace 即用）；(2) <strong>影像 + 對話</strong>—LLaVA-Med（多輪 VQA）；(3) <strong>整合 EHR + 影像 + 訊號</strong>—Med-Gemini（Google Cloud）或 MedGemma 開源版。先用 BiomedCLIP 確認對齊，再上 LLaVA-Med / Med-Gemini。</span><span data-lang="en">Three picks: (1) <strong>zero-shot medical image classification</strong> — BiomedCLIP (plug-and-play on HuggingFace); (2) <strong>image + chat</strong> — LLaVA-Med (multi-turn VQA); (3) <strong>EHR + image + signal integration</strong> — Med-Gemini (Google Cloud) or open-source MedGemma. Start with BiomedCLIP to validate alignment, then LLaVA-Med / Med-Gemini.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="多模態 GPU 需求？" data-en="GPU need?">GPU 需求？</span></button><div class="accordion-body"><span data-lang="zh">推論：BiomedCLIP 8GB / LLaVA-Med 24GB / Med-Gemini API（不需本地 GPU）/ MedGemma 24-80GB。微調需求 ×2-3。Mac M-series 透過 MLX 可跑 BiomedCLIP / LLaVA-Med 8B。沒 GPU 也能用 HuggingFace Spaces。</span><span data-lang="en">Inference: BiomedCLIP 8GB / LLaVA-Med 24GB / Med-Gemini API (no local GPU) / MedGemma 24-80GB. Fine-tuning: ×2-3. Mac M-series via MLX runs BiomedCLIP / LLaVA-Med 8B. No GPU? HuggingFace Spaces.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="放射報告自動生成在台灣可行嗎？" data-en="Auto radiology reports in Taiwan?">台灣可行？</span></button><div class="accordion-body"><span data-lang="zh">技術上可行，法規上需 TFDA 認可。三層導入：(1) <strong>內部草稿輔助</strong>—不對外發報告，僅放射科內部用，無監管問題；(2) <strong>報告草擬</strong>—放射科最終簽署，需院內 IRB；(3) <strong>自主診斷</strong>—Class III SaMD 路徑，難。2025 多家醫學中心試行 (1)、(2)。</span><span data-lang="en">Technically yes, but TFDA approval needed. Three tiers: (1) <strong>internal draft assistance</strong> — no external reports, internal radiology only, no regulatory issue; (2) <strong>report drafting</strong> — radiologist signs, needs IRB; (3) <strong>autonomous diagnosis</strong> — Class III SaMD path, hard. 2025 several medical centers pilot (1) and (2).</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="hallucination 怎麼偵測？" data-en="Detect hallucination?">如何偵測幻覺？</span></button><div class="accordion-body"><span data-lang="zh">三方法：(1) <strong>cross-modal consistency check</strong>—把生成報告再丟回 VQA 看一致性；(2) <strong>uncertainty score</strong>—logprob 低於閾值就標警示；(3) <strong>多模型集成</strong>—GPT-4V + Med-Gemini + Claude-Vision 不一致 → 人工複核。臨床上加 <strong>MMHal-V benchmark</strong> 監控。</span><span data-lang="en">Three methods: (1) <strong>cross-modal consistency check</strong> — feed generated report back to VQA for consistency; (2) <strong>uncertainty score</strong> — flag if logprob below threshold; (3) <strong>multi-model ensemble</strong> — GPT-4V + Med-Gemini + Claude-Vision disagree → manual review. Add <strong>MMHal-V benchmark</strong> for clinical monitoring.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="多模態能否提升罕病診斷？" data-en="Multimodal for rare diseases?">罕病診斷？</span></button><div class="accordion-body"><span data-lang="zh">是。罕病典型情境就是「<strong>單一模態看不出</strong>」+「<strong>非典型表現</strong>」。多模態能整合臉部影像（GestaltMatcher）+ HPO 表型 + WES 變異，做 phenotype-driven 變異排序。NHRI 罕病中心已導入此類 pipeline。</span><span data-lang="en">Yes. Rare disease is the typical scenario where "<strong>single modality can't tell</strong>" + "<strong>atypical presentations</strong>". Multimodal integrates facial imaging (GestaltMatcher) + HPO phenotypes + WES variants → phenotype-driven variant ranking. NHRI Rare Disease Center has deployed this.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>多模態 FM 不是模態相加</strong>，是在共同潛在空間做「跨模態翻譯」。</li>
+<li><strong>三種整合範式</strong>：Late fusion (CLIP)、Cross-attention (LLaVA)、Token-mixed (Med-Gemini)。</li>
+<li><strong>Med-Gemini 在 NEJM Image Challenge</strong> 勝過 80% 住院醫師，但「複雜推理」仍需人。</li>
+<li><strong>多模態 hallucination 是核心風險</strong>；MMHal-V 顯示 GPT-4V 12%、Med-Gemini 7% 仍偏高。</li>
+<li><strong>RoentGen 等文字→影像生成</strong>須慎用，FDA 2025 草案要求 fidelity 評估。</li>
+<li><strong>臨床部署永遠 human-in-the-loop</strong>—AI 是副駕，不是主駕。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>Multimodal FMs aren't modality addition</strong>; they're cross-modal translation in shared latent space.</li>
+<li><strong>Three integration paradigms</strong>: Late fusion (CLIP), Cross-attention (LLaVA), Token-mixed (Med-Gemini).</li>
+<li><strong>Med-Gemini beats 80% of residents</strong> on NEJM Image Challenge, but "complex reasoning" still needs humans.</li>
+<li><strong>Multimodal hallucination is core risk</strong>; MMHal-V shows GPT-4V 12%, Med-Gemini 7% — still high.</li>
+<li><strong>Text-to-image generation (RoentGen)</strong> use cautiously; FDA 2025 draft requires fidelity evaluation.</li>
+<li><strong>Clinical deployment always human-in-the-loop</strong> — AI is copilot, not pilot.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -146,5 +274,19 @@ texts  &lt;- <span class="func">tok</span>(<span class="func">paste</span>(<span
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 15</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch14-survival-prediction.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch14 臨床預測與生存分析</span></a>
+<a href="ch16-rag-agentic.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch16 醫學 RAG 與 Agentic AI</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch15</footer>
 <script src="i18n.js"></script>
 </body></html>

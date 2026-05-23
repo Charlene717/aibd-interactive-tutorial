@@ -20,6 +20,25 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh"><p>不管你是<strong>第一次聽到 Kaplan-Meier</strong> 的學生、<strong>已會 Cox</strong> 的臨床流行病學家，或<strong>想用 DL 處理影像生存資料</strong>的工程師，這章是你的「審查資料 AI 全圖」：</p>
+<ul>
+<li>分辨 CoxPH、DeepSurv、DeepHit、Cox-Time、RSF、SurvTRACE 六大模型</li>
+<li>讀懂 C-index、time-dependent AUC、Brier、IBS、IPCW 五大指標</li>
+<li>避開「censoring 假設違反」「外部驗證沒做」「Decision Curve 被省」三大坑</li>
+</ul></div>
+<div data-lang="en"><p>From <strong>students new to Kaplan-Meier</strong>, <strong>clinical epidemiologists with Cox</strong>, to <strong>DL engineers tackling imaging survival</strong>:</p>
+<ul>
+<li>Differentiate CoxPH, DeepSurv, DeepHit, Cox-Time, RSF, SurvTRACE</li>
+<li>Read C-index, time-dependent AUC, Brier, IBS, IPCW</li>
+<li>Steer clear of "violated censoring", "no external validation", "skipped Decision Curve"</li>
+</ul></div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="基礎" data-en="FOUNDATION">基礎</div>
 <h2 data-zh="生存分析特殊在哪？" data-en="Why is survival analysis special?">生存分析特殊在哪？</h2>
 <div data-lang="zh">
@@ -106,6 +125,125 @@ pred &lt;- <span class="func">predict</span>(fit, df_test, type = <span class="s
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+C-index 0.75 看似可接受，但若你的模型在 high-risk 族群<em>校準崩潰</em>，治療決策仍會災難——AUC 不是臨床效益。
+<span class="src">— Van Calster 2019 BMC Medicine</span>
+</div>
+<div class="pull-quote" data-lang="en">
+A C-index of 0.75 sounds OK, but if your model <em>fails calibration</em> in the high-risk group, treatment decisions will still be disastrous — AUC isn't clinical utility.
+<span class="src">— Van Calster 2019 BMC Medicine</span>
+</div>
+
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？Cox partial likelihood 與審查" data-en="Deep dive: Cox partial likelihood & censoring">想再深一點？Cox partial likelihood</h4>
+<div data-lang="zh">
+<p>Cox PH 模型避開「baseline hazard」的具體假設，用<strong>partial likelihood</strong>：</p>
+<div class="math">L(β) = ∏_{i: δᵢ=1} [ exp(β^T xᵢ) / Σ_{j∈R(tᵢ)} exp(β^T xⱼ) ]</div>
+<p>其中 R(tᵢ) 是時間 tᵢ 仍 at risk 的個案集合，δᵢ=1 表示事件發生（未審查）。<strong>關鍵假設</strong>：(1) <em>proportional hazards</em>—hazard ratio 不隨時間變；(2) <em>independent censoring</em>—審查機率與真實生存時間獨立。</p>
+<p><strong>DeepSurv 改裝</strong>：把 β^T x 換成 DNN 輸出 f(x)，loss 變成：</p>
+<div class="math">L(θ) = − Σ_{i: δᵢ=1} [ f_θ(xᵢ) − log Σ_{j∈R(tᵢ)} exp(f_θ(xⱼ)) ]</div>
+<p>仍保留比例假設，但允許非線性 covariate 效應。</p>
+<p><strong>DeepHit 跳脫比例假設</strong>：直接離散時間軸成 K bins，輸出每個 bin 的 cause-specific hazard；可建模競爭風險（cancer death vs cardiovascular death）。</p>
+</div>
+<div data-lang="en">
+<p>Cox PH avoids assuming a specific baseline hazard, using <strong>partial likelihood</strong>:</p>
+<div class="math">L(β) = ∏_{i: δᵢ=1} [ exp(β^T xᵢ) / Σ_{j∈R(tᵢ)} exp(β^T xⱼ) ]</div>
+<p>where R(tᵢ) is the at-risk set at time tᵢ, δᵢ=1 means event observed (not censored). <strong>Key assumptions</strong>: (1) <em>proportional hazards</em> — hazard ratios don't change over time; (2) <em>independent censoring</em> — censoring probability independent of true survival.</p>
+<p><strong>DeepSurv twist</strong>: replace β^T x with DNN output f(x); loss becomes:</p>
+<div class="math">L(θ) = − Σ_{i: δᵢ=1} [ f_θ(xᵢ) − log Σ_{j∈R(tᵢ)} exp(f_θ(xⱼ)) ]</div>
+<p>Still proportional, but allows non-linear covariate effects.</p>
+<p><strong>DeepHit drops proportionality</strong>: discretizes time into K bins, outputs cause-specific hazards per bin; models competing risks (cancer death vs cardiovascular death).</p>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024 · TCGA-BRCA DeepSurv 在台灣驗證</span>
+<h3 data-zh="一個學術 DeepSurv 模型在台灣醫院 collapse 的故事" data-en="An academic DeepSurv model that collapsed on a Taiwan hospital">DeepSurv 在台灣醫院 collapse</h3>
+<div data-lang="zh">
+<p>2023 一個 TCGA-BRCA cohort 上訓練的乳癌 DeepSurv 模型，C-index 0.78，發在 <em>JAMA Network Open</em>。台北某醫學中心 2024 想驗證能否導入臨床——對 1500 名本地乳癌患者外部驗證。</p>
+<p>結果：<strong>C-index 0.61</strong>。原因深挖：(1) TCGA 多為晚期患者，台灣有規律乳房 X 光篩檢使早期診斷比例高 ~30%；(2) ER+ 比例差（TCGA 75% vs 台灣 80% 多）；(3) 治療 protocol 差（TCGA 多 anthracycline-based，台灣較多 taxane）。</p>
+<p>更糟：<strong>calibration 崩潰</strong>——high-risk 預測過於悲觀（預測 5 年死亡 40% 但實際 18%）。若按此模型把 high-risk 病人推進激進化療，會傷害過多病人。</p>
+<p>團隊改 retrain on 台灣本地 cohort（N=8000），C-index 提升到 0.74，calibration slope 從 0.51 → 0.92。<strong>外部驗證 + 本地 retrain</strong> 是 AI 臨床導入的鐵律。</p>
+</div>
+<div data-lang="en">
+<p>In 2023 a TCGA-BRCA-trained breast cancer DeepSurv model achieved C-index 0.78, published in <em>JAMA Network Open</em>. A Taipei medical center wanted to validate clinical deployment in 2024 — external validation on 1,500 local breast cancer patients.</p>
+<p>Result: <strong>C-index 0.61</strong>. Root causes: (1) TCGA skews to late-stage; Taiwan's regular mammography screening yields ~30% more early diagnoses; (2) ER+ proportions differ (TCGA 75% vs Taiwan ~80%+); (3) treatment protocols differ (TCGA anthracycline-based, Taiwan more taxane).</p>
+<p>Worse: <strong>calibration collapse</strong> — high-risk predictions over-pessimistic (40% predicted 5-year mortality vs 18% actual). Pushing "high-risk" patients into aggressive chemo would harm many.</p>
+<p>The team retrained on local Taiwan cohort (N=8,000), C-index improved to 0.74, calibration slope 0.51 → 0.92. <strong>External validation + local retraining</strong> is an iron law of clinical AI deployment.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：(1) 訓練資料偏差會傳到臨床；(2) calibration 比 C-index 更影響臨床決策；(3) 本地 retrain 不是 luxury，是必須。</div>
+<div class="punchline" data-lang="en">Lessons: (1) training bias propagates to clinic; (2) calibration affects decisions more than C-index; (3) local retraining isn't a luxury — it's a must.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>Censoring<span class="gloss-en">審查</span></dt><dd data-lang="zh">在追蹤期結束前事件未發生；其真實時間是「至少 T」但未知。</dd><dd data-lang="en">Event not observed by end of follow-up; true time is "≥ T" but unknown.</dd></div>
+<div class="glossary-item"><dt>Hazard / Hazard Ratio<span class="gloss-en">風險函數 / 風險比</span></dt><dd data-lang="zh">Hazard h(t)=P(T=t|T≥t)；HR=2 表示某族群風險是對照組 2 倍。</dd><dd data-lang="en">Hazard h(t)=P(T=t|T≥t); HR=2 means a group's risk is twice the reference.</dd></div>
+<div class="glossary-item"><dt>Kaplan-Meier<span class="gloss-en">KM 估計</span></dt><dd data-lang="zh">非參數生存函數估計；分組 + log-rank test 是臨床主流分析。</dd><dd data-lang="en">Non-parametric survival estimator; stratified + log-rank is the clinical staple.</dd></div>
+<div class="glossary-item"><dt>Cox PH<span class="gloss-en">Cox 比例風險模型</span></dt><dd data-lang="zh">線性 hazard 模型，假設比例風險；partial likelihood 估參數。</dd><dd data-lang="en">Linear hazard model assuming proportional hazards; partial-likelihood estimation.</dd></div>
+<div class="glossary-item"><dt>DeepSurv<span class="gloss-en">深度生存網路</span></dt><dd data-lang="zh">把 Cox 線性層換 DNN；保留比例假設，允許非線性。</dd><dd data-lang="en">Replaces Cox's linear layer with DNN; keeps proportional hazards, allows non-linearity.</dd></div>
+<div class="glossary-item"><dt>DeepHit<span class="gloss-en">離散時間生存</span></dt><dd data-lang="zh">直接離散時間軸，輸出 cause-specific hazard；可建模競爭風險。</dd><dd data-lang="en">Discretize time, output cause-specific hazard; models competing risks.</dd></div>
+<div class="glossary-item"><dt>C-index<span class="gloss-en">Concordance Index</span></dt><dd data-lang="zh">配對一致性：預測風險與實際時間順序的一致比例；0.5 隨機、1.0 完美。</dd><dd data-lang="en">Pairwise concordance between predicted risk and actual time; 0.5 random, 1.0 perfect.</dd></div>
+<div class="glossary-item"><dt>Time-dependent AUC<span class="gloss-en">時依 AUC</span></dt><dd data-lang="zh">固定時間點 t* 的 ROC AUC；可看不同 horizon 區分能力。</dd><dd data-lang="en">ROC AUC at fixed t*; reveals discrimination across horizons.</dd></div>
+<div class="glossary-item"><dt>Brier Score / IBS<span class="gloss-en">機率誤差</span></dt><dd data-lang="zh">機率預測 MSE；IBS 是時間積分版。低越好。</dd><dd data-lang="en">MSE of probability predictions; IBS integrates over time. Lower is better.</dd></div>
+<div class="glossary-item"><dt>IPCW<span class="gloss-en">Inverse Probability of Censoring Weighting</span></dt><dd data-lang="zh">校正審查機率對指標偏差；無 IPCW 的 C-index 在重審查下高估。</dd><dd data-lang="en">Corrects bias from censoring; non-IPCW C-index over-estimates under heavy censoring.</dd></div>
+<div class="glossary-item"><dt>Competing Risks<span class="gloss-en">競爭風險</span></dt><dd data-lang="zh">多種互斥事件（cancer death vs CVD death）；Fine-Gray / DeepHit 處理。</dd><dd data-lang="en">Mutually exclusive events (cancer vs CVD death); Fine-Gray / DeepHit handle them.</dd></div>
+<div class="glossary-item"><dt>Decision Curve Analysis<span class="gloss-en">決策曲線分析</span></dt><dd data-lang="zh">Vickers 2006 提出，量化 threshold 下淨臨床效益；TRIPOD-AI 必報。</dd><dd data-lang="en">Vickers 2006; quantifies net clinical benefit per threshold; TRIPOD-AI mandatory.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. 什麼時候 DeepSurv 真的勝過 Cox？</b>2024 食道癌研究：DeepSurv 0.74 vs Cox 0.72 (+2pp)。所以「<em>勝過</em>」常常微弱。當 covariate 有強非線性（影像、基因組）或交互作用時，DL 才顯著贏。<span class="think">建議：高維/影像/序列輸入用 DL；tabular 結構化資料 Cox 已夠。</span></div>
+<div class="dq" data-lang="en"><b>Q1. When does DeepSurv really beat Cox?</b>2024 esophageal study: DeepSurv 0.74 vs Cox 0.72 (+2pp). The "win" is often marginal. DL gains meaningfully only with strong non-linearity (imaging, genomics) or interactions.<span class="think">Rule of thumb: high-dim / imaging / sequence → DL; tabular structured → Cox suffices.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 競爭風險為什麼比想像中重要？</b>老年 cohort 心衰研究若忽略 CVD death，會嚴重 over-estimate cancer-specific survival。Fine-Gray 是傳統解法；DeepHit 在 deep learning 端。<span class="think">參考：Wolbers 2014 對 competing risks 的臨床易誤用警示。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Why are competing risks more important than expected?</b>Elderly cohort heart-failure studies ignoring CVD death severely over-estimate cancer-specific survival. Fine-Gray is the classical fix; DeepHit on the DL side.<span class="think">Reference: Wolbers 2014 warns of common clinical misuse of competing risks.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. 把影像 + 臨床合併會更好嗎？</b>WSI MIL embedding + 臨床特徵的 hybrid DeepSurv 通常 C-index +3-5pp。但 over-fitting 風險高，需要嚴格 leave-one-center-out validation。<span class="think">關鍵：影像來源跨機構越多，混合 model 越穩。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Does combining imaging + clinical features really help?</b>WSI MIL embedding + clinical-feature hybrid DeepSurv usually +3-5pp C-index. But overfitting risk is high; requires strict leave-one-center-out validation.<span class="think">Key: the more institutions for imaging, the more robust the hybrid model.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. 為何 Decision Curve 比 C-index 更重要？</b>C-index 高但 calibration 差的模型，臨床上「永遠都會推進治療」或「永遠都會省略」。Decision Curve 直接顯示「在各種 threshold 下淨效益」，是 TRIPOD-AI 2024 強制要報的。<span class="think">行動：每個生存模型都要報 Decision Curve at 1y, 3y, 5y。</span></div>
+<div class="dq" data-lang="en"><b>Q4. Why is Decision Curve more important than C-index?</b>A high-C-index but poorly-calibrated model "always treats" or "always skips". Decision Curve directly shows net benefit per threshold; TRIPOD-AI 2024 mandates it.<span class="think">Action: every survival model should report Decision Curve at 1y, 3y, 5y.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="起步該用什麼工具？" data-en="Starter tools?">起步工具？</span></button><div class="accordion-body"><span data-lang="zh">三選：(1) <strong>R survival</strong>—Cox 經典工具；(2) <strong>scikit-survival</strong>—Python 對應，含 RSF；(3) <strong>pycox</strong>—DeepSurv / DeepHit / Cox-Time 全包。視覺化用 <code>survminer</code> (R) 或 <code>lifelines</code> (Python)。範例：<a href="../../notebooks/05_deepsurv_tcga.py">notebooks/05</a>.</span><span data-lang="en">Three picks: (1) <strong>R survival</strong> — Cox classic; (2) <strong>scikit-survival</strong> — Python with RSF; (3) <strong>pycox</strong> — DeepSurv / DeepHit / Cox-Time. Plotting: <code>survminer</code> (R) or <code>lifelines</code> (Python). Example: <a href="../../notebooks/05_deepsurv_tcga.py">notebooks/05</a>.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="影像 + 生存怎麼結合？" data-en="Image + survival how?">影像 + 生存？</span></button><div class="accordion-body"><span data-lang="zh">三範式：(1) <strong>WSI MIL embedding</strong>（UNI/CONCH）+ DeepSurv head；(2) <strong>3D radiomics + Cox</strong>（傳統）；(3) <strong>end-to-end CT+EHR multimodal</strong>—Mobadersany 2018 開創。記得：影像來源跨醫院越多，模型越穩；單醫院訓練的影像生存模型外部驗證常 collapse。</span><span data-lang="en">Three paradigms: (1) <strong>WSI MIL embedding</strong> (UNI/CONCH) + DeepSurv head; (2) <strong>3D radiomics + Cox</strong> (classical); (3) <strong>end-to-end CT+EHR multimodal</strong> — Mobadersany 2018. Remember: cross-hospital imaging is essential; single-hospital trained imaging-survival models often collapse externally.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣本地 cohort 訓練生存模型推薦？" data-en="Recommended Taiwan cohorts?">台灣 cohort？</span></button><div class="accordion-body"><span data-lang="zh">三選：(1) <strong>健保資料庫 NHIRD</strong>—台灣全民健保 2300 萬人；申請需 IRB + 衛福部審查；(2) <strong>Taiwan Cancer Registry</strong>—癌登資料庫；(3) <strong>各醫學中心電子病歷</strong>—長庚、台大、北榮已有 OMOP CDM。NHRI MAHA centre 可協助申請流程。</span><span data-lang="en">Three picks: (1) <strong>NHIRD</strong> — Taiwan NHI's 23M people; needs IRB + MOHW review; (2) <strong>Taiwan Cancer Registry</strong>; (3) <strong>medical center EHRs</strong> — Chang Gung, NTU, Veterans General already have OMOP CDM. NHRI MAHA centre can assist applications.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="External validation 該怎麼做？" data-en="How to do external validation?">外部驗證？</span></button><div class="accordion-body"><span data-lang="zh">四層驗證：(1) <strong>internal hold-out</strong>—同 cohort time-split；(2) <strong>跨機構</strong>—另一個醫院的 cohort（最關鍵）；(3) <strong>跨族裔</strong>—不同 ancestry 群體；(4) <strong>跨時序</strong>—未來年度。每層報告 C-index、calibration slope、Brier、Decision Curve。TRIPOD-AI 2024 強制要求至少 (1) 和 (2)。</span><span data-lang="en">Four tiers: (1) <strong>internal hold-out</strong> — same cohort, time-split; (2) <strong>cross-institution</strong> — another hospital's cohort (most critical); (3) <strong>cross-ancestry</strong> — different population; (4) <strong>cross-temporal</strong> — future years. Report C-index, calibration slope, Brier, Decision Curve per tier. TRIPOD-AI 2024 mandates at least (1) and (2).</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="生存模型可以直接用於臨床嗎？" data-en="Deploy survival models clinically?">臨床部署？</span></button><div class="accordion-body"><span data-lang="zh">六項 checklist：(1) <strong>跨機構驗證 C-index 在原本 90%以上</strong>；(2) <strong>calibration slope ≈ 1</strong>，high-risk 不過度悲觀；(3) <strong>Decision Curve 顯示淨效益</strong>大於 treat-all / treat-none；(4) <strong>不同 ancestry 子族 AUC</strong> 不差距 &gt; 5pp；(5) <strong>FDA / TFDA 路徑明確</strong>—多數為 Class II SaMD；(6) <strong>定期 retrain</strong> 與 drift 監控。</span><span data-lang="en">Six checks: (1) <strong>cross-institution C-index ≥ 90%</strong> of original; (2) <strong>calibration slope ≈ 1</strong>, high-risk not over-pessimistic; (3) <strong>Decision Curve shows net benefit</strong> over treat-all / treat-none; (4) <strong>subgroup AUC by ancestry</strong> within 5pp; (5) <strong>clear FDA / TFDA path</strong> — mostly Class II SaMD; (6) <strong>periodic retraining</strong> + drift monitoring.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>生存分析必須處理 censoring</strong>，不能用普通迴歸。</li>
+<li><strong>DeepSurv 對 Cox 微勝</strong>（C-index 通常 +1-3pp）；高維輸入時優勢明顯。</li>
+<li><strong>競爭風險</strong>要用 DeepHit / Fine-Gray，忽略會大幅偏差。</li>
+<li><strong>C-index 高 ≠ 臨床有效</strong>；calibration + Decision Curve 才是部署關鍵。</li>
+<li><strong>跨機構外部驗證是鐵律</strong>；本地 retrain 不是 luxury。</li>
+<li><strong>影像 + 臨床混合通常 +3-5pp</strong>，但 overfitting 風險高，必須嚴格 cross-center validation。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>Survival analysis must handle censoring</strong>; plain regression won't work.</li>
+<li><strong>DeepSurv marginally beats Cox</strong> (C-index typically +1-3pp); gap widens with high-dim inputs.</li>
+<li><strong>Competing risks need DeepHit / Fine-Gray</strong>; ignoring them creates major bias.</li>
+<li><strong>High C-index ≠ clinical utility</strong>; calibration + Decision Curve are the deployment keys.</li>
+<li><strong>Cross-institution external validation is iron law</strong>; local retraining isn't a luxury.</li>
+<li><strong>Image + clinical hybrid usually +3-5pp</strong>, but overfitting risk demands strict cross-center validation.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -152,5 +290,19 @@ pred &lt;- <span class="func">predict</span>(fit, df_test, type = <span class="s
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 14</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch13-clinical-nlp.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch13 EHR 與臨床 NLP</span></a>
+<a href="ch15-multimodal-foundation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch15 多模態 Foundation</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch14</footer>
 <script src="i18n.js"></script>
 </body></html>

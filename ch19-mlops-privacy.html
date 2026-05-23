@@ -20,6 +20,23 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh"><p>從<strong>剛訓好第一個模型不知如何部署</strong>到<strong>準備跨機構聯邦研究</strong>：</p>
+<ul><li>串起 MLOps 五階段：data versioning → tracking → packaging → monitoring → retraining</li>
+<li>分辨 De-id / DP / Federated Learning / SMPC / HE 五種隱私技術</li>
+<li>讀懂 ε-δ Differential Privacy 與 Sweeney 87% 重識別案例</li>
+<li>避開「刪 PHI 18 項 = 安全」「FL 完全免風險」迷思</li></ul></div>
+<div data-lang="en"><p>From <strong>just trained a model, don't know how to deploy</strong> to <strong>preparing cross-institution federated research</strong>:</p>
+<ul><li>Chain MLOps 5 stages: data versioning → tracking → packaging → monitoring → retraining</li>
+<li>Differentiate De-id / DP / Federated Learning / SMPC / HE</li>
+<li>Understand ε-δ DP and Sweeney's 87% re-identification case</li>
+<li>Steer clear of "remove 18 PHI = safe" and "FL is risk-free" myths</li></ul></div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="MLOps" data-en="MLOPS">MLOps</div>
 <h2 data-zh="生醫 MLOps 的五階段" data-en="Five stages of biomedical MLOps">生醫 MLOps 的五階段</h2>
 <div class="workflow">
@@ -112,6 +129,101 @@ mlflow::<span class="func">mlflow_log_param</span>(<span class="str">"dp_eps"</s
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+HIPAA 把 PHI 刪光是<em>第一步</em>不是最後一步；高維資料仍可重識別，需要 differential privacy + federated learning 第二三道防線。
+<span class="src">— Sweeney 1997, "Weaving Technology and Policy Together"</span>
+</div>
+<div class="pull-quote" data-lang="en">
+Stripping PHI is the <em>first step</em>, not the last; high-dim data is still re-identifiable, demanding differential privacy + federated learning as second and third lines of defense.
+<span class="src">— Sweeney 1997, "Weaving Technology and Policy Together"</span>
+</div>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2023-10 · 23andMe 700 萬用戶資料外洩</span>
+<h3 data-zh="一個基因檢測公司如何在 5 個月內失去信任" data-en="How a genetic-testing company lost trust in 5 months">23andMe 外洩警世錄</h3>
+<div data-lang="zh">
+<p>2023 年 10 月，23andMe 公開 hacker 透過 credential stuffing 攻擊取得約<strong>700 萬用戶</strong>的部分基因 + 家族 + 族裔資料。其中 1 萬猶太裔用戶的資料被放上暗網販售；2024 起多個集體訴訟。</p>
+<p>關鍵教訓：(1) 23andMe 沒強制 2FA；(2) 「DNA Relatives」社交功能允許 hacker 從少數帳號爆破<strong>關聯</strong>到數百萬人；(3) 公司初期推卸給用戶「自己沒設好密碼」，後來改口；(4) 2024 公司股價 -90%。</p>
+<p>對 AI/MLOps 啟示：(1) <strong>關聯資料風險被嚴重低估</strong>——你只能保護「自己的 PHI」，但<em>家族成員的關聯</em>無法 fully de-identify；(2) <strong>2FA、rate limiting、隱私設計從一開始</strong>不是事後補救；(3) <strong>事件回應透明度</strong>影響長期信任。</p>
+<p>同期歐盟 GDPR 罰款 23andMe €350K；FTC 訴訟仍在進行。HHS 開始討論把基因資料也納入 HIPAA 直接管轄（目前只在「醫療機構處理」時受 HIPAA 管）。</p>
+</div>
+<div data-lang="en">
+<p>In October 2023, 23andMe disclosed that hackers used credential stuffing to obtain partial genetic + family + ancestry data of ~<strong>7 million users</strong>. Data of 10,000 Jewish-ancestry users was sold on the dark web. Class actions followed in 2024.</p>
+<p>Key lessons: (1) 23andMe didn't mandate 2FA; (2) the "DNA Relatives" social feature let hackers <strong>chain</strong> from a few accounts to millions; (3) the company initially blamed users for weak passwords, then reversed; (4) stock dropped 90% by 2024.</p>
+<p>Implications for AI/MLOps: (1) <strong>relational data risk is severely under-rated</strong> — you can protect "your own PHI", but <em>family-member linkages</em> can't be fully de-identified; (2) <strong>2FA, rate limiting, privacy-by-design</strong> from day one, not retroactively; (3) <strong>incident transparency</strong> shapes long-term trust.</p>
+<p>EU fined 23andMe €350K under GDPR; FTC actions ongoing. HHS is considering bringing genetic data under direct HIPAA jurisdiction (currently only when "handled by a covered entity").</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：(1) 隱私設計從第 0 天；(2) 關聯資料無法完全去識別化；(3) 事件回應透明度 = 信任。</div>
+<div class="punchline" data-lang="en">Lessons: (1) privacy by design from day 0; (2) relational data can't be fully de-identified; (3) incident transparency = trust.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>MLflow<span class="gloss-en">實驗追蹤</span></dt><dd data-lang="zh">Databricks 開源，最廣泛 MLOps 平台；支援 R + Python；2025 已是事實標準。</dd><dd data-lang="en">Databricks open-source; the most-used MLOps platform; supports R + Python; de facto standard 2025.</dd></div>
+<div class="glossary-item"><dt>DVC<span class="gloss-en">Data Version Control</span></dt><dd data-lang="zh">Git for data；DICOM、AnnData、FASTQ 都能 version；對醫療資料合規友善。</dd><dd data-lang="en">Git for data; versions DICOM, AnnData, FASTQ; medical-compliance-friendly.</dd></div>
+<div class="glossary-item"><dt>ONNX<span class="gloss-en">Open Neural Network Exchange</span></dt><dd data-lang="zh">跨框架模型格式；PyTorch / TF / JAX 模型可轉 ONNX 部署到 C++/mobile。</dd><dd data-lang="en">Cross-framework model format; PyTorch/TF/JAX models export to ONNX for C++/mobile deployment.</dd></div>
+<div class="glossary-item"><dt>Differential Privacy (DP)<span class="gloss-en">差分隱私</span></dt><dd data-lang="zh">Dwork 2006；數學保證單筆資料對模型影響 ≤ ε。Opacus 是 PyTorch 實作。</dd><dd data-lang="en">Dwork 2006; math guarantee that a single record affects the model by ≤ ε. Opacus is the PyTorch implementation.</dd></div>
+<div class="glossary-item"><dt>ε (Epsilon)<span class="gloss-en">隱私預算</span></dt><dd data-lang="zh">DP 強度參數；ε ≤ 1 強隱私、ε > 10 名義隱私。生醫常 ε=4-8。</dd><dd data-lang="en">DP strength parameter; ε ≤ 1 strong, ε > 10 nominal. Biomedical: ε=4-8 commonly.</dd></div>
+<div class="glossary-item"><dt>DP-SGD<span class="gloss-en">差分隱私 SGD</span></dt><dd data-lang="zh">Abadi 2016；梯度裁剪 + Gaussian noise。Opacus 內建。</dd><dd data-lang="en">Abadi 2016; gradient clipping + Gaussian noise. Built into Opacus.</dd></div>
+<div class="glossary-item"><dt>Federated Learning (FL)<span class="gloss-en">聯邦學習</span></dt><dd data-lang="zh">McMahan 2017；資料不出機構，只交換 weights / gradients。Flower、FLARE、OpenFL 是主流框架。</dd><dd data-lang="en">McMahan 2017; data stays on-site, only weights/gradients exchanged. Flower, FLARE, OpenFL are mainstream.</dd></div>
+<div class="glossary-item"><dt>FedAvg / FedProx<span class="gloss-en">聯邦聚合</span></dt><dd data-lang="zh">FL 聚合演算法；FedProx 對 non-IID 資料更穩。</dd><dd data-lang="en">FL aggregation algorithms; FedProx handles non-IID data better.</dd></div>
+<div class="glossary-item"><dt>SMPC<span class="gloss-en">安全多方計算</span></dt><dd data-lang="zh">多方在不揭露原始資料下聯合計算；計算成本高。</dd><dd data-lang="en">Joint computation without revealing raw data; computationally expensive.</dd></div>
+<div class="glossary-item"><dt>Homomorphic Encryption (HE)<span class="gloss-en">同態加密</span></dt><dd data-lang="zh">加密狀態下做計算；Microsoft SEAL、HElib；2024-2026 仍主要用於 inference。</dd><dd data-lang="en">Compute on encrypted data; Microsoft SEAL, HElib; 2024-2026 mainly for inference.</dd></div>
+<div class="glossary-item"><dt>k-anonymity<span class="gloss-en">k 匿名性</span></dt><dd data-lang="zh">Sweeney 2002；每個資料點與其他 k-1 個 indistinguishable；l-diversity, t-closeness 進一步加強。</dd><dd data-lang="en">Sweeney 2002; every record indistinguishable from k-1 others; l-diversity, t-closeness extend further.</dd></div>
+<div class="glossary-item"><dt>Drift<span class="gloss-en">漂移</span></dt><dd data-lang="zh">部署後 input 分布或 prediction 分布隨時間變化；Evidently / WhyLogs 監控。</dd><dd data-lang="en">Post-deployment shift in input or prediction distributions; monitored by Evidently / WhyLogs.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. HIPAA Safe Harbor 18 項真的足夠嗎？</b>Sweeney 1997 證明 87% 美國人可由「ZIP+生日+性別」重識別。對基因組（Gymrek 2013：STR → 姓氏）、影像（face reconstruction from MRI）更嚴重。<span class="think">行動：永遠搭配 k-anonymity / DP。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Is HIPAA Safe Harbor's 18 identifiers really enough?</b>Sweeney 1997 showed 87% of US population is re-identifiable from ZIP+DOB+sex. Worse for genomes (Gymrek 2013: STR → surname), imaging (face reconstruction from MRI).<span class="think">Action: always combine with k-anonymity / DP.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 聯邦學習真的解決隱私嗎？</b>FL 不送原始資料，但 gradient 仍可能洩漏。Membership inference attack、gradient inversion attack 都已展示。FL+DP+secure aggregation 三層才安全。<span class="think">參考：Geiping 2020 「inverting gradients」攻擊論文。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Does FL really solve privacy?</b>FL doesn't send raw data, but gradients can still leak. Membership inference, gradient inversion attacks have been demonstrated. FL + DP + secure aggregation triple-layer is needed.<span class="think">Reference: Geiping 2020 "inverting gradients" attack paper.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. ε 該設多少？</b>沒有絕對標準。Apple iOS keyboard 用 ε ≤ 4；US Census 2020 用 ε=19.61；醫療研究常 ε=4-8。<strong>關鍵：報告 ε 與 δ + 預期 utility loss</strong>，讓 reviewer 判斷。<span class="think">經驗：先 ε=∞（無 DP）跑 baseline，再降到 ε=8、4、1 看 utility 曲線。</span></div>
+<div class="dq" data-lang="en"><b>Q3. What ε should I use?</b>No absolute standard. Apple iOS keyboard ε ≤ 4; US Census 2020 ε=19.61; biomedical research often ε=4-8. <strong>Key: report ε, δ, and expected utility loss</strong> so reviewers can judge.<span class="think">Practice: baseline at ε=∞ (no DP), then descend to ε=8, 4, 1 — observe utility curve.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. FDA PCCP 對 MLOps 工程意義？</b>PCCP 要求 (1) modification description；(2) modification protocol；(3) impact assessment——這些對應 MLOps 的 versioning + experiment tracking + monitoring。<strong>沒做好 MLOps 就無法通過 PCCP。</strong><span class="think">行動：MLflow + DVC + Evidently 三件套是基本配備。</span></div>
+<div class="dq" data-lang="en"><b>Q4. What does FDA PCCP mean for MLOps?</b>PCCP requires (1) modification description; (2) modification protocol; (3) impact assessment — directly mapping to MLOps versioning + tracking + monitoring. <strong>Without solid MLOps, no PCCP.</strong><span class="think">Action: MLflow + DVC + Evidently is the baseline triad.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="MLOps 該從哪個工具起步？" data-en="MLOps starter tools?">起步用什麼？</span></button><div class="accordion-body"><span data-lang="zh">三件套：(1) <strong>MLflow</strong>—實驗追蹤；(2) <strong>DVC</strong>—資料版本；(3) <strong>BentoML / Triton</strong>—模型服務。進階：加 Evidently（drift 監控）+ Ray Serve（彈性 scaling）。生醫合規場景考慮 NVIDIA Clara / NIH STRIDES 整合方案。</span><span data-lang="en">Triad: (1) <strong>MLflow</strong> — experiment tracking; (2) <strong>DVC</strong> — data versioning; (3) <strong>BentoML / Triton</strong> — serving. Advanced: add Evidently (drift) + Ray Serve (elastic scaling). Biomed-compliance: NVIDIA Clara / NIH STRIDES integrated solutions.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="PHI 處理 best practice？" data-en="PHI handling best practice?">PHI 處理？</span></button><div class="accordion-body"><span data-lang="zh">四層：(1) <strong>De-identification</strong>—HIPAA Safe Harbor + Presidio / Philter for free-text；(2) <strong>k-anonymity</strong>—ARX / Anonimatron；(3) <strong>Differential Privacy</strong>—Opacus / TensorFlow Privacy；(4) <strong>Federated Learning</strong>—NVIDIA FLARE / Flower / OpenFL。HIPAA 同等 + 第二層即可滿足多數研究；商業部署常加第三、四層。</span><span data-lang="en">Four layers: (1) <strong>De-identification</strong> — HIPAA Safe Harbor + Presidio / Philter for free-text; (2) <strong>k-anonymity</strong> — ARX / Anonimatron; (3) <strong>Differential Privacy</strong> — Opacus / TensorFlow Privacy; (4) <strong>Federated Learning</strong> — NVIDIA FLARE / Flower / OpenFL. HIPAA-equivalent + layer 2 suffices for most research; commercial deployments add 3, 4.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="跨醫院聯邦學習選哪個框架？" data-en="Cross-hospital FL framework?">聯邦學習框架？</span></button><div class="accordion-body"><span data-lang="zh">三選：(1) <strong>NVIDIA FLARE</strong>—企業級，醫療場景優化（COVID 多醫院研究用此）；(2) <strong>Flower</strong>—開源最廣泛，學術友善；(3) <strong>OpenFL</strong>—Intel 開源，HE 整合好；(4) <strong>FedML</strong>—商業 + 學術混合。台灣 NCHC + 台灣 AI Labs 已有聯邦學習 testbed。</span><span data-lang="en">Three picks: (1) <strong>NVIDIA FLARE</strong> — enterprise-grade, medical-optimized (used in COVID multi-hospital studies); (2) <strong>Flower</strong> — most widely open-sourced, academic-friendly; (3) <strong>OpenFL</strong> — Intel open-source, good HE integration; (4) <strong>FedML</strong> — hybrid. Taiwan NCHC + Taiwan AI Labs have FL testbeds.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="模型部署後該監控什麼？" data-en="What to monitor post-deployment?">監控什麼？</span></button><div class="accordion-body"><span data-lang="zh">五項：(1) <strong>data drift</strong>—input 分布變化（KL、Wasserstein）；(2) <strong>prediction drift</strong>—輸出分布變化；(3) <strong>concept drift</strong>—X→Y 關係變化（hardest）；(4) <strong>子族表現</strong>—Black / Asian / 女性等是否退化；(5) <strong>系統指標</strong>—latency、error rate、cost。Evidently、Arize、WhyLogs 都可一站式。</span><span data-lang="en">Five: (1) <strong>data drift</strong> — input distribution shifts (KL, Wasserstein); (2) <strong>prediction drift</strong> — output shifts; (3) <strong>concept drift</strong> — X→Y relationship changes (hardest); (4) <strong>subgroup performance</strong> — Black / Asian / female regression; (5) <strong>system metrics</strong> — latency, error rate, cost. Evidently, Arize, WhyLogs are one-stop tools.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣 PHI / 健保資料的合規流程？" data-en="Taiwan PHI / NHI compliance?">台灣合規？</span></button><div class="accordion-body"><span data-lang="zh">三層：(1) <strong>機構 IRB</strong>—1-3 個月；(2) <strong>衛福部健保資料審查 (HWDC)</strong>—NHIRD 申請需 6-12 個月；(3) <strong>本地醫院 OMOP CDM</strong>—若研究在單醫院 + 醫院已有 OMOP，IRB 後直接用。聯邦學習方案：NCHC 台灣杉 + 台灣 AI Labs 跨醫院 federated testbed。</span><span data-lang="en">Three tiers: (1) <strong>institutional IRB</strong> — 1-3 months; (2) <strong>MOHW Health Data Center (HWDC)</strong> — NHIRD takes 6-12 months; (3) <strong>local hospital OMOP CDM</strong> — if research is single-hospital + OMOP exists, direct use after IRB. Federated option: NCHC Taiwania + Taiwan AI Labs cross-hospital federated testbed.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>MLOps 五階段</strong>：data versioning → tracking → packaging → monitoring → retraining；FDA PCCP 直接要求這些。</li>
+<li><strong>HIPAA Safe Harbor 是底線</strong>，Sweeney 87% 重識別案例證明仍不夠。</li>
+<li><strong>四層隱私技術</strong>：De-id → k-anonymity → Differential Privacy → Federated Learning。</li>
+<li><strong>聯邦學習不是完美解</strong>——gradient inversion attack 已展示；需 FL+DP+secure aggregation。</li>
+<li><strong>23andMe 2023 外洩</strong>提醒：關聯資料風險被低估；privacy-by-design 從第 0 天。</li>
+<li><strong>模型部署後需監控 5 件事</strong>：data drift, prediction drift, concept drift, subgroup performance, system metrics。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>MLOps five stages</strong>: data versioning → tracking → packaging → monitoring → retraining; FDA PCCP requires these directly.</li>
+<li><strong>HIPAA Safe Harbor is a floor</strong>; Sweeney's 87% re-ID case proves it's insufficient.</li>
+<li><strong>Four privacy layers</strong>: De-id → k-anonymity → Differential Privacy → Federated Learning.</li>
+<li><strong>FL isn't a perfect solution</strong> — gradient inversion attacks demonstrated; need FL + DP + secure aggregation.</li>
+<li><strong>23andMe 2023 breach</strong> reminds: relational data risk is underestimated; privacy-by-design from day 0.</li>
+<li><strong>Post-deployment monitoring</strong>: data drift, prediction drift, concept drift, subgroup performance, system metrics.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -158,5 +270,19 @@ mlflow::<span class="func">mlflow_log_param</span>(<span class="str">"dp_eps"</s
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 19</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch18-explainable-ai.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch18 可解釋 AI</span></a>
+<a href="ch20-future-paradigms.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch20 未來範式</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch19</footer>
 <script src="i18n.js"></script>
 </body></html>

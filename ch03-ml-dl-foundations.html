@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ch03 · 機器學習與深度學習基礎</title>
-<link rel="stylesheet" href="styles.css"></head><body>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
 <nav class="top-nav"><div class="top-nav-inner">
   <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
   <ul class="top-nav-links">
@@ -18,6 +20,33 @@
 </header>
 
 <main class="content-wrap">
+
+<section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>從來沒寫過程式的生物學家</strong>、<strong>讀過《ISL》想轉醫療的工程師</strong>，還是<strong>已經會跑 sklearn 但不知道下一步</strong>的研究生，這一章是你的「<em>觀念羅盤</em>」。讀完你會：</p>
+<ul>
+<li>分辨「監督 / 非監督 / 自監督 / 半監督 / 強化學習」五大範式各自的場景</li>
+<li>知道 MLP、CNN、RNN、Transformer、Mamba、Diffusion、GNN 七大架構各自的「歸納偏好」</li>
+<li>避開 7 大訓練坑（資料洩漏、類別不平衡、batch size 過小、學習率排程錯誤、過度正則、early stop 太晚、種子未固定）</li>
+<li>從「決策樹」決定你的問題該用哪一種模型架構</li>
+</ul>
+<p>沒寫過程式也能讀；想動手請搭配 <a href="notebooks/04_shap_xgboost.py">notebooks/04_shap_xgboost.py</a>。</p>
+</div>
+<div data-lang="en">
+<p>Whether you've <strong>never coded</strong>, read <em>ISL</em> and are <strong>pivoting from engineering to medicine</strong>, or already <strong>use sklearn but don't know what's next</strong> — this chapter is your concept compass. After reading:</p>
+<ul>
+<li>Tell apart supervised / unsupervised / self-supervised / semi-supervised / RL paradigms</li>
+<li>Know the inductive biases of MLP, CNN, RNN, Transformer, Mamba, Diffusion, GNN</li>
+<li>Steer clear of the 7 training pitfalls (data leakage, imbalance, tiny batch size, wrong LR schedule, over-regularization, late early-stop, no seed fix)</li>
+<li>Use a decision tree to pick the right architecture</li>
+</ul>
+<p>No coding needed; for hands-on try <a href="notebooks/04_shap_xgboost.py">notebooks/04_shap_xgboost.py</a>.</p>
+</div>
+</div>
+</section>
 
 <section class="section">
 <div class="section-label" data-zh="統計學習觀點" data-en="STATISTICAL VIEW">統計學習觀點</div>
@@ -155,51 +184,54 @@ p &lt;- torch::<span class="func">torch_sigmoid</span>(<span class="func">m</spa
 </div>
 </section>
 
+<!-- ===== Interactive Widget: 過擬合互動 ===== -->
 <section class="section">
-<div class="quiz-section">
-<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
-<div class="quiz-q">
-<p data-lang="zh">1. 為什麼 ESM-2 用「遮蔽胺基酸預測」這種自監督？</p>
-<p data-lang="en">1. Why does ESM-2 use a "masked amino-acid prediction" self-supervised task?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 因為標註結構的資料太多</span><span data-lang="en">A. Because labeled structures are abundant</span></div>
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 因為 UniProt 的序列遠多於可用結構，可以無監督預訓練</span><span data-lang="en">B. Because UniProt sequences vastly outnumber available structures — unsupervised pretraining is possible</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 因為這種任務最容易過擬合</span><span data-lang="en">C. Because the task is the easiest to overfit</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 因為遮蔽預測會比結構預測更精確</span><span data-lang="en">D. Because masked prediction is more accurate than structure prediction</span></div>
+<div class="section-label" data-zh="互動模擬" data-en="INTERACTIVE">互動模擬</div>
+<h2 data-zh="親手感受 Underfit / Good Fit / Overfit" data-en="Feel underfit / good fit / overfit yourself">親手感受 Underfit / Good Fit / Overfit</h2>
+<div data-lang="zh"><p>拉動「<strong>模型複雜度</strong>」拉桿，左邊圖會顯示模型對 10 個雜訊點的擬合，右邊圖會顯示對應的 <em>training loss</em>（藍）與 <em>validation loss</em>（橘）。觀察：(1) 複雜度太低 → 雙線都高 = underfit；(2) 剛好 → 雙線都低且接近；(3) 過高 → train loss 接近 0 但 val loss 飆升 = overfit。<strong>這就是「bias-variance trade-off」最直白的視覺化。</strong></p></div>
+<div data-lang="en"><p>Drag the <strong>model complexity</strong> slider. The left panel shows polynomial fit to 10 noisy points; the right panel shows the corresponding training (blue) vs validation (orange) loss. Observe: (1) complexity too low → both high = underfit; (2) just right → both low and close; (3) too high → train ≈ 0 but val skyrockets = overfit. <strong>The plainest visualization of bias-variance.</strong></p></div>
+
+<div class="interactive-panel">
+<div class="widget-grid split">
+<div class="widget-controls">
+<h5 data-zh="調整模型容量" data-en="Adjust model capacity">調整模型容量</h5>
+<div class="slider-group"><label><span data-zh="多項式階數 (model complexity)" data-en="Polynomial degree (model complexity)">多項式階數</span> <span id="degVal">3</span></label>
+<input type="range" id="degSlider" min="1" max="15" value="3" step="1"></div>
+<div class="widget-readout" id="bvOut">train loss = —   val loss = —</div>
+<button class="try-btn" onclick="document.getElementById('degSlider').value=5;renderBV();" data-zh="✨ 設成最優 (5 階)" data-en="✨ Set to optimal (degree 5)">✨ 設成最優</button>
 </div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>2.5 億條序列 → 自監督；只有幾十萬條結構 → 監督式。</span><span data-lang="en"><strong>B.</strong> 250M sequences → self-supervised; ~hundreds of thousands of structures → supervised.</span></div>
+<div class="widget-output">
+<div class="chart-container" style="height:300px"><canvas id="bvChart"></canvas></div>
 </div>
-<div class="quiz-q">
-<p data-lang="zh">2. 罕病樣本 1:1000 高度不平衡時，<strong>最不建議</strong>的做法是？</p>
-<p data-lang="en">2. With 1:1000 class imbalance for rare disease, the <strong>least recommended</strong> approach is?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 用 Focal loss 強化困難例子</span><span data-lang="en">A. Focal loss to emphasize hard examples</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. Class-balanced sampling</span><span data-lang="en">B. Class-balanced sampling</span></div>
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">C. 只用 accuracy 當主要指標</span><span data-lang="en">C. Use accuracy as the main metric</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 看 AUPRC、F1、Decision Curve</span><span data-lang="en">D. Look at AUPRC, F1, decision curves</span></div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>C 正解。</strong>1:1000 時，永遠預測「無病」的 accuracy 也有 99.9%，但完全無臨床價值。</span><span data-lang="en"><strong>C.</strong> Predict "no disease" forever and accuracy still = 99.9% — useless clinically.</span></div>
-</div>
-<div class="quiz-q">
-<p data-lang="zh">3. 把資料「按樣本」（而非按個案）切分為什麼有風險？</p>
-<p data-lang="en">3. Why is "splitting by sample" (not by subject) risky?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 同一個案的多個樣本同時出現在訓練與測試 → 過樂觀</span><span data-lang="en">A. The same subject's samples appearing in both train and test → optimistic bias</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">B. 增加 GPU 記憶體用量</span><span data-lang="en">B. Higher GPU memory</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 永遠造成 underfit</span><span data-lang="en">C. Always causes underfit</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 違反 GDPR</span><span data-lang="en">D. Violates GDPR</span></div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>「資料洩漏 (data leakage)」是生醫研究最常見的高分陷阱。</span><span data-lang="en"><strong>A.</strong> Data leakage is the most common "fake-high-score" trap in biomedical research.</span></div>
 </div>
 </div>
 </section>
 
-<nav class="page-nav">
-<a href="ch02-data-sources.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="生醫大數據的類型與來源" data-en="Biomedical Data Types &amp; Sources">生醫大數據的類型與來源</span></a>
-<a href="ch04-ethics-regulation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="倫理、公平性與法規" data-en="Ethics, Fairness &amp; Regulation">倫理、公平性與法規</span></a>
-</nav>
+<div class="pull-quote" data-lang="zh">
+能擬合任何曲線的模型，反而無法學到任何有用的東西——這就是「過擬合」的本質。
+<span class="src">— Vapnik 統計學習理論精神</span>
+</div>
+<div class="pull-quote" data-lang="en">
+A model that can fit any curve learns nothing useful — that's the essence of overfitting.
+<span class="src">— Spirit of Vapnik's Statistical Learning Theory</span>
+</div>
 
-</main>
-<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 03</footer>
-<script src="i18n.js"></script>
-</body></html>
+<!-- ===== Deep Dive ===== -->
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？Bias-Variance 分解" data-en="Want to go deeper? Bias-Variance decomposition">想再深一點？Bias-Variance 分解</h4>
+<div data-lang="zh">
+<p>對任意點 x，泛化誤差可分解為三項：</p>
+<div class="math">E[(y − ŷ(x))²] = (Bias[ŷ(x)])² + Var[ŷ(x)] + σ²</div>
+<p>其中 <strong>Bias</strong> 衡量「模型族系統性偏離真實函數」，<strong>Variance</strong> 衡量「訓練資料微擾下模型輸出的波動」，<strong>σ²</strong> 是不可消除的雜訊。</p>
+<ul>
+<li>線性迴歸：高 bias、低 variance</li>
+<li>k=1 的 kNN：低 bias、高 variance</li>
+<li>深度神經網路：兩者皆可調，但 2020 起 Belkin 的「<em>double descent</em>」現象指出，超大模型反而再降誤差——這就是現代 Foundation Model「越大越好」的部分理論基礎</li>
+</ul>
+<p><strong>Regularization</strong>（L1/L2、Dropout、Mixup、Early stopping）本質上是「<em>用一點 bias 換很多 variance</em>」的工程操作。</p>
+</div>
+<div data-lang="en">
+<p>For any point x, generalization error decomposes as:</p>
+<div class="math">E[(y − ŷ(x))²] = (Bias[ŷ(x)])² + Var[ŷ(x)] + σ²</div>
+<p><strong>Bias</strong> measures systematic deviation from truth, <strong>Variance</strong> measu

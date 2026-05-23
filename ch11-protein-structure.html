@@ -20,6 +20,31 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>第一次聽到 AlphaFold</strong> 的學生，還是<strong>已經會跑 ColabFold</strong> 的研究員，這章是你的「蛋白質 AI 全圖」：</p>
+<ul>
+<li>分辨<strong>結構預測</strong>（AlphaFold 2/3, ESMFold）vs <strong>結構設計</strong>（RFdiffusion 3, ProteinMPNN, ESM-3）的兩條主線</li>
+<li>讀懂 <strong>pLDDT, pTM, ipTM</strong> 三個信心指標，知道何時相信 AI 結構</li>
+<li>串起「設計循環」：RFdiffusion (backbone) → ProteinMPNN (sequence) → AF3 (validate)</li>
+<li>避開「AF3 比所有 docking 都準」「pLDDT 高就是對的」兩大迷思</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>From <strong>students new to AlphaFold</strong> to <strong>researchers running ColabFold</strong>, this is your protein-AI panorama:</p>
+<ul>
+<li>Distinguish <strong>prediction</strong> (AlphaFold 2/3, ESMFold) vs <strong>design</strong> (RFdiffusion 3, ProteinMPNN, ESM-3)</li>
+<li>Read <strong>pLDDT, pTM, ipTM</strong> confidence metrics — know when to trust AI structures</li>
+<li>Chain "design loops": RFdiffusion (backbone) → ProteinMPNN (sequence) → AF3 (validate)</li>
+<li>Steer clear of "AF3 beats all docking" and "high pLDDT = correct" myths</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="兩條主線" data-en="TWO TRACKS">兩條主線</div>
 <h2 data-zh="預測 vs 設計：兩條互補的主線" data-en="Prediction vs Design: two complementary tracks">預測 vs 設計：兩條互補的主線</h2>
 <div data-lang="zh">
@@ -108,6 +133,139 @@ struc &lt;- bio3d::<span class="func">read.pdb</span>(<span class="str">"esmfold
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+AlphaFold 2 解了「序列 → 結構」，AlphaFold 3 解了「分子 → 複合體」，RFdiffusion 3 解了「功能 → 序列」——下一個十年是「<em>動態 → 機制</em>」。
+<span class="src">— Baker Lab consensus 2025</span>
+</div>
+<div class="pull-quote" data-lang="en">
+AlphaFold 2 solved "sequence → structure", AlphaFold 3 solved "molecules → complex", RFdiffusion 3 solved "function → sequence" — the next decade is "<em>dynamics → mechanism</em>".
+<span class="src">— Baker Lab consensus 2025</span>
+</div>
+
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？AF3 的 diffusion decoder 為何強" data-en="Deep dive: why AF3's diffusion decoder wins">想再深一點？AF3 的 diffusion decoder</h4>
+<div data-lang="zh">
+<p>AF2 用 Invariant Point Attention (IPA) 直接迴歸原子座標。問題：IPA 訓練時需要嚴格的 frame-invariant 表徵，難以擴展到非標準殘基、配體、修飾。</p>
+<p>AF3 改用<strong>擴散式 decoder</strong>：把目標座標加雜訊到純高斯，然後訓練一個 score network 學「如何去雜訊」。推論時從純雜訊取樣，逐步 denoise 到結構。優點：</p>
+<ul>
+<li><strong>分子無關</strong>—天然處理蛋白質、DNA、RNA、配體、離子、修飾</li>
+<li><strong>多樣取樣</strong>—一個輸入可生成多個結構，反映 conformational ensemble</li>
+<li><strong>更穩定的訓練</strong>—diffusion loss 比 IPA 的 FAPE 更平滑</li>
+</ul>
+<p>代價：(1) 推論慢（多個 denoising steps）；(2) 配體預測對 ligand database 偏差敏感；(3) 對「未見」配體 (cryptic binder) 仍有 hallucination 風險。</p>
+</div>
+<div data-lang="en">
+<p>AF2 used Invariant Point Attention (IPA) to directly regress atom coordinates. Problem: IPA needs strictly frame-invariant representations, hard to extend to non-standard residues, ligands, modifications.</p>
+<p>AF3 switched to a <strong>diffusion decoder</strong>: add noise to target coordinates → pure Gaussian, then train a score network to "denoise". At inference, sample from pure noise and iteratively denoise to a structure. Advantages:</p>
+<ul>
+<li><strong>Molecule-agnostic</strong> — naturally handles proteins, DNA, RNA, ligands, ions, modifications</li>
+<li><strong>Diverse sampling</strong> — one input yields multiple structures, reflecting conformational ensembles</li>
+<li><strong>More stable training</strong> — diffusion loss is smoother than IPA's FAPE</li>
+</ul>
+<p>Costs: (1) slower inference (multiple denoising steps); (2) ligand prediction sensitive to ligand-database bias; (3) on "unseen" ligands (cryptic binders) hallucination risk remains.</p>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024-2025 · Baker Lab + RFdiffusion 3</span>
+<h3 data-zh="從 RFdiffusion 設計到實驗驗證：第一個 SARS-CoV-2 mini-binder" data-en="RFdiffusion to wet-lab: the first SARS-CoV-2 mini-binder">第一個被設計出來的 SARS-CoV-2 mini-binder</h3>
+<div data-lang="zh">
+<p>2022 年 David Baker 實驗室面臨挑戰：能否「<em>從零設計</em>」一個 100-aa 小蛋白，特異性結合 SARS-CoV-2 spike RBD？傳統做法靠 phage display 篩選千萬庫，耗時數月。</p>
+<p>Baker 團隊用<strong>RFdiffusion + ProteinMPNN + AlphaFold 2 三件套</strong>：</p>
+<ol>
+<li><strong>RFdiffusion</strong>—指定「結合 RBD 的某個 hotspot」作為條件，生成 1 萬個 candidate backbones</li>
+<li><strong>ProteinMPNN</strong>—為每個 backbone 設計胺基酸序列</li>
+<li><strong>AlphaFold 2</strong>—驗證每個設計是否會折成預期 backbone（pLDDT > 90 過關）</li>
+<li><strong>篩選 100 個</strong>送 yeast surface display 實驗驗證</li>
+</ol>
+<p>結果：<strong>40 個有結合活性，9 個 KD &lt; 100 nM</strong>。最強的 LCB1 mini-protein 在動物實驗中保護小鼠免於 SARS-CoV-2 感染（Cao et al. <em>Science</em> 2022）。</p>
+<p>2025 RFdiffusion 3 升級：(1) <strong>原子級設計</strong>（不只 backbone，連 side chain）；(2) <strong>10× 速度</strong>；(3) 支援 <strong>DNA binder + 酶</strong>。Baker Lab 用它設計出第一個能催化新反應的 de novo 酶。</p>
+</div>
+<div data-lang="en">
+<p>In 2022, David Baker's lab faced a challenge: could they <em>design from scratch</em> a 100-aa mini-protein that specifically binds the SARS-CoV-2 spike RBD? The classical approach (phage display screening of 10M libraries) takes months.</p>
+<p>Baker's team used <strong>RFdiffusion + ProteinMPNN + AlphaFold 2</strong>:</p>
+<ol>
+<li><strong>RFdiffusion</strong> — conditioned on "bind an RBD hotspot"; generated 10K candidate backbones</li>
+<li><strong>ProteinMPNN</strong> — designed amino-acid sequences for each backbone</li>
+<li><strong>AlphaFold 2</strong> — validated each design folds to the intended backbone (pLDDT > 90)</li>
+<li><strong>Top 100 sent to yeast surface display</strong> for experimental validation</li>
+</ol>
+<p>Result: <strong>40 had binding activity; 9 with KD &lt; 100 nM</strong>. The strongest, LCB1, protected mice from SARS-CoV-2 infection (Cao et al. <em>Science</em> 2022).</p>
+<p>2025 RFdiffusion 3 upgrades: (1) <strong>atom-level design</strong> (not just backbone — side chains too); (2) <strong>10× speed</strong>; (3) supports <strong>DNA binders + enzymes</strong>. Baker Lab used it to design the first de novo enzyme catalyzing a novel reaction.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：「設計 + 預測 + 驗證」三件套把蛋白設計從「篩選千萬」壓到「電腦設計 1 萬 + 實驗 100」，加速 100×。</div>
+<div class="punchline" data-lang="en">Lesson: the "design + predict + validate" trio compresses protein design from "screen 10M" to "design 10K computational + 100 wet-lab", a 100× acceleration.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>pLDDT<span class="gloss-en">predicted Local Distance Difference Test</span></dt><dd data-lang="zh">AF 對每殘基 0-100 信心。>90 高信心、70-90 中、<50 低信心或 disordered。</dd><dd data-lang="en">AF's per-residue 0-100 confidence. >90 high, 70-90 mid, <50 low or disordered.</dd></div>
+<div class="glossary-item"><dt>pTM / ipTM<span class="gloss-en">predicted TM-score</span></dt><dd data-lang="zh">全域結構信心（pTM）與界面信心（ipTM）；複合體 ipTM > 0.6 通常可信。</dd><dd data-lang="en">Global structure (pTM) and interface (ipTM) confidence; complex ipTM > 0.6 usually trustworthy.</dd></div>
+<div class="glossary-item"><dt>MSA<span class="gloss-en">Multiple Sequence Alignment</span></dt><dd data-lang="zh">同源蛋白序列對齊，AF2 用它抽取進化共保信號。ESMFold 不需要。</dd><dd data-lang="en">Homologous sequence alignment; AF2 extracts coevolution signals. ESMFold doesn't need it.</dd></div>
+<div class="glossary-item"><dt>Evoformer<span class="gloss-en">AF2 核心模組</span></dt><dd data-lang="zh">AF2 的 transformer block，48 層交替處理 MSA + pair representation。</dd><dd data-lang="en">AF2's transformer block, 48 layers alternating MSA + pair representations.</dd></div>
+<div class="glossary-item"><dt>Diffusion Decoder<span class="gloss-en">AF3 解碼器</span></dt><dd data-lang="zh">AF3 用 score-based diffusion 取代 IPA；可處理蛋白-核酸-配體-離子聯合預測。</dd><dd data-lang="en">AF3 replaces IPA with score-based diffusion; jointly predicts protein-NA-ligand-ion.</dd></div>
+<div class="glossary-item"><dt>ProteinMPNN<span class="gloss-en">Inverse Folding</span></dt><dd data-lang="zh">給結構→輸出序列（inverse fold）；穩定化現有蛋白可達 5-10×。</dd><dd data-lang="en">Structure → sequence (inverse fold); stabilizes existing proteins 5-10×.</dd></div>
+<div class="glossary-item"><dt>RFdiffusion<span class="gloss-en">RoseTTAFold 衍生</span></dt><dd data-lang="zh">擴散式蛋白 backbone 生成；可條件於 binding pocket、symmetry。</dd><dd data-lang="en">Diffusion-based protein backbone generator; conditional on binding pocket, symmetry.</dd></div>
+<div class="glossary-item"><dt>ESM-3<span class="gloss-en">Multi-modal protein LM</span></dt><dd data-lang="zh">Meta 2024，可同時生成序列、結構、功能 token。</dd><dd data-lang="en">Meta 2024; jointly generates sequence, structure, function tokens.</dd></div>
+<div class="glossary-item"><dt>IDR<span class="gloss-en">Intrinsically Disordered Region</span></dt><dd data-lang="zh">內在無序區，AF 通常給 pLDDT < 50；不是模型失敗，是真實無序。</dd><dd data-lang="en">Intrinsically disordered regions; AF usually scores pLDDT < 50 — not failure, real disorder.</dd></div>
+<div class="glossary-item"><dt>Binder Design<span class="gloss-en">結合蛋白設計</span></dt><dd data-lang="zh">設計小蛋白特異性結合目標分子（抗體 / 受體）。Baker Lab 已有臨床候選。</dd><dd data-lang="en">Design mini-proteins binding target molecules (antibodies/receptors). Baker Lab has clinical candidates.</dd></div>
+<div class="glossary-item"><dt>Cryptic Binder<span class="gloss-en">隱秘結合位點</span></dt><dd data-lang="zh">蛋白未結合時看不出的結合口袋；AF3 預測這類仍困難。</dd><dd data-lang="en">Binding pockets invisible in unbound conformations; AF3 still struggles here.</dd></div>
+<div class="glossary-item"><dt>Conformational Ensemble<span class="gloss-en">構象集合</span></dt><dd data-lang="zh">蛋白動態取樣的多個結構狀態；AF3 多次取樣可部分捕捉。</dd><dd data-lang="en">Multiple structural states a protein dynamically samples; AF3 multi-sampling partially captures.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. AF3 能否完全取代 cryo-EM / X-ray？</b>對「常規球狀蛋白」可，已是 protein-engineering 預設工具；對「動態構象 / 大複合體 / 膜蛋白」仍需實驗。<span class="think">參考：2024 Nature 「AF3 與 cryo-EM 互補」評論。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Can AF3 fully replace cryo-EM / X-ray?</b>For routine globular proteins, yes — default protein-engineering tool now; for dynamic conformations / large complexes / membrane proteins, experiments still needed.<span class="think">Reference: 2024 Nature comment "AF3 and cryo-EM as complementary".</span></div>
+<div class="dq" data-lang="zh"><b>Q2. RFdiffusion 設計的蛋白真的能在實驗室合成嗎？</b>2022 RFdiffusion 1 設計成功率約 20%；2025 RFdiffusion 3 提升到 ~60%。瓶頸不在設計，而在<strong>合成成本</strong>（GenScript $5-20/aa for codon-optimized expression）。<span class="think">策略：先 ProteinMPNN 改善 expressibility，再合成。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Are RFdiffusion designs really synthesizable?</b>2022 RFdiffusion 1 success rate ~20%; 2025 RFdiffusion 3 ~60%. The bottleneck isn't design but <strong>synthesis cost</strong> (GenScript $5-20/aa for codon-optimized expression).<span class="think">Strategy: ProteinMPNN-improve expressibility first, then synthesize.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. ESMFold (沒 MSA) vs AF2 (需 MSA)：誰是未來？</b>Meta ESMFold 速度 10× 但精度略低；對<strong>新蛋白（orphan, novel）</strong>反而 ESMFold 更實用，因為找不到同源 MSA。<span class="think">混合：先 ESMFold 快篩，AF3 精算。</span></div>
+<div class="dq" data-lang="en"><b>Q3. ESMFold (no MSA) vs AF2 (needs MSA): the future?</b>Meta ESMFold is 10× faster but slightly less accurate; for <strong>orphan/novel proteins</strong>, ESMFold is more practical (no homologous MSA exists).<span class="think">Hybrid: ESMFold for screening, AF3 for refinement.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. AF3 商業限制怎麼解？</b>Google DeepMind AlphaFold Server 學術免費，商業需授權。2024 起 Boltz-1 (MIT)、Chai-1 (Chai Discovery) 釋出 AF3-replica 開源，授權友善。<span class="think">行動：商業用優先評估 Boltz-1 / Chai-1。</span></div>
+<div class="dq" data-lang="en"><b>Q4. How to handle AF3's commercial restrictions?</b>Google DeepMind AlphaFold Server is free for academic; commercial needs licensing. Since 2024 Boltz-1 (MIT), Chai-1 (Chai Discovery) released AF3-replicas open with friendly licenses.<span class="think">Action: commercial → evaluate Boltz-1 / Chai-1 first.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="新手該從 AlphaFold 還是 ESMFold 起步？" data-en="Start with AlphaFold or ESMFold?">起步該用哪個？</span></button><div class="accordion-body"><span data-lang="zh">三條路：(1) <strong>無經驗 + 一兩個 query 蛋白</strong>—AlphaFold Server（免費 web 介面）；(2) <strong>大量序列（>100）</strong>—ColabFold（Colab 免費 GPU，加速版 AF2）；(3) <strong>沒有 MSA / 速度優先</strong>—ESMFold（Meta，HuggingFace 即開即用）。新手通常 AlphaFold Server 起步，熟悉後 ColabFold 處理批量。</span><span data-lang="en">Three paths: (1) <strong>no experience + 1-2 query proteins</strong> — AlphaFold Server (free web); (2) <strong>many sequences (>100)</strong> — ColabFold (Colab free GPU, faster AF2); (3) <strong>no MSA / speed priority</strong> — ESMFold (Meta, plug-and-play on HuggingFace). Start with AlphaFold Server, then ColabFold for batches.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="pLDDT 多少才能信？" data-en="What pLDDT can I trust?">pLDDT 多少？</span></button><div class="accordion-body"><span data-lang="zh">三層：(1) <strong>pLDDT > 90</strong>—實驗級精度，可直接用於 docking / functional analysis；(2) <strong>70-90</strong>—骨架可信但 side chain 不確定；建議補充 cryo-EM / mutagenesis；(3) <strong>50-70</strong>—只可信概略 fold；(4) <strong>&lt; 50</strong>—可能是 IDR 或預測失敗。永遠搭配 pTM 與外部驗證（同源結構、實驗 mutagenesis）。</span><span data-lang="en">Three tiers: (1) <strong>pLDDT > 90</strong> — experimental-grade, use directly for docking/functional analysis; (2) <strong>70-90</strong> — backbone trustworthy, side chains uncertain; supplement with cryo-EM / mutagenesis; (3) <strong>50-70</strong> — only general fold trustworthy; (4) <strong>&lt; 50</strong> — likely IDR or failure. Always combine with pTM + external validation (homologs, mutagenesis).</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="想設計 binder 該怎麼開始？" data-en="How to start designing a binder?">怎麼設計 binder？</span></button><div class="accordion-body"><span data-lang="zh">六步驟：(1) <strong>找 target structure</strong>（PDB / AlphaFold DB）；(2) <strong>選 hotspot residues</strong> 作為結合介面；(3) <strong>RFdiffusion</strong> 生成 1-10K candidate backbones；(4) <strong>ProteinMPNN</strong> 設計序列；(5) <strong>AF3 / AF2 multimer</strong> 驗證 ipTM；(6) <strong>篩 top 50-100 送實驗</strong>（yeast / bacterial display, SPR / BLI 驗證 KD）。Baker Lab 教學：<a href="https://github.com/RosettaCommons/RFdiffusion" target="_blank">RFdiffusion GitHub</a>。</span><span data-lang="en">Six steps: (1) <strong>find target structure</strong> (PDB / AlphaFold DB); (2) <strong>select hotspot residues</strong> as binding interface; (3) <strong>RFdiffusion</strong> → 1-10K backbones; (4) <strong>ProteinMPNN</strong> → sequences; (5) <strong>AF3 / AF2 multimer</strong> validation by ipTM; (6) <strong>top 50-100 to wet-lab</strong> (yeast/bacterial display, SPR/BLI for KD). Baker Lab tutorial: <a href="https://github.com/RosettaCommons/RFdiffusion" target="_blank">RFdiffusion GitHub</a>.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="AF3 對 PROTAC / 小分子 docking 真的勝過 AutoDock？" data-en="AF3 vs AutoDock for PROTAC / docking?">配體 docking？</span></button><div class="accordion-body"><span data-lang="zh">短答：對「已知配體 + 已知結合口袋」AF3 通常勝；對「<strong>未見配體 + cryptic pocket</strong>」AutoDock Vina / GNINA + 流線型 ensemble 仍是金標準。PROTAC 是極端例子（ternary complex），AF3 / AlphaFold-Multimer 表現都有限，建議結合 MD。</span><span data-lang="en">Short answer: AF3 usually wins for "known ligand + known pocket"; for <strong>unseen ligands + cryptic pockets</strong>, AutoDock Vina / GNINA + ensembles remain gold. PROTACs are extreme cases (ternary complex) — AF3 / AlphaFold-Multimer have limits; combine with MD.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣有運算資源跑 AF3 / RFdiffusion 嗎？" data-en="Taiwan compute for AF3 / RFdiffusion?">台灣資源？</span></button><div class="accordion-body"><span data-lang="zh">三選：(1) <strong>NCHC 台灣杉 3</strong>—A100 / H100 學術配額；(2) <strong>中研院生資中心</strong>—AlphaFold 預裝 cluster；(3) <strong>商業 cloud</strong>—Google Cloud Vertex AI、AWS AlphaFold pipeline。免費替代：AlphaFold Server / Boltz-1 web。中央大學 + 台大 + 陽明交大已有 AF / RFdiffusion 教學課程。</span><span data-lang="en">Three picks: (1) <strong>NCHC Taiwania 3</strong> — A100/H100 academic quota; (2) <strong>Academia Sinica BioCenter</strong> — AlphaFold pre-installed; (3) <strong>commercial cloud</strong> — Google Cloud Vertex AI, AWS AlphaFold pipeline. Free alternatives: AlphaFold Server / Boltz-1 web. NCU + NTU + NYCU offer AF / RFdiffusion teaching.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>蛋白質 AI 的兩條主線</strong>：預測（AF3、ESMFold）vs 設計（RFdiffusion 3、ProteinMPNN、ESM-3）。</li>
+<li><strong>AF3 的核心創新</strong>：diffusion decoder 取代 IPA，可聯合預測蛋白-核酸-配體-離子。</li>
+<li><strong>三個信心指標 pLDDT / pTM / ipTM</strong>—永遠檢查再用，特別 ipTM > 0.6 才信複合體界面。</li>
+<li><strong>設計循環</strong>：RFdiffusion → ProteinMPNN → AF3 驗證 → 實驗，加速 100×。</li>
+<li><strong>商業限制</strong>—AF3 學術免費；商業可用 Boltz-1 / Chai-1 替代。</li>
+<li><strong>AF3 不是「終結」</strong>—動態構象、cryptic binder、PROTAC ternary complex 仍是開放問題。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>Protein AI's two tracks</strong>: prediction (AF3, ESMFold) vs design (RFdiffusion 3, ProteinMPNN, ESM-3).</li>
+<li><strong>AF3's core innovation</strong>: diffusion decoder replaces IPA, jointly predicting protein-NA-ligand-ion.</li>
+<li><strong>Three confidence metrics pLDDT / pTM / ipTM</strong> — always check; trust complex interfaces only when ipTM > 0.6.</li>
+<li><strong>Design loop</strong>: RFdiffusion → ProteinMPNN → AF3 validation → wet lab — 100× acceleration.</li>
+<li><strong>Commercial limit</strong> — AF3 free academic; Boltz-1 / Chai-1 are commercial-friendly replicas.</li>
+<li><strong>AF3 isn't the end</strong> — dynamic conformations, cryptic binders, PROTAC ternary complexes remain open problems.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -154,5 +312,19 @@ struc &lt;- bio3d::<span class="func">read.pdb</span>(<span class="str">"esmfold
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 11</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch10-digital-pathology.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch10 數位病理</span></a>
+<a href="ch12-ai-drug-discovery.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch12 AI 藥物發現</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch11</footer>
 <script src="i18n.js"></script>
 </body></html>

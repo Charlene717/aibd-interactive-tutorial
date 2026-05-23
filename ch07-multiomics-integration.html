@@ -20,7 +20,32 @@
 <main class="content-wrap">
 
 <section class="section">
-<div class="section-label" data-zh="為何整合" data-en="WHY INTEGRATE">為何整合</h2>
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你只跑過 RNA-seq、剛接觸 CITE-seq，還是想做空間多體學——這一章是你的多模態地圖。讀完你會：</p>
+<ul>
+<li>說出 <strong>MOFA+、totalVI、MultiVI、SpatialGlue、Seurat WNN</strong> 五大整合方法的差異</li>
+<li>分辨「<em>水平整合</em>」（同樣本多模態）vs「<em>垂直整合</em>」（多樣本同模態）的策略</li>
+<li>知道 CITE-seq、Visium、Xenium、MERFISH 等技術何時用 / 不用</li>
+<li>避開「越多模態越好」「unpaired 多體學一定行」的迷思</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Whether you've only done RNA-seq, just touched CITE-seq, or want spatial multi-omics — this is your multimodal map:</p>
+<ul>
+<li>Differentiate <strong>MOFA+, totalVI, MultiVI, SpatialGlue, Seurat WNN</strong></li>
+<li>Distinguish horizontal (same sample, multi-modality) vs vertical (multi-sample, same modality) integration</li>
+<li>Know when to use / avoid CITE-seq, Visium, Xenium, MERFISH</li>
+<li>Steer clear of "more modalities is always better" and "unpaired multi-omics works" myths</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="為何整合" data-en="WHY INTEGRATE">為何整合</div>
 <h2 data-zh="一個細胞有多重身分" data-en="A cell wears many hats">一個細胞有多重身分</h2>
 <div data-lang="zh">
 <p>RNA 表現只告訴你「正在轉錄什麼」；ATAC 告訴你「染色質開放在哪裡」；CITE-seq 告訴你「細胞表面有什麼蛋白」；空間轉錄組告訴你「細胞跟誰當鄰居」。<strong>多體學整合的目標不是把訊號堆疊，而是學一個共同的潛在空間</strong>，讓不同模態互相校正、互相補位。</p>
@@ -108,6 +133,119 @@ adata$obsm$update(<span class="func">list</span>(X_totalVI=m$<span class="func">
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+多體學整合的目標不是把訊號相加，而是學一個<em>共同潛在空間</em>，讓不同模態互相校正、互相補位。
+<span class="src">— scverse consensus 2024</span>
+</div>
+<div class="pull-quote" data-lang="en">
+Multi-omics integration isn't about adding signals — it's learning a <em>shared latent space</em> where modalities calibrate and complement each other.
+<span class="src">— scverse consensus 2024</span>
+</div>
+
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？totalVI 的 VAE + 蛋白前景比" data-en="Deep dive: totalVI's VAE + protein foreground model">想再深一點？totalVI 的 VAE + 蛋白前景比</h4>
+<div data-lang="zh">
+<p>CITE-seq 把 RNA-seq 加上 antibody-derived tag (ADT)，每細胞同時測 mRNA 與表面蛋白。問題：ADT 有顯著背景訊號（同型抗體未結合的雜訊）。</p>
+<p>totalVI 用 <strong>two-component mixture</strong>：每個 protein 在每個 cell 的真實表達量 ρ 是 <em>foreground rate</em> + <em>background rate</em> 加權混合：</p>
+<div class="math">y_p = π_p · NB(α_back) + (1−π_p) · NB(α_fore)</div>
+<p>其中 π_p 由 latent z 解碼。這讓 totalVI 在 denoise 表面蛋白訊號時，自然分離真實 vs 背景，遠勝過單純 log-normalize。</p>
+<p>RNA 端走 standard scVI 的 ZINB（zero-inflated negative binomial）模型。兩個 decoder 共享 latent z，這就是「<em>跨模態共同表徵</em>」的數學實現。</p>
+</div>
+<div data-lang="en">
+<p>CITE-seq adds antibody-derived tags (ADT) to RNA-seq, measuring mRNA + surface protein per cell. Problem: ADT has substantial background (unbound isotype noise).</p>
+<p>totalVI uses a <strong>two-component mixture</strong>: each protein per cell is a weighted blend of <em>foreground</em> and <em>background</em> rates:</p>
+<div class="math">y_p = π_p · NB(α_back) + (1−π_p) · NB(α_fore)</div>
+<p>where π_p decodes from latent z. This naturally separates real signal from background, far surpassing simple log-normalization.</p>
+<p>The RNA branch uses standard scVI's ZINB (zero-inflated negative binomial). Both decoders share a single latent z — that's the mathematical realization of "<em>shared cross-modal representation</em>".</p>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024 · Visium HD + scRNA</span>
+<h3 data-zh="Visium HD 與 scRNA 整合找腫瘤微環境新亞型" data-en="Visium HD + scRNA reveals new TME subtype">Visium HD + scRNA 找腫瘤微環境新亞型</h3>
+<div data-lang="zh">
+<p>2024 一項對 CRC (大腸癌) 的研究：用 Visium HD（2 μm 解析度）做空間轉錄組，配上同樣本的 scRNA-seq。團隊用 SpatialGlue + Tangram 把兩者投到同一 latent space。</p>
+<p>結果：在腫瘤邊界發現一個<strong>之前 scRNA 看不到的「neutrophil–fibroblast 互動帶」</strong>，這個亞型在 ICI 反應差的病人尤其明顯。沒有空間訊息，這個 niche 完全混在「中性球」cluster 內，導致 marker gene panel 無法區分。</p>
+<p><strong>啟示：</strong>空間 × 單細胞整合不是錦上添花，而是<em>解鎖過去藏在「平均」中的細胞通訊邏輯</em>。但要做好，pipeline 必須包含：(1) 空間 cell segmentation；(2) deconvolution；(3) cross-modal anchoring（如 Tangram、cell2location）；(4) 跨樣本對齊。</p>
+</div>
+<div data-lang="en">
+<p>A 2024 CRC study used Visium HD (2 μm resolution) for spatial transcriptomics paired with scRNA-seq on the same samples. The team used SpatialGlue + Tangram to project both into a shared latent space.</p>
+<p>Result: at the tumor border, they found a <strong>"neutrophil–fibroblast interaction zone" invisible in scRNA alone</strong>, especially prominent in ICI non-responders. Without spatial info, this niche blended into the neutrophil cluster — no marker panel could distinguish it.</p>
+<p><strong>Takeaway:</strong> spatial × single-cell isn't a nice-to-have — it <em>unlocks cell-communication logic hidden in averages</em>. But the pipeline must include: (1) spatial cell segmentation; (2) deconvolution; (3) cross-modal anchoring (Tangram, cell2location); (4) cross-sample alignment.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：「越多模態越好」是錯的；「對的模態 + 對的整合算法」才是真實答案。</div>
+<div class="punchline" data-lang="en">Lesson: "more modalities is better" is wrong; "the right modalities + the right integration algorithm" is the truth.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>CITE-seq<span class="gloss-en">RNA + 蛋白共測</span></dt><dd data-lang="zh">同一細胞同時測 mRNA + 表面蛋白（用 ADT 抗體）。</dd><dd data-lang="en">RNA + surface protein on the same cell via ADT antibodies.</dd></div>
+<div class="glossary-item"><dt>ADT<span class="gloss-en">Antibody-Derived Tag</span></dt><dd data-lang="zh">CITE-seq 用的 DNA-barcoded 抗體；每個 tag count 代表一個表面蛋白量。</dd><dd data-lang="en">DNA-barcoded antibody used in CITE-seq; counts represent surface protein levels.</dd></div>
+<div class="glossary-item"><dt>ATAC-seq<span class="gloss-en">染色質可及性</span></dt><dd data-lang="zh">用 Tn5 轉位酶探測開放染色質；單細胞版本為 scATAC-seq。</dd><dd data-lang="en">Probes open chromatin via Tn5 transposase; single-cell version is scATAC-seq.</dd></div>
+<div class="glossary-item"><dt>10x Visium<span class="gloss-en">空間轉錄組第一代</span></dt><dd data-lang="zh">55 μm spot 解析度（HD 版 2 μm）；spot 內混合多細胞需 deconvolution。</dd><dd data-lang="en">55 μm spot resolution (HD: 2 μm); multi-cell mix per spot needs deconvolution.</dd></div>
+<div class="glossary-item"><dt>Xenium / MERFISH<span class="gloss-en">原位 RNA 偵測</span></dt><dd data-lang="zh">第三代空間，單分子原位定量，~300-1000 基因 panel。</dd><dd data-lang="en">3rd-gen spatial, single-molecule in-situ quantification, 300-1000 gene panels.</dd></div>
+<div class="glossary-item"><dt>Deconvolution<span class="gloss-en">空間反捲積</span></dt><dd data-lang="zh">把混合多細胞的 spot 拆解成 cell type 比例。常用 cell2location, RCTD, STdeconvolve。</dd><dd data-lang="en">Decompose multi-cell spots into cell-type proportions. Common: cell2location, RCTD, STdeconvolve.</dd></div>
+<div class="glossary-item"><dt>WNN<span class="gloss-en">Weighted Nearest Neighbor</span></dt><dd data-lang="zh">Seurat v4+ 多模整合：對每細胞學各模態的最佳權重後合併鄰居圖。</dd><dd data-lang="en">Seurat v4+ multimodal integration: learn per-cell modality weights, merge neighbor graphs.</dd></div>
+<div class="glossary-item"><dt>ELBO<span class="gloss-en">Evidence Lower Bound</span></dt><dd data-lang="zh">VAE 訓練目標；ELBO = 重構誤差 + KL 散度。scVI、totalVI、MOFA+ 都用。</dd><dd data-lang="en">VAE training objective: reconstruction + KL divergence. Used by scVI, totalVI, MOFA+.</dd></div>
+<div class="glossary-item"><dt>Latent Factor<span class="gloss-en">潛在因子</span></dt><dd data-lang="zh">MOFA+ 學的稀疏因子，每個因子代表跨模態變異模式。</dd><dd data-lang="en">MOFA+'s sparse factors; each captures cross-modal variation patterns.</dd></div>
+<div class="glossary-item"><dt>Anchor<span class="gloss-en">錨點配對</span></dt><dd data-lang="zh">Seurat / Harmony 找跨樣本「對應細胞」，用來對齊不同 batch。</dd><dd data-lang="en">Seurat / Harmony find "corresponding cells" across samples to align batches.</dd></div>
+<div class="glossary-item"><dt>Niche<span class="gloss-en">細胞微環境</span></dt><dd data-lang="zh">空間上彼此相鄰且相互影響的細胞集合；NCEM / COMMOT 學其互動。</dd><dd data-lang="en">A spatial cluster of co-located, interacting cells; NCEM / COMMOT model interactions.</dd></div>
+<div class="glossary-item"><dt>SpatialData<span class="gloss-en">空間資料容器</span></dt><dd data-lang="zh">scverse 2024 推出，基於 OME-Zarr 統一處理 image+shapes+tables+points。</dd><dd data-lang="en">scverse 2024 OME-Zarr-based unified handler for image+shapes+tables+points.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. 未配對 (unpaired) 多體學該如何整合？</b>大多數現有方法假設「同細胞配對」；現實多是「不同樣本不同模態」。GLUE、Pamona、MMD-MA 等試圖無配對對齊，但效果仍弱於配對。<span class="think">參考：Cao 2022 Nat Biotech GLUE 的 graph-linked unified embedding。</span></div>
+<div class="dq" data-lang="en"><b>Q1. How to integrate unpaired multi-omics?</b>Most methods assume "paired cells"; reality often gives "different samples, different modalities". GLUE, Pamona, MMD-MA attempt unpaired alignment, weaker than paired.<span class="think">Reference: Cao 2022 Nat Biotech GLUE graph-linked unified embedding.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 空間轉錄組值得多花的成本嗎？</b>Visium HD 約是 scRNA 的 3–5×，Xenium 8–10×。對腫瘤微環境、發育空間軸、neurodegeneration 是 yes；對 PBMC immune profiling 則 no。<span class="think">經驗：研究問題本身需要「空間鄰居」嗎？</span></div>
+<div class="dq" data-lang="en"><b>Q2. Is spatial transcriptomics worth the extra cost?</b>Visium HD costs 3–5× scRNA; Xenium 8–10×. Worth it for tumor TME, developmental axes, neurodegeneration; not for PBMC immune profiling.<span class="think">Test: does your question really need "spatial neighbors"?</span></div>
+<div class="dq" data-lang="zh"><b>Q3. CITE-seq vs 純 scRNA：研究設計取捨？</b>多了 ~150 個表面蛋白訊息，但每細胞測序成本 ×2，且 ADT 標準化是另一個學習曲線。免疫細胞研究 yes；上皮細胞研究通常 no。<span class="think">參考：totalVI vs Seurat v5 WNN benchmark 顯示 totalVI 在標準化 ADT 上仍勝。</span></div>
+<div class="dq" data-lang="en"><b>Q3. CITE-seq vs pure scRNA: study-design tradeoff?</b>You gain ~150 surface proteins but cost doubles per cell, and ADT normalization is its own learning curve. Yes for immune; usually no for epithelial.<span class="think">Reference: totalVI vs Seurat v5 WNN benchmark — totalVI still wins on ADT normalization.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. SpatialData 容器會取代 AnnData 嗎？</b>scverse 2024 推出，野心很大；但很多現有工具還依賴 AnnData。短期 SpatialData 為「空間專用 wrapper」，AnnData 仍是核心。<span class="think">行動：寫新流程時直接用 SpatialData；既有 pipeline 不必急著遷移。</span></div>
+<div class="dq" data-lang="en"><b>Q4. Will SpatialData replace AnnData?</b>scverse's 2024 ambition is big, but many tools still depend on AnnData. Short-term SpatialData is a "spatial-specific wrapper"; AnnData remains core.<span class="think">Action: use SpatialData for new pipelines; don't rush to migrate existing ones.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="多模態 vs 單模態，何時值得？" data-en="When is multi-modal worth it?">何時做多模態？</span></button><div class="accordion-body"><span data-lang="zh">三條判準：(1) <strong>單一模態解析不開的問題</strong>（如 CITE-seq 區分免疫亞型 / Visium 找空間 niche）；(2) <strong>樣本量充足</strong>支援增加成本；(3) <strong>有對應整合方法</strong>。如果你只想分 cluster，純 scRNA 已足夠。</span><span data-lang="en">Three checks: (1) <strong>single-modality can't resolve</strong> the question (CITE-seq for immune subtypes / Visium for spatial niches); (2) <strong>sample size</strong> supports added cost; (3) <strong>integration method exists</strong>. Just for clustering? Pure scRNA suffices.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="MOFA+ vs totalVI：怎麼選？" data-en="MOFA+ vs totalVI?">MOFA+ vs totalVI？</span></button><div class="accordion-body"><span data-lang="zh">不是替代關係：<strong>MOFA+</strong> 對「可解釋因子 + 跨樣本結構」最強，適合做 EWAS / phenotype 關聯；<strong>totalVI</strong> 對「同樣本多模態 denoising」最強，適合 CITE-seq downstream cluster + DE。實務上常 totalVI 先做 embedding，再用 MOFA+ 找跨樣本因子。</span><span data-lang="en">Not competitors: <strong>MOFA+</strong> excels at "interpretable factors + cross-sample structure" — good for EWAS / phenotype association; <strong>totalVI</strong> excels at "within-sample multi-modal denoising" — for CITE-seq clustering + DE. Practical combo: totalVI for embedding, then MOFA+ for cross-sample factors.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="空間樣本量該多少？" data-en="How many spatial samples?">空間樣本量？</span></button><div class="accordion-body"><span data-lang="zh">經驗：(1) <strong>10x Visium</strong>—探索 3–6 樣本，發表 10–20；(2) <strong>Xenium / MERFISH</strong>—統計 power 高，5–10 樣本可有 80% power 偵測 1.5× FC。記得：每個 Visium slide 約 $1500-2500 USD，要嚴控預算。</span><span data-lang="en">Rule of thumb: (1) <strong>10x Visium</strong> — explore 3–6 samples, publish 10–20; (2) <strong>Xenium/MERFISH</strong> — high statistical power, 5–10 samples yield 80% power at 1.5× FC. Cost: each Visium slide ~$1,500–2,500 USD.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="ATAC vs RNA 整合最常見的失敗？" data-en="Most common ATAC × RNA integration failure?">ATAC+RNA 失敗？</span></button><div class="accordion-body"><span data-lang="zh">三大坑：(1) <strong>不同細胞捕獲</strong>（ATAC 通常用核 vs RNA 用全細胞），導致 cell type 比例不一致；(2) <strong>染色質可及性 ≠ 表達</strong>（時序差異）；(3) <strong>稀疏度極端</strong>（ATAC 比 RNA 稀疏 ×10）。MultiVI / GLUE 都有專門設計處理。</span><span data-lang="en">Three traps: (1) <strong>different cell capture</strong> (ATAC often nuclei, RNA whole cells), causing inconsistent cell-type proportions; (2) <strong>chromatin accessibility ≠ expression</strong> (temporal lag); (3) <strong>extreme sparsity</strong> (ATAC is ~10× sparser than RNA). MultiVI / GLUE have specific designs.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="SpatialGlue 在 Visium HD 上夠快嗎？" data-en="Is SpatialGlue fast enough for Visium HD?">SpatialGlue 夠快嗎？</span></button><div class="accordion-body"><span data-lang="zh">Visium HD 一張 slide 可達 1M spots（2 μm bin），SpatialGlue 在單 A100 訓練約 4–8 小時；推論 ~30 分鐘。記憶體吃緊建議 binning 到 8 μm 或 16 μm 起步，再做 multi-resolution 分析。</span><span data-lang="en">A Visium HD slide can have 1M spots (2 μm bin); SpatialGlue trains in 4–8 hours on a single A100; inference ~30 min. Memory-tight? Start at 8 μm or 16 μm bins, then multi-resolution analysis.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>多體學整合不是訊號相加</strong>，而是學共同 latent space，讓模態互相校正。</li>
+<li><strong>五大方法各有所長</strong>：MOFA+（可解釋因子）、totalVI（CITE-seq）、MultiVI（缺模態）、SpatialGlue（空間）、Seurat WNN（生態友善）。</li>
+<li><strong>水平 vs 垂直整合</strong>：同樣本多模 vs 多樣本同模，策略完全不同。</li>
+<li><strong>空間轉錄組第三代 (Xenium/MERFISH)</strong> 是「原位單分子」，徹底改寫腫瘤微環境研究。</li>
+<li><strong>未配對多體學仍是開放問題</strong>；現有方法（GLUE, Pamona）效果弱於配對。</li>
+<li><strong>SpatialData 容器</strong> 是 2024 scverse 主推格式，但 AnnData 仍是核心。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>Multi-omics integration isn't signal addition</strong> — it's learning a shared latent space where modalities calibrate each other.</li>
+<li><strong>Five methods, distinct strengths</strong>: MOFA+ (interpretable factors), totalVI (CITE-seq), MultiVI (missing modality), SpatialGlue (spatial), Seurat WNN (ecosystem).</li>
+<li><strong>Horizontal vs vertical integration</strong>: same sample multi-mod vs multi-sample same-mod — completely different strategies.</li>
+<li><strong>3rd-gen spatial (Xenium/MERFISH)</strong> is "in-situ single-molecule" — rewriting TME research.</li>
+<li><strong>Unpaired multi-omics remains open</strong>; existing methods (GLUE, Pamona) weaker than paired.</li>
+<li><strong>SpatialData container</strong> is scverse's 2024 push, but AnnData remains core.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -154,5 +292,19 @@ adata$obsm$update(<span class="func">list</span>(X_totalVI=m$<span class="func">
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 07</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch06-single-cell-foundation.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch06 單細胞 Foundation Models</span></a>
+<a href="ch08-variant-interpretation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch08 變異解讀</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch07</footer>
 <script src="i18n.js"></script>
 </body></html>

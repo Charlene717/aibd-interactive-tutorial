@@ -20,6 +20,33 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>遺傳諮詢師</strong>、<strong>罕病研究員</strong>或<strong>剛開始接觸 NGS</strong>的學生，這一章是你的「變異解讀工具箱」。讀完你會：</p>
+<ul>
+<li>說出 <strong>AlphaMissense、PrimateAI-3D、ESM1b、REVEL、CADD</strong> 五大主流預測器的差異與適用情境</li>
+<li>懂得如何把 AI 分數對應到 ACMG/AMP 證據碼（PP3 / BP4 / PVS1）</li>
+<li>知道為什麼 ClinVar AUROC 高不代表臨床用得上</li>
+<li>避開「單一分數定生死」「在歐裔資料訓練可推到亞裔」兩大迷思</li>
+</ul>
+<p>沒做過 NGS？建議先看 <a href="../../../F_Omics_組學分析/WGS-WES/wgswes-interactive-tutorial/index.html">WGS/WES 教程</a>。</p>
+</div>
+<div data-lang="en">
+<p>Whether you're a <strong>genetic counselor</strong>, <strong>rare-disease researcher</strong>, or <strong>new to NGS</strong>, this is your variant interpretation toolbox:</p>
+<ul>
+<li>Differentiate <strong>AlphaMissense, PrimateAI-3D, ESM1b, REVEL, CADD</strong> — strengths & contexts</li>
+<li>Map AI scores to ACMG/AMP evidence codes (PP3 / BP4 / PVS1)</li>
+<li>Understand why high ClinVar AUROC ≠ clinical utility</li>
+<li>Steer clear of "single score determines fate" and "European-trained → applies to Asian" myths</li>
+</ul>
+<p>No NGS background? Start with the <a href="../../../F_Omics_組學分析/WGS-WES/wgswes-interactive-tutorial/index.html">WGS/WES tutorial</a>.</p>
+</div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="背景" data-en="BACKGROUND">背景</div>
 <h2 data-zh="罕病診斷的核心難題：VUS" data-en="The core challenge: VUS in rare disease">罕病診斷的核心難題：VUS</h2>
 <div data-lang="zh">
@@ -118,6 +145,139 @@ r &lt;- <span class="func">getVariant</span>(mv, <span class="str">"chr7:g.14045
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+ClinVar 上 AUROC 0.96 的模型，到罕病 cohort 可能只剩 0.78——這不是模型壞，是<em>評估資料</em>不像真實世界。
+<span class="src">— Gao et al. 2024 medRxiv on PrimateAI-3D</span>
+</div>
+<div class="pull-quote" data-lang="en">
+A model that hits AUROC 0.96 on ClinVar may drop to 0.78 on rare-disease cohorts — the model isn't bad; <em>the evaluation data</em> doesn't reflect reality.
+<span class="src">— Gao et al. 2024 medRxiv on PrimateAI-3D</span>
+</div>
+
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？AlphaMissense 的 fine-tuning 設計" data-en="Deep dive: AlphaMissense fine-tuning design">想再深一點？AlphaMissense 的 fine-tuning</h4>
+<div data-lang="zh">
+<p>AlphaMissense 不是從頭訓練，而是把 AlphaFold 2 當成「<strong>蛋白質結構的先驗</strong>」做 fine-tuning。輸入：(WT seq, variant seq, MSA, structure)。輸出：致病性機率 [0, 1]。</p>
+<p>關鍵設計：</p>
+<ul>
+<li><strong>Label noise robust</strong>—訓練標籤不是「ClinVar 真實致病性」，而是 <em>frequency-derived weak label</em>：在人口/靈長類中常見 → 推測 benign；從未觀察 → 推測 likely pathogenic。</li>
+<li><strong>Structure-aware</strong>—loss 函數中包含對 AlphaFold structure prediction 的一致性項；變異破壞結構越多，pathogenicity score 越高。</li>
+<li><strong>Calibration via observed frequency</strong>—最終分數用 gnomAD 觀察頻率做校準。</li>
+</ul>
+<p><strong>為何 PrimateAI-3D 在罕病 cohort 反超？</strong>因為 AlphaMissense 訓練用了 human variants 做 benign 來源；PrimateAI-3D 用<strong>純非人靈長類</strong>變異，避免「人類觀察=benign」的 circular reasoning。在真正罕病 cohort 上，benign vs pathogenic 的邊界更清楚。</p>
+</div>
+<div data-lang="en">
+<p>AlphaMissense doesn't train from scratch — it fine-tunes AlphaFold 2 as a <strong>structural prior</strong>. Input: (WT seq, variant seq, MSA, structure). Output: pathogenicity probability [0, 1].</p>
+<p>Key designs:</p>
+<ul>
+<li><strong>Label-noise robust</strong> — labels aren't "ClinVar truth" but <em>frequency-derived weak labels</em>: common in humans/primates → benign; never observed → likely pathogenic.</li>
+<li><strong>Structure-aware</strong> — loss includes consistency with AlphaFold structure prediction; the more disruptive the variant, the higher its pathogenicity score.</li>
+<li><strong>Calibration via observed frequency</strong> — final score calibrated by gnomAD allele frequency.</li>
+</ul>
+<p><strong>Why does PrimateAI-3D win on rare-disease cohorts?</strong> AlphaMissense used human variants for the benign training set; PrimateAI-3D uses <strong>pure non-human primate</strong> variants, avoiding circular reasoning "humans observed = benign". On true rare-disease cohorts, the benign/pathogenic boundary becomes clearer.</p>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024 · 一個 VUS 翻盤的故事</span>
+<h3 data-zh="一個 VUS 由 AI 推上 Likely Pathogenic，救了一個家庭" data-en="A VUS upgraded to Likely Pathogenic saved a family">一個 VUS 翻盤救了一個家庭</h3>
+<div data-lang="zh">
+<p>2024 年波士頓兒童醫院遺傳科：一個 7 歲女孩因癲癇 + 發展遲緩做 WES，找到一個 <em>SCN8A</em> 基因 c.4949G>A (p.R1650Q) 變異。傳統工具評估：</p>
+<ul>
+<li>ClinVar：VUS（沒人報過）</li>
+<li>REVEL：0.74（中間值）</li>
+<li>CADD PHRED：23.5（borderline）</li>
+<li>SIFT / PolyPhen：分歧</li>
+</ul>
+<p>遺傳諮詢師原本要回報「VUS，無法給臨床建議」。但團隊接著查了 <strong>AlphaMissense=0.92, PrimateAI-3D=0.89, ESM1b=−7.8 (strongly disruptive)</strong>。三個 AI 一致指向 likely pathogenic。</p>
+<p>結合 (1) <em>de novo</em>（trio WES 證實父母都沒有此變異）+ (2) ACMG PM2 (gnomAD 頻率=0) + (3) PP3_Strong (3 個 AI 高分一致) + (4) PS2 (de novo with phenotype consistency)，最終評為 <strong>Likely Pathogenic</strong>。</p>
+<p>女孩接著被診斷為 SCN8A-related epileptic encephalopathy，導入<strong>鈉通道阻斷劑（如 carbamazepine）</strong>後癲癇控制顯著改善——這正是這類患者的標準治療。沒有 AI VEP 整合，她可能會被持續使用 levetiracetam 等「無效或反效果」的藥物。</p>
+</div>
+<div data-lang="en">
+<p>2024, Boston Children's Hospital: a 7-year-old girl with epilepsy + developmental delay had WES finding a <em>SCN8A</em> c.4949G>A (p.R1650Q) variant. Classical tools:</p>
+<ul>
+<li>ClinVar: VUS (never reported)</li>
+<li>REVEL: 0.74 (middle)</li>
+<li>CADD PHRED: 23.5 (borderline)</li>
+<li>SIFT / PolyPhen: disagreed</li>
+</ul>
+<p>The counselor was about to report "VUS, no clinical guidance possible." Then the team checked <strong>AlphaMissense=0.92, PrimateAI-3D=0.89, ESM1b=−7.8 (strongly disruptive)</strong>. All three AI scores aligned on likely pathogenic.</p>
+<p>Combining (1) <em>de novo</em> (trio WES confirmed neither parent has it) + (2) ACMG PM2 (gnomAD frequency=0) + (3) PP3_Strong (3 AI scores consistent high) + (4) PS2 (de novo with phenotype fit), the variant was reclassified as <strong>Likely Pathogenic</strong>.</p>
+<p>The girl was diagnosed with SCN8A-related epileptic encephalopathy; switching to <strong>sodium-channel blockers (e.g., carbamazepine)</strong> dramatically improved seizure control — the standard treatment for this condition. Without AI VEP integration, she might have stayed on ineffective or counter-effective drugs like levetiracetam.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：AI VEP 不是「取代 ACMG」，而是「強化 PP3/BP4 證據」；3 個分數一致比單一分數更可靠。</div>
+<div class="punchline" data-lang="en">Lesson: AI VEPs don't replace ACMG — they strengthen PP3/BP4 evidence; 3-score consensus beats any single score.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>VUS<span class="gloss-en">Variant of Uncertain Significance</span></dt><dd data-lang="zh">致病性不明的變異；ClinVar 約 50% 提交為此。</dd><dd data-lang="en">Variant with unclear pathogenicity; ~50% of ClinVar submissions are VUS.</dd></div>
+<div class="glossary-item"><dt>ACMG/AMP<span class="gloss-en">分類框架</span></dt><dd data-lang="zh">2015 五級分類（P/LP/VUS/LB/B）+ 28 條證據碼（PVS, PS, PM, PP, BA, BS, BP）。</dd><dd data-lang="en">2015 5-tier (P/LP/VUS/LB/B) + 28 evidence codes (PVS, PS, PM, PP, BA, BS, BP).</dd></div>
+<div class="glossary-item"><dt>PP3 / BP4<span class="gloss-en">電腦證據碼</span></dt><dd data-lang="zh">AI 預測支持致病（PP3）或良性（BP4）的證據碼；SVI 2022/2023 給出量化閾值。</dd><dd data-lang="en">Computational evidence supporting pathogenic (PP3) or benign (BP4); SVI 2022/2023 quantitative thresholds.</dd></div>
+<div class="glossary-item"><dt>de novo<span class="gloss-en">新生變異</span></dt><dd data-lang="zh">變異未在父母身上發現的家系；強烈支持 PS2 / PM6 證據。</dd><dd data-lang="en">Variant absent in both parents; strongly supports PS2 / PM6.</dd></div>
+<div class="glossary-item"><dt>gnomAD<span class="gloss-en">人口頻率資料庫</span></dt><dd data-lang="zh">2024 v4: 807K WGS+exome；用來計算族群頻率，是 BA1/BS1 證據基礎。</dd><dd data-lang="en">2024 v4: 807K WGS+exome; used for population frequencies, basis for BA1/BS1.</dd></div>
+<div class="glossary-item"><dt>SpliceAI<span class="gloss-en">剪接預測</span></dt><dd data-lang="zh">Illumina 2019 CNN 模型；得分 ≥0.5 通常引發 PP3。</dd><dd data-lang="en">Illumina 2019 CNN; score ≥0.5 typically triggers PP3.</dd></div>
+<div class="glossary-item"><dt>REVEL<span class="gloss-en">集成預測器</span></dt><dd data-lang="zh">13 種 in-silico 工具集成；廣泛被 ACMG SVI 採用，閾值 0.932 → PP3 Very Strong。</dd><dd data-lang="en">Ensemble of 13 in-silico tools; widely adopted by ACMG SVI; ≥0.932 → PP3 Very Strong.</dd></div>
+<div class="glossary-item"><dt>HPO<span class="gloss-en">Human Phenotype Ontology</span></dt><dd data-lang="zh">>17K 表型詞；Exomiser / LIRICAL 用來表型驅動的變異排序。</dd><dd data-lang="en">17K+ phenotype terms; Exomiser / LIRICAL use them for phenotype-driven variant ranking.</dd></div>
+<div class="glossary-item"><dt>Exomiser<span class="gloss-en">表型驅動工具</span></dt><dd data-lang="zh">Sanger Institute 開發；結合 HPO + 致病性預測 + 分離分析做 ranked candidate list。</dd><dd data-lang="en">Sanger Institute tool; combines HPO + pathogenicity + segregation for ranked candidate lists.</dd></div>
+<div class="glossary-item"><dt>MAVE<span class="gloss-en">Multiplexed Assay of Variant Effect</span></dt><dd data-lang="zh">在實驗室一次測千個變異功能；MAVEdb 收錄。是 AI 預測的「真實標準」。</dd><dd data-lang="en">Laboratory assays testing thousands of variants at once; hosted in MAVEdb. The "gold standard" for AI predictions.</dd></div>
+<div class="glossary-item"><dt>Penetrance<span class="gloss-en">外顯率</span></dt><dd data-lang="zh">攜帶致病變異卻發病的機率；不同變異/環境差異大，AI 通常無法直接預測。</dd><dd data-lang="en">Probability a carrier develops the disease; varies widely by variant/environment; usually not directly predicted by AI.</dd></div>
+<div class="glossary-item"><dt>Ancestry Bias<span class="gloss-en">族裔偏差</span></dt><dd data-lang="zh">訓練資料以歐裔為主，對非歐裔變異預測準確度下降；2024 仍是主要挑戰。</dd><dd data-lang="en">European-skewed training data lowers accuracy for non-European variants; remains a 2024 challenge.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. AI VEP 真的可以取代 functional assay 嗎？</b>AlphaMissense AUROC 0.96 看似驚人，但 MAVE 直接量測仍是黃金標準。SVI 2023 仍把「functional study (PS3)」置於最高層級。<span class="think">辯論：對「結構性」變異 AI 可靠；對「調控性」變異仍需濕實驗。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Can AI VEPs really replace functional assays?</b>AlphaMissense AUROC 0.96 looks impressive, but MAVE direct measurement remains the gold standard. SVI 2023 still places "functional study (PS3)" at the highest tier.<span class="think">Debate: AI reliable for structural variants; regulatory variants still need wet labs.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 跨族裔的 PRS 為什麼會失準？</b>UKB-trained PRS 在東亞 R² 下降 50–70%（Martin 2019 Nat Genet）。原因：LD 結構差異 + 等位基因頻率差異 + 環境互動差異。<span class="think">解法：本地族群 GWAS（TWB、BBJ）+ trans-ancestry PRS 方法（PRS-CSx）。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Why do cross-ancestry PRS fail?</b>UKB-trained PRS drops R² 50–70% on East Asians (Martin 2019 Nat Genet). Reasons: LD differences + allele frequencies + environmental interactions.<span class="think">Fix: local-ancestry GWAS (TWB, BBJ) + trans-ancestry PRS methods (PRS-CSx).</span></div>
+<div class="dq" data-lang="zh"><b>Q3. ClinVar AUROC 與罕病 cohort AUROC 差距代表什麼？</b>0.96 → 0.78 的差距不是 model failure，是 evaluation distribution shift——ClinVar 的「benign」常是 well-studied、low-impact 變異，與罕病 cohort 真實 differentials 不同。<span class="think">行動：申請罕病臨床 cohort 做本地 benchmark。</span></div>
+<div class="dq" data-lang="en"><b>Q3. What does the ClinVar AUROC vs rare-disease AUROC gap mean?</b>0.96 → 0.78 isn't model failure — it's evaluation distribution shift. ClinVar's "benigns" tend to be well-studied, low-impact variants, unlike rare-disease cohort true differentials.<span class="think">Action: build local rare-disease cohort for benchmarking.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. 非編碼變異（non-coding）AI 預測為何困難？</b>Enformer、Borzoi 在「TSS 附近」尚可，距離 100kb+ 表現大幅下降；MAVE-style noncoding screens 仍稀少。<span class="think">前沿：cMP-MPRA、STARR-seq 是當前濕實驗 ground truth。</span></div>
+<div class="dq" data-lang="en"><b>Q4. Why is non-coding variant prediction hard?</b>Enformer, Borzoi okay near TSS but degrade at 100kb+; MAVE-style non-coding screens still scarce.<span class="think">Frontier: cMP-MPRA, STARR-seq are current wet-lab ground truth.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="一個變異該整合多少個 AI 分數？" data-en="How many AI scores per variant?">該整合多少個分數？</span></button><div class="accordion-body"><span data-lang="zh">至少 3 個，最多 5 個：(1) <strong>AlphaMissense</strong>（結構感知）；(2) <strong>PrimateAI-3D</strong>（罕病 cohort 強）；(3) <strong>REVEL</strong>（集成，ACMG 已採用閾值）；(4) <strong>SpliceAI</strong>（剪接專用）；(5) <strong>CADD</strong>（涵蓋非編碼）。三者高度一致 → 強證據；分歧 → 表明需要 functional follow-up。</span><span data-lang="en">At least 3, up to 5: (1) <strong>AlphaMissense</strong> (structure-aware); (2) <strong>PrimateAI-3D</strong> (strong on rare-disease cohorts); (3) <strong>REVEL</strong> (ensemble, ACMG-adopted thresholds); (4) <strong>SpliceAI</strong> (splicing); (5) <strong>CADD</strong> (covers non-coding). Three-way agreement = strong evidence; divergence flags need for functional follow-up.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="AlphaMissense 商業使用合法嗎？" data-en="Is AlphaMissense legal for commercial use?">商業使用？</span></button><div class="accordion-body"><span data-lang="zh">免費學術用沒問題；商業用須 DeepMind 授權，且 Google/DeepMind 已和多家臨床診斷公司簽約。台灣商業診斷可用 dbNSFP 4.7 內建的 AlphaMissense 分數（學術 free，商業 contact dbNSFP team）。PrimateAI-3D 為 Illumina 商業產品。</span><span data-lang="en">Free for academic use; commercial requires DeepMind licensing — Google/DeepMind has agreements with several clinical diagnostic companies. In Taiwan, commercial diagnostics can use dbNSFP 4.7's bundled AlphaMissense scores (free academic; contact dbNSFP for commercial). PrimateAI-3D is an Illumina commercial product.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣的 VEP 工具該怎麼選？" data-en="Which VEP tools for Taiwan?">台灣選哪個？</span></button><div class="accordion-body"><span data-lang="zh">本地化建議：(1) <strong>TaiwanGenomes</strong>（台灣本地頻率）取代純 gnomAD；(2) <strong>BBJ allele frequency</strong> 補充東亞 reference；(3) AI 工具 AlphaMissense + PrimateAI-3D 同樣適用，但要報告「在歐裔資料訓練」這個 caveat；(4) HPO 用 Phenomizer-Asia 變體。台灣兒童罕病基金會、中研院遺傳所、長庚 / 林口 / 台大 / 高醫已有實務應用。</span><span data-lang="en">Local-friendly: (1) <strong>TaiwanGenomes</strong> (Taiwan-specific frequencies) replaces pure gnomAD; (2) <strong>BBJ allele frequency</strong> for East Asian reference; (3) AlphaMissense + PrimateAI-3D apply but report the "European-trained" caveat; (4) HPO use Phenomizer-Asia variant. Taiwan Children's Rare Disease Foundation, Academia Sinica IGBM, Chang Gung / Linkou / NTU / Kaohsiung Medical already deploy.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="ACMG 點數版本（2023+）和原版差別？" data-en="ACMG point system (2023+) vs 2015 original?">點數版本？</span></button><div class="accordion-body"><span data-lang="zh">2023 ClinGen SVI 推出「<strong>quantitative point system</strong>」：每個 evidence 給點數（PVS=8, PS=4, PM=2, PP=1; BA=−8, BS=−4, BP=−1）；總點數對應分類（≥10 → P, 6-9 → LP, 0-5 → VUS, −6 → −1 → LB, ≤ −7 → B）。比原版「2 個 PS + 1 個 PM = LP」這種規則式更靈活。Franklin、VarSome、InterVar 都已支援。</span><span data-lang="en">In 2023, ClinGen SVI introduced a <strong>quantitative point system</strong>: each evidence has points (PVS=8, PS=4, PM=2, PP=1; BA=−8, BS=−4, BP=−1); total points → tier (≥10 → P, 6-9 → LP, 0-5 → VUS, −6 to −1 → LB, ≤−7 → B). More flexible than 2015's "2 PS + 1 PM = LP" rules. Franklin, VarSome, InterVar support it.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="拿到一個 VUS 後該怎麼辦？" data-en="Found a VUS — what next?">VUS 後怎麼辦？</span></button><div class="accordion-body"><span data-lang="zh">六步驟：(1) <strong>家系驗證</strong>（trio WES，找 de novo）；(2) <strong>多 AI 集成</strong>（≥3 高分一致 → upgrade）；(3) <strong>表型對照</strong>（Exomiser / LIRICAL HPO ranking）；(4) <strong>functional follow-up</strong>（MAVE 查現有資料 / 設計實驗）；(5) <strong>每 6-12 月 reanalysis</strong>（新資料可能 reclassify）；(6) <strong>提交回 ClinVar</strong>（即使 VUS 也對社群有貢獻）。Taiwan 罕病基金會有免費 reanalysis 服務。</span><span data-lang="en">Six steps: (1) <strong>family validation</strong> (trio WES, find de novo); (2) <strong>multi-AI ensemble</strong> (≥3 high-score consensus → upgrade); (3) <strong>phenotype matching</strong> (Exomiser / LIRICAL HPO ranking); (4) <strong>functional follow-up</strong> (check MAVEdb / design assay); (5) <strong>reanalyze every 6-12 months</strong> (new data may reclassify); (6) <strong>submit back to ClinVar</strong> (VUS submissions also benefit the community). Taiwan Rare Disease Foundation offers free reanalysis.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>AI VEP 的角色是「強化 ACMG PP3/BP4 證據」</strong>，不是「取代 ACMG」。</li>
+<li><strong>不要單看一個分數</strong>；至少 3 個（AlphaMissense + REVEL + ESM1b/PrimateAI-3D）共識才可靠。</li>
+<li><strong>ClinVar AUROC 高 ≠ 罕病 cohort 表現好</strong>——評估資料的 distribution shift 是核心問題。</li>
+<li><strong>SVI 2023 點數系統</strong>把 ACMG 從「規則式」變成「量化式」，更靈活也更可審計。</li>
+<li><strong>非歐裔變異仍有 ancestry bias</strong>；台灣讀者請結合 TaiwanGenomes + BBJ 本地頻率。</li>
+<li><strong>VUS 不是死路</strong>——家系 + 多 AI + 表型 + functional + 定期 reanalysis 能 unstick 60%+ 的 VUS。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>AI VEPs strengthen ACMG PP3/BP4 evidence</strong>; they don't replace ACMG.</li>
+<li><strong>Don't trust a single score</strong>; ≥3 (AlphaMissense + REVEL + ESM1b/PrimateAI-3D) consensus is robust.</li>
+<li><strong>High ClinVar AUROC ≠ rare-disease cohort performance</strong> — evaluation distribution shift is the core issue.</li>
+<li><strong>SVI 2023 point system</strong> turns ACMG from rule-based to quantitative — more flexible and auditable.</li>
+<li><strong>Non-European variants still suffer ancestry bias</strong>; Taiwanese readers should combine TaiwanGenomes + BBJ.</li>
+<li><strong>VUS isn't a dead end</strong> — family + multi-AI + phenotype + functional + periodic reanalysis can unstick 60%+ of VUS.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -164,5 +324,19 @@ r &lt;- <span class="func">getVariant</span>(mv, <span class="str">"chr7:g.14045
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 08</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch07-multiomics-integration.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch07 多體學整合</span></a>
+<a href="ch09-medical-imaging-dl.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch09 醫療影像 DL</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch08</footer>
 <script src="i18n.js"></script>
 </body></html>

@@ -20,6 +20,23 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh"><p>恭喜你讀到第 20 章！這章是整個教程的<strong>終章 + 展望信</strong>。讀完你會：</p>
+<ul><li>說出 2026-2035 的六大趨勢：Virtual Cell, Self-driving Lab, Digital Twin, AI-CRO, Foundation Bio Models, AI-augmented trial</li>
+<li>分辨哪些「AI 取代」是炒作、哪些是真實未來</li>
+<li>規劃自己的職涯方向（學界 / 業界 / 創業）</li>
+<li>讀懂為何「AI Scientist」的辯論是當前 ELSI 焦點</li></ul></div>
+<div data-lang="en"><p>Congratulations on reaching Ch 20! This is the <strong>finale + manifesto</strong>:</p>
+<ul><li>Six 2026-2035 trends: Virtual Cell, Self-driving Lab, Digital Twin, AI-CRO, Foundation Bio Models, AI-augmented trials</li>
+<li>Distinguish "AI replaces X" hype from real future</li>
+<li>Plan your career (academia / industry / startup)</li>
+<li>Understand why "AI Scientist" is the current ELSI focal point</li></ul></div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="主張" data-en="THESIS">主張</div>
 <h2 data-zh="生醫研究的方向反轉：90% 計算 → 10% 實驗" data-en="Biomedicine inverts: 90% computational → 10% experimental">方向反轉：90% 計算 → 10% 實驗</h2>
 <div data-lang="zh">
@@ -70,6 +87,80 @@
 </ol>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+未來 10 年，AI 不會取代生醫研究者；但<em>擅用 AI 的研究者，會領先拒絕 AI 的研究者一個世代</em>。問題不是「AI 會不會做」，而是「我準備好沒」。
+<span class="src">— 本教程結語</span>
+</div>
+<div class="pull-quote" data-lang="en">
+In the next decade, AI won't replace biomedical researchers — but <em>those who wield AI will be a generation ahead of those who refuse</em>. The question isn't "will AI do it?" but "am I ready?"
+<span class="src">— Tutorial closing</span>
+</div>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2025 · CZI rBio 啟動</span>
+<h3 data-zh="rBio：第一個在 virtual cell 上推理的 AI" data-en="rBio: the first AI reasoning on virtual cells">rBio：第一個在 virtual cell 推理的 AI</h3>
+<div data-lang="zh">
+<p>2025 年 11 月，Chan Zuckerberg Initiative 公布 <strong>rBio</strong>——第一個在「virtual cell 模擬」上做推理的 AI 模型。它不靠真實 perturb-seq 資料訓練，而是先在數百萬個 simulated cell 上學習，然後 generalize 到真實實驗。</p>
+<p>關鍵架構：(1) <strong>Virtual cell simulator</strong>—整合 scGPT + ODE 動力學 + 化學知識庫；(2) <strong>rBio 推理模型</strong>—在 simulator 上做 in-silico knockout、drug screening、cell type transition 預測；(3) <strong>真實實驗驗證循環</strong>—rBio 預測 → 濕實驗驗證 → 反饋給 simulator 校準。</p>
+<p>同時 Biohub 投入 $500M Virtual Biology Initiative；CZI + NVIDIA 推 Virtual Cell Platform；2025 Recursion + Exscientia 合併成立首個 AI-drug self-driving lab。這四個事件加起來，標誌著生醫研究典範轉移正式開始：<strong>從「跑實驗 + 偶爾算」變成「先算 + 關鍵實驗驗證」</strong>。</p>
+<p><strong>但謹慎之處：</strong>(1) virtual cell 還很初級，無法模擬複雜表型；(2) rBio 對「未見」化合物泛化仍弱；(3) 生物複雜性可能限制這個典範的天花板。我們在「ImageNet 時刻」之後 14 年才看到 AlphaFold 2；virtual cell 的「ImageNet 時刻」可能也需要 5-10 年。</p>
+</div>
+<div data-lang="en">
+<p>In November 2025, Chan Zuckerberg Initiative announced <strong>rBio</strong> — the first AI model trained to reason on "virtual cell simulations". Instead of training on real perturb-seq data, it first learns from millions of simulated cells, then generalizes to real experiments.</p>
+<p>Architecture: (1) <strong>Virtual cell simulator</strong> — combines scGPT + ODE kinetics + chemical knowledge base; (2) <strong>rBio reasoning model</strong> — does in-silico knockouts, drug screening, cell-type transitions on the simulator; (3) <strong>real-experiment validation loop</strong> — rBio predicts → wet-lab tests → feedback to simulator for calibration.</p>
+<p>Simultaneously, Biohub committed $500M to the Virtual Biology Initiative; CZI + NVIDIA launched the Virtual Cell Platform; 2025 Recursion + Exscientia merged into the first AI-drug self-driving lab. These four events together mark the official start of a biomedical paradigm shift: <strong>from "run experiments + occasionally compute" to "compute first + key experiments validate"</strong>.</p>
+<p><strong>But caution:</strong> (1) virtual cells are still primitive — can't simulate complex phenotypes; (2) rBio generalizes poorly to unseen compounds; (3) biological complexity may cap this paradigm's ceiling. We saw AlphaFold 2 14 years after the ImageNet moment; virtual cells may need another 5-10 years for their own.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：2025 是「virtual biology 元年」；2030 可能是「AI scientist 元年」。準備好參與這場變革。</div>
+<div class="punchline" data-lang="en">Lesson: 2025 is "Year One of virtual biology"; 2030 may be "Year One of AI Scientist". Get ready to participate.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>Virtual Cell<span class="gloss-en">虛擬細胞</span></dt><dd data-lang="zh">用 AI + ODE + 知識圖譜模擬整個細胞的動態行為；CZI 2025 旗艦倡議。</dd><dd data-lang="en">AI + ODE + knowledge-graph simulation of whole-cell dynamics; CZI's 2025 flagship.</dd></div>
+<div class="glossary-item"><dt>Digital Twin<span class="gloss-en">數位分身</span></dt><dd data-lang="zh">病人的「電子複本」，整合 EHR + genome + imaging；GE / Siemens 用於心衰預測。</dd><dd data-lang="en">A patient's "electronic replica", integrating EHR + genome + imaging; GE / Siemens use for heart failure.</dd></div>
+<div class="glossary-item"><dt>Self-driving Lab<span class="gloss-en">自駕實驗室</span></dt><dd data-lang="zh">AI 提議 → 機器人合成 → 自動量測 → AI 學習 → 下一輪；Aspuru-Guzik、MIT 領先。</dd><dd data-lang="en">AI proposes → robot synthesizes → auto-measures → AI learns → next round; Aspuru-Guzik, MIT lead.</dd></div>
+<div class="glossary-item"><dt>AI-CRO<span class="gloss-en">AI 合約研究組織</span></dt><dd data-lang="zh">用 AI 加速臨床試驗的 CRO；Insilico、Recursion 部分扮演此角色。</dd><dd data-lang="en">CROs using AI to accelerate clinical trials; Insilico, Recursion partially play this role.</dd></div>
+<div class="glossary-item"><dt>External Control Arm<span class="gloss-en">外部對照組</span></dt><dd data-lang="zh">用真實世界資料生成「合成對照組」，減少 RCT 人數需求；FDA 已有指引。</dd><dd data-lang="en">Synthetic control arms from real-world data, reducing RCT N; FDA has guidance.</dd></div>
+<div class="glossary-item"><dt>Synthetic Control<span class="gloss-en">合成對照</span></dt><dd data-lang="zh">外部對照組的演算法實作；Unlearn.AI、Medidata 是主要工具商。</dd><dd data-lang="en">Algorithmic external control implementation; Unlearn.AI, Medidata are key vendors.</dd></div>
+<div class="glossary-item"><dt>AI Scientist<span class="gloss-en">AI 科學家</span></dt><dd data-lang="zh">2024-2025 概念，AI 系統能自主提出假設、設計實驗、寫論文；Sakana AI 試行。</dd><dd data-lang="en">2024-2025 concept; AI systems autonomously propose hypotheses, design experiments, write papers; Sakana AI pioneered.</dd></div>
+<div class="glossary-item"><dt>ELSI<span class="gloss-en">ethical / legal / social implications</span></dt><dd data-lang="zh">倫理、法律、社會影響；HGP 1990 起的傳統。AI Scientist 是新興 ELSI 議題。</dd><dd data-lang="en">Ethical/legal/social implications; tradition since the 1990 HGP. AI Scientist is an emerging ELSI topic.</dd></div>
+<div class="glossary-item"><dt>Foundation Bio Model<span class="gloss-en">生物基礎模型</span></dt><dd data-lang="zh">scGPT, AlphaFold 3, ESM-3 等廣義「生物 FM」；未來十年的 OS。</dd><dd data-lang="en">scGPT, AlphaFold 3, ESM-3 — broad "biology FMs"; the OS of the next decade.</dd></div>
+<div class="glossary-item"><dt>AI4Science<span class="gloss-en">AI 為科學</span></dt><dd data-lang="zh">DeepMind / MS / Google 主推；用 AI 加速科學發現（不只生醫）。</dd><dd data-lang="en">Pushed by DeepMind / MS / Google; AI accelerates scientific discovery (beyond biomedicine).</dd></div>
+<div class="glossary-item"><dt>Generative Biology<span class="gloss-en">生成生物學</span></dt><dd data-lang="zh">用 AI 從零設計蛋白、核酸、細胞迴路；Baker Lab 開創。</dd><dd data-lang="en">AI designs proteins, nucleic acids, cellular circuits from scratch; pioneered by Baker Lab.</dd></div>
+<div class="glossary-item"><dt>AI-augmented Trial<span class="gloss-en">AI 增強的臨床試驗</span></dt><dd data-lang="zh">AI 加速 patient matching、synthetic control、interim analysis；FDA AI/ML SaMD 框架已支援。</dd><dd data-lang="en">AI accelerates patient matching, synthetic control, interim analyses; FDA AI/ML SaMD framework supports.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. 「AI Scientist」真的可能嗎？</b>Sakana AI 2024 試行讓 AI 自主寫 NeurIPS workshop 論文，結果引發 ELSI 爭議（同行評審該怎麼做）。<strong>2030 前可能達到 AI 助研究員水平；2040 前 AI 全自主發現仍困難</strong>。<span class="think">辯論：科學的 inductive leap 能完全演算法化嗎？</span></div>
+<div class="dq" data-lang="en"><b>Q1. Is "AI Scientist" really possible?</b>Sakana AI 2024 tried having AI autonomously write NeurIPS workshop papers — triggering ELSI debate (how do peer reviewers handle it?). <strong>By 2030, AI may reach research-assistant level; full-autonomous discovery before 2040 is still hard</strong>.<span class="think">Debate: can scientific inductive leaps be fully algorithmized?</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 台灣 / 亞洲在這場革命的角色？</b>三條路：(1) 應用層—在地化 fine-tune Foundation Models；(2) 資料層—Taiwan Biobank、BBJ 提供亞洲代表性；(3) 基礎研究—中研院、台大、清華、陽明參與 FM 開發。<span class="think">機會：在 LMIC + 亞洲族裔 AI 醫療上建立全球領導力。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Taiwan / Asia's role in this revolution?</b>Three paths: (1) application layer — localized fine-tuning of FMs; (2) data layer — Taiwan Biobank, BBJ for Asian representation; (3) basic research — Academia Sinica, NTU, NTHU, NYCU contribute to FM development.<span class="think">Opportunity: build global leadership in LMIC + Asian-ancestry medical AI.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. 醫師會被 AI 取代嗎？</b>不是「取代」，是「<em>重組</em>」。WHO 2024 預期未來 10 年醫師工作量分布變化：影像 triage、文獻摘要、初步差異診斷 → 自動化；臨床判斷、病人溝通、實驗設計、倫理拿捏 → 仍由人主導。<span class="think">教育：醫學院須加入 AI literacy 必修課；NMC 2024 起新指引。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Will doctors be replaced by AI?</b>Not "replaced" — <em>reorganized</em>. WHO 2024 expects next-10-year workload redistribution: imaging triage, lit summaries, initial DDx → automated; clinical judgment, communication, experimental design, ethics → still humans.<span class="think">Education: medical schools must add AI literacy as core; NMC 2024 new guidelines.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. AI 鴻溝會擴大嗎？</b>高收入國家累積 80% 訓練資料；模型偏向他們的人口。LMIC 怎麼參與？聯邦學習 + open-weights + ancestry-diverse cohort 是希望，但需要全球 governance。<span class="think">參考：WHO 2024 AI Ethics for Health 報告。</span></div>
+<div class="dq" data-lang="en"><b>Q4. Will the AI divide widen?</b>HICs hold 80% training data; models skew to their populations. How do LMICs participate? Federated learning + open weights + ancestry-diverse cohorts are hope, but need global governance.<span class="think">Reference: WHO 2024 AI Ethics for Health.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="什麼是 Virtual Cell？我能用嗎？" data-en="What is Virtual Cell? Can I use it?">Virtual Cell？</span></button><div class="accordion-body"><span data-lang="zh">CZI Virtual Cell Platform 2025 開放部分接口。能力：(1) 模擬 perturb-seq；(2) 預測 cell type transition；(3) in-silico drug screening。限制：目前限免疫細胞、cardiomyocyte 等已標註豐富的細胞型。學術可申請 CZI compute credit；商業需單獨授權。</span><span data-lang="en">CZI Virtual Cell Platform opened partial APIs in 2025. Capabilities: (1) simulate perturb-seq; (2) predict cell type transitions; (3) in-silico drug screening. Limits: currently focused on well-annotated cell types (immune, cardiomyocytes). Academic: apply for CZI compute credit; commercial: separate licensing.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="self-driving lab 學生能體驗嗎？" data-en="Can students experience self-driving labs?">學生能用嗎？</span></button><div class="accordion-body"><span data-lang="zh">2025 起多個學術 testbed：(1) <strong>CMU Cloud Lab</strong>—遠端控制濕實驗；(2) <strong>Aspuru-Guzik @ Toronto</strong>—化學自動化；(3) <strong>MIT MIRA</strong>—多代理化學機器人。台灣：NCKU、NCHC 在規劃學術 cloud lab。學生可從遠端送 protocol、看實驗結果，不需自己有實驗室。</span><span data-lang="en">Since 2025 several academic testbeds: (1) <strong>CMU Cloud Lab</strong> — remote-controlled wet labs; (2) <strong>Aspuru-Guzik @ Toronto</strong> — chemistry automation; (3) <strong>MIT MIRA</strong> — multi-agent chemistry robots. Taiwan: NCKU, NCHC planning academic cloud labs. Students submit protocols remotely, view results — no need for own lab.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="該如何規劃職涯方向？" data-en="How to plan my career?">職涯方向？</span></button><div class="accordion-body"><span data-lang="zh">四條路：(1) <strong>應用研究員</strong>—醫院 / 學界做臨床 AI；(2) <strong>FM 開發者</strong>—科技公司開發 foundation models；(3) <strong>創業者</strong>—Insilico / Recursion / Isomorphic 模式；(4) <strong>政策 / 倫理</strong>—WHO / FDA / 衛福部 AI ethics 制定。共通必修：本教程 20 章 + Python/R + 一個生醫領域。差異在「<em>站在哪個邊界</em>」。</span><span data-lang="en">Four paths: (1) <strong>application researcher</strong> — hospital/academia clinical AI; (2) <strong>FM developer</strong> — tech-co foundation model builder; (3) <strong>founder</strong> — Insilico/Recursion/Isomorphic model; (4) <strong>policy/ethics</strong> — WHO/FDA/MOHW AI ethics. Common required: this tutorial's 20 chapters + Python/R + one biomedical domain. Difference: <em>which boundary you stand at</em>.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="教育要怎麼改？" data-en="How should education change?">教育？</span></button><div class="accordion-body"><span data-lang="zh">三個改革點：(1) <strong>醫學院加 AI 必修</strong>—NMC 2024 起；(2) <strong>生資 / 計量生物學程</strong>強化整合（不只程式；要懂醫療）；(3) <strong>跨領域博士後</strong>—醫生 ↔ 工程師長期合作。台灣已有「臨床 AI 學程」（陽明、台大）、「精準健康博士學位」（中研院）等試點。</span><span data-lang="en">Three reforms: (1) <strong>medical schools add AI as core</strong> — NMC mandates from 2024; (2) <strong>bioinformatics / quant biology curricula</strong> strengthen integration (not just code; understand medicine); (3) <strong>cross-disciplinary postdocs</strong> — long-term clinician-engineer collaboration. Taiwan pilots: "Clinical AI Program" (NYCU, NTU), "Precision Health PhD" (Academia Sinica).</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="我已經完成 20 章，下一步該做什麼？" data-en="Finished 20 chapters — what next?">下一步？</span></button><div class="accordion-body"><span data-lang="zh">建議三條路：(1) <strong>深度學習一個方向</strong>—挑你最興奮的章節，讀 References 深度文獻；(2) <strong>動手做專案</strong>—跑 6 個 notebooks，再在自己領域複製一個；(3) <strong>建立網絡</strong>—follow Twitter/X 上 @ylecun @karpathy @sbpark @demishassabis；參加 NeurIPS、ICML、MICCAI workshops。每 6 月重讀 Ch20 追蹤典範轉移。</span><span data-lang="en">Three suggestions: (1) <strong>go deep on one direction</strong> — pick the chapter that excites you, read References in depth; (2) <strong>hands-on project</strong> — run all 6 notebooks, then replicate one in your domain; (3) <strong>build network</strong> — follow @ylecun @karpathy @sbpark @demishassabis on Twitter/X; attend NeurIPS, ICML, MICCAI workshops. Re-read Ch20 every 6 months to track paradigm shifts.</span></div></div>
+</div>
+</section>
+
 <section class="section">
 <div class="section-label" data-zh="結語" data-en="CLOSING">結語</div>
 <h2 data-zh="從 20 章走到這裡，你已經..." data-en="After 20 chapters, you can now…">恭喜你完成 20 章！</h2>
@@ -108,5 +199,19 @@
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 20 (End)</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch19-mlops-privacy.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch19 MLOps、隱私與聯邦</span></a>
+<a href="../references/index.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title"></span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch20</footer>
 <script src="i18n.js"></script>
 </body></html>

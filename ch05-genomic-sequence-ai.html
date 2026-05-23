@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ch05 · 基因體序列 AI</title>
-<link rel="stylesheet" href="styles.css"></head><body>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
 <nav class="top-nav"><div class="top-nav-inner">
   <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
   <ul class="top-nav-links">
@@ -19,19 +21,92 @@
 
 <main class="content-wrap">
 
+<!-- ===== 新手起點 ===== -->
+<section class="section">
+<span class="diff-tag beginner">新手友善</span>
+<span class="diff-tag intermediate">中階</span>
+<span class="diff-tag advanced">進階補充</span>
+
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>剛接觸 NGS 的醫學生</strong>、把 DNA 視為陌生字串的<strong>資工背景</strong>，還是<strong>做過 ChIP-seq 卻沒摸過深度學習的 PI</strong>，本章帶你：</p>
+<ul>
+<li>說出為什麼 DNA 可以「像語言一樣」用 Transformer 建模，以及它和 PWM/motif 掃描的差別</li>
+<li>區分 Enformer / Borzoi / NT v2 / DNABERT-2 / Caduceus 各自擅長的任務</li>
+<li>理解「context length」對長程調控元件預測為什麼是<strong>致命因素</strong></li>
+<li>會跑一次 in-silico mutagenesis（ISM），理解 ref vs alt 怎麼變成致病性分數</li>
+<li>看懂 2024 GUE / BEND / DNA-LongBench benchmark 結論：<em>沒有一個模型贏所有任務</em></li>
+</ul>
+<p>不需要事先會 PyTorch；只要你看過 FASTA 檔案就能跟上。</p>
+</div>
+<div data-lang="en">
+<p>Whether you're a <strong>medical student new to NGS</strong>, a <strong>CS person</strong> who sees DNA as a foreign string, or a <strong>PI</strong> who's done ChIP-seq but never deep learning — by the end you will:</p>
+<ul>
+<li>Explain why DNA can be modeled "like language" by a Transformer, and how it differs from PWM/motif scanning</li>
+<li>Match Enformer / Borzoi / NT-v2 / DNABERT-2 / Caduceus to the tasks each is best at</li>
+<li>Understand why <strong>context length</strong> is decisive for long-range regulatory predictions</li>
+<li>Run in-silico mutagenesis (ISM) and see how ref-vs-alt becomes a pathogenicity score</li>
+<li>Read the 2024 GUE / BEND / DNA-LongBench results: <em>no single model wins everywhere</em></li>
+</ul>
+<p>No PyTorch needed — if you've opened a FASTA file you're ready.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== Motivation ===== -->
 <section class="section">
 <div class="section-label" data-zh="動機" data-en="MOTIVATION">動機</div>
 <h2 data-zh="DNA 為什麼可以被「語言模型」建模？" data-en="Why can DNA be modeled as a language?">DNA 為什麼可以被「語言模型」建模？</h2>
 <div data-lang="zh">
 <p>表面上 DNA 只有 4 個字母（A/C/G/T），但啟動子、增強子、剪接位、CpG 島等「文法」隱藏在序列中。<strong>距離可達 100 kb 以上</strong>的調控元件能影響一個基因的表現量——這正是 Transformer 「自注意力」最擅長捕捉的長程依賴。</p>
-<p>傳統 motif 掃描或 PWM 只能看局部訊號；現代序列 AI 把整段 DNA 當作上下文，輸出可以是 chromatin accessibility、表現量、變異效應等多種「軌道 (tracks)」。</p>
+<p>傳統 motif 掃描或 PWM 只能看局部訊號；現代序列 AI 把整段 DNA 當作上下文，輸出可以是 chromatin accessibility、表現量、變異效應等多種「軌道 (tracks)」。Avsec 2021 的 Enformer 把 context 拉到 196 kb 後，遠端增強子–啟動子相互作用的預測首次超越 CNN baseline 30+ percentage points。</p>
 </div>
 <div data-lang="en">
-<p>DNA has only 4 letters (A/C/G/T), but promoters, enhancers, splice sites, CpG islands hide an entire "grammar". Regulatory elements <strong>>100 kb away</strong> can modulate a gene's expression — exactly the long-range dependencies Transformer self-attention excels at.</p>
-<p>Traditional motif-scanning or PWMs see only local signals; modern sequence AI treats long DNA as context and outputs many "tracks": chromatin accessibility, expression, variant effects, and more.</p>
+<p>DNA has only 4 letters (A/C/G/T), but promoters, enhancers, splice sites, CpG islands hide an entire "grammar". Regulatory elements <strong>&gt;100 kb away</strong> can modulate a gene's expression — exactly the long-range dependencies Transformer self-attention excels at.</p>
+<p>Traditional motif-scanning or PWMs see only local signals; modern sequence AI treats long DNA as context and outputs many "tracks": chromatin accessibility, expression, variant effects, and more. Avsec 2021's Enformer pushed context to 196 kb and beat CNN baselines on distal enhancer–promoter interactions by 30+ percentage points.</p>
+</div>
+
+<div class="pull-quote" data-lang="zh">DNA 從來不是「點對點查表」——它的功能寫在 100 kb 的長程結構裡，而我們直到 2021 年才有適合的工具看見這件事。
+<span class="src">— Avsec et al., Nat Methods 2021</span></div>
+<div class="pull-quote" data-lang="en">DNA was never "lookup-table biology" — its function lives in 100-kb-scale structure, and we only got the right tools to see that in 2021.
+<span class="src">— Avsec et al., Nat Methods 2021</span></div>
+</section>
+
+<!-- ===== Quick stats ===== -->
+<section class="section">
+<div class="section-label" data-zh="關鍵數字" data-en="QUICK STATS">關鍵數字</div>
+<h2 data-zh="DNA Foundation Models 的 5 個數字" data-en="Five numbers for DNA FMs">DNA Foundation Models 的 5 個數字</h2>
+<div class="stats-banner">
+<div class="stat-item"><span class="num">524 kb</span><span class="label" data-zh="Borzoi context" data-en="Borzoi context">Borzoi context</span><span class="source">Linder 2024</span></div>
+<div class="stat-item"><span class="num">2.5B</span><span class="label" data-zh="NT v2 參數" data-en="NT-v2 params">NT v2 參數</span><span class="source">Dalla-Torre 2024</span></div>
+<div class="stat-item"><span class="num">71M</span><span class="label" data-zh="AlphaMissense 變異" data-en="AlphaMissense variants">AlphaMissense 變異</span><span class="source">Science 2023</span></div>
+<div class="stat-item"><span class="num">100×</span><span class="label" data-zh="Caduceus 比 Enformer 輕" data-en="Caduceus vs Enformer">Caduceus vs Enformer</span><span class="source">Schiff 2024</span></div>
+<div class="stat-item"><span class="num">5313</span><span class="label" data-zh="Enformer 預測 tracks" data-en="Enformer tracks">Enformer tracks</span><span class="source">Avsec 2021</span></div>
 </div>
 </section>
 
+<!-- ===== Concept Ladder ===== -->
+<section class="section">
+<div class="section-label" data-zh="觀念階梯" data-en="CONCEPT LADDER">觀念階梯</div>
+<h2 data-zh="DNA 模型到底在「學」什麼？三層說明" data-en="What does a DNA model actually 'learn'?">DNA 模型到底在「學」什麼？三層說明</h2>
+<div class="concept-ladder">
+<div class="step s1"><h5 data-zh="🌱 新手版本" data-en="🌱 Beginner">🌱 新手版本</h5>
+<p data-lang="zh">想像你給模型 1 萬條 DNA 段落，並隨機把其中 15% 的鹼基蓋住請它猜。猜久了它就學會：「轉錄因子結合位附近常有特定 motif」「啟動子在 TSS 附近 GC 偏高」這些<strong>規則</strong>。學會這些之後，它就能對新序列預測「這裡可能是啟動子嗎？」</p>
+<p data-lang="en">Imagine handing the model 10K DNA snippets and masking 15% of bases for it to guess. After enough practice it learns rules: "TFBS motifs cluster", "GC bias near TSS." Then for a new sequence it can answer: "Is this likely a promoter?"</p>
+</div>
+<div class="step s2"><h5 data-zh="🎓 中階版本" data-en="🎓 Intermediate">🎓 中階版本</h5>
+<p data-lang="zh">DNA Foundation Model 用 <strong>masked language modeling (MLM)</strong> 或 <strong>causal LM</strong> 兩種預訓練。輸入單字符（NT v1）、6-mer（NT v2 / DNABERT-1）、BPE（DNABERT-2）或者 byte-level token。下游任務用 linear probe / LoRA / full FT 微調，或乾脆 zero-shot 用 ISM。</p>
+<p data-lang="en">DNA FMs use <strong>masked language modeling (MLM)</strong> or <strong>causal LM</strong>. Tokens are single-char (NT v1), 6-mer (NT v2 / DNABERT-1), BPE (DNABERT-2), or byte-level. Downstream: linear probe / LoRA / full FT, or zero-shot via ISM.</p>
+</div>
+<div class="step s3"><h5 data-zh="🔬 進階版本" data-en="🔬 Advanced">🔬 進階版本</h5>
+<p data-lang="zh">Caduceus 用 <strong>Mamba (S4 state-space)</strong> 把 attention 的 O(N²) 變成 O(N log N)，並加上「反向互補等變性 (RC-equivariance)」——對 DNA 雙股結構天生公平。BEND 2024 benchmark 顯示：在 enhancer / promoter / chromatin 任務，supervised CNN (Basenji2) 仍能與 FM 持平；但<strong>變異效應 (ISM) 與遠端 cis-regulation</strong> 是 FM 真正贏的地方。</p>
+<p data-lang="en">Caduceus uses <strong>Mamba (S4 state space)</strong> to swap attention's O(N²) for O(N log N), plus <strong>reverse-complement (RC) equivariance</strong> — fair to DNA's double-strand nature by construction. BEND 2024: supervised CNNs (Basenji2) match FMs on enhancer / promoter / chromatin; FMs win clearly on <strong>variant effect (ISM)</strong> and <strong>distal cis-regulation</strong>.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== Leading models table ===== -->
 <section class="section">
 <div class="section-label" data-zh="主流模型" data-en="LEADING MODELS">主流模型</div>
 <h2 data-zh="2024–2026 五大序列模型對照" data-en="Top 5 sequence models (2024–2026)">2024–2026 五大序列模型對照</h2>
@@ -48,6 +123,30 @@
 </div></div>
 </section>
 
+<!-- ===== Interactive Widget: context length comparison ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動圖表" data-en="INTERACTIVE">互動圖表</div>
+<h2 data-zh="不同 context length 下，誰最強？" data-en="Who wins at which context length?">不同 context length 下，誰最強？</h2>
+<div data-lang="zh"><p>下方圖比較 <strong>Enformer / Borzoi / Caduceus-PS / NT v2</strong> 在不同 context length 下的「遠端調控預測 Spearman r」。拖拉「最大 context」拉桿，模擬資源預算對你可選模型的影響——你會發現超過 100 kb，Caduceus 的 Mamba 架構在 GPU 記憶體 / 推論時間都明顯比 Transformer 系列友善。</p></div>
+<div data-lang="en"><p>The chart compares <strong>Enformer / Borzoi / Caduceus-PS / NT-v2</strong> on distal-regulation Spearman r vs context length. Drag the slider to see how compute budget changes your viable model set — beyond 100 kb, Caduceus's Mamba backbone uses dramatically less GPU memory than Transformer-based peers.</p></div>
+
+<div class="interactive-panel">
+<div class="widget-grid split">
+<div class="widget-controls">
+<h5 data-zh="調整最大 context" data-en="Adjust max context">調整最大 context</h5>
+<div class="slider-group"><label><span data-zh="最大 context (kb)" data-en="Max context (kb)">最大 context (kb)</span> <span id="ctxVal">200</span></label>
+<input type="range" id="ctxSlider" min="6" max="524" value="200" step="1"></div>
+<div class="widget-readout" id="ctxOut">— 拖拉看看 —</div>
+<button class="try-btn" onclick="setCtx(524)" data-zh="🚀 拉到 Borzoi 極限 (524 kb)" data-en="🚀 Push to Borzoi limit (524 kb)">🚀 拉到 Borzoi 極限</button>
+</div>
+<div class="widget-output">
+<div class="chart-container" style="height:320px"><canvas id="ctxChart"></canvas></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== Workflow ===== -->
 <section class="section">
 <div class="section-label" data-zh="工作流" data-en="WORKFLOW">工作流</div>
 <h2 data-zh="一個典型 DNA Foundation Model 使用流程" data-en="Typical workflow with a DNA foundation model">典型使用流程</h2>
@@ -67,104 +166,16 @@
 </div>
 </section>
 
+<!-- ===== Deep Dive: Evoformer + attention complexity ===== -->
 <section class="section">
-<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
-<h2 data-zh="用 Nucleotide Transformer 嵌入一段序列" data-en="Embed a sequence with Nucleotide Transformer">用 Nucleotide Transformer 嵌入一段序列</h2>
-<div class="code-tabs">
-  <div class="code-tab-btns">
-    <button class="code-tab-btn active" data-tab="py">Python</button>
-    <button class="code-tab-btn" data-tab="r">R</button>
-  </div>
-  <div class="code-tab-content active" data-tab="py"><pre><span class="comment"># pip install transformers torch</span>
-<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModel
-<span class="kw">import</span> torch
-ck = <span class="str">"InstaDeepAI/nucleotide-transformer-v2-500m-multi-species"</span>
-tok = AutoTokenizer.<span class="func">from_pretrained</span>(ck)
-m   = AutoModel.<span class="func">from_pretrained</span>(ck).<span class="func">eval</span>().<span class="func">cuda</span>()
-seq = <span class="str">"ACGT"</span> * <span class="num">200</span>           <span class="comment"># 800 bp toy</span>
-inp = <span class="func">tok</span>(seq, return_tensors=<span class="str">"pt"</span>).<span class="func">to</span>(<span class="str">"cuda"</span>)
-<span class="kw">with</span> torch.<span class="func">no_grad</span>():
-    out = <span class="func">m</span>(**inp, output_hidden_states=<span class="kw">True</span>)
-emb = out.hidden_states[-<span class="num">1</span>].<span class="func">mean</span>(dim=<span class="num">1</span>)        <span class="comment"># (1, 1024)</span>
-<span class="func">print</span>(emb.shape)
-<span class="comment"># In-silico mutagenesis</span>
-<span class="kw">def</span> <span class="func">delta</span>(ref, alt, pos):
-    seq_alt = ref[:pos] + alt + ref[pos+<span class="num">1</span>:]
-    inp2 = <span class="func">tok</span>(seq_alt, return_tensors=<span class="str">"pt"</span>).<span class="func">to</span>(<span class="str">"cuda"</span>)
-    e2 = <span class="func">m</span>(**inp2, output_hidden_states=<span class="kw">True</span>).hidden_states[-<span class="num">1</span>].<span class="func">mean</span>(<span class="num">1</span>)
-    <span class="kw">return</span> (e2-emb).<span class="func">norm</span>().<span class="func">item</span>()
-<span class="func">print</span>(<span class="str">"effect:"</span>, <span class="func">delta</span>(seq, <span class="str">"G"</span>, <span class="num">100</span>))</pre></div>
-  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate)
-trans &lt;- <span class="func">import</span>(<span class="str">"transformers"</span>); torch &lt;- <span class="func">import</span>(<span class="str">"torch"</span>)
-ck   &lt;- <span class="str">"InstaDeepAI/nucleotide-transformer-v2-500m-multi-species"</span>
-tok  &lt;- trans$AutoTokenizer$<span class="func">from_pretrained</span>(ck)
-mdl  &lt;- trans$AutoModel$<span class="func">from_pretrained</span>(ck)$<span class="func">eval</span>()$<span class="func">cuda</span>()
-seq  &lt;- <span class="func">paste</span>(<span class="func">rep</span>(<span class="str">"ACGT"</span>,<span class="num">200</span>), collapse=<span class="str">""</span>)
-inp  &lt;- <span class="func">tok</span>(seq, return_tensors=<span class="str">"pt"</span>)$<span class="func">to</span>(<span class="str">"cuda"</span>)
-out  &lt;- mdl$<span class="func">forward</span>(input_ids=inp$input_ids, output_hidden_states=<span class="kw">TRUE</span>)
-emb  &lt;- out$hidden_states[[<span class="num">25</span>]]$<span class="func">mean</span>(dim=<span class="num">1</span>L)
-<span class="func">cat</span>(<span class="str">"emb dim:"</span>, emb$<span class="func">shape</span>, <span class="str">"\n"</span>)</pre></div>
-</div>
-</section>
+<h2 data-zh="想再深一點？MSA + Evoformer 與 attention 的複雜度危機" data-en="Going deeper: MSA + Evoformer & the O(N²) attention crisis">想再深一點？MSA + Evoformer 與 attention 的複雜度危機</h2>
 
-<section class="section">
-<div class="section-label" data-zh="決策樹" data-en="DECISION TREE">決策樹</div>
-<h2 data-zh="什麼任務該選哪個模型？" data-en="Which model for which task?">什麼任務該選哪個模型？</h2>
-<div class="decision-tree">
-<h4 data-zh="任務類型？" data-en="Task type?">任務類型？</h4>
-<div class="dt-node"><span class="dt-q">①</span><span class="dt-arrow">→</span><span data-lang="zh">表現量 / 染色質：<strong>Enformer / Borzoi</strong>。</span><span data-lang="en">Expression / chromatin: <strong>Enformer / Borzoi</strong>.</span></div>
-<div class="dt-node"><span class="dt-q">②</span><span class="dt-arrow">→</span><span data-lang="zh">變異致病性 / 罕病：<strong>AlphaMissense + PrimateAI-3D</strong>（見 Ch08）。</span><span data-lang="en">Variant pathogenicity / rare disease: <strong>AlphaMissense + PrimateAI-3D</strong> (Ch08).</span></div>
-<div class="dt-node"><span class="dt-q">③</span><span class="dt-arrow">→</span><span data-lang="zh">短調控元件分類：<strong>DNABERT-2 / NT-v2</strong>。</span><span data-lang="en">Short regulatory classification: <strong>DNABERT-2 / NT-v2</strong>.</span></div>
-<div class="dt-node"><span class="dt-q">④</span><span class="dt-arrow">→</span><span data-lang="zh">100 kb+ 長序列 + 算力有限：<strong>Caduceus</strong>。</span><span data-lang="en">100 kb+ long with limited compute: <strong>Caduceus</strong>.</span></div>
-<div class="dt-node"><span class="dt-q">⑤</span><span class="dt-arrow">→</span><span data-lang="zh">非編碼變異 QTL：<strong>Enformer/Borzoi</strong> + <strong>GPN-MSA</strong> 集成。</span><span data-lang="en">Non-coding QTL: <strong>Enformer/Borzoi</strong> + <strong>GPN-MSA</strong> ensemble.</span></div>
-</div>
-</section>
-
-<section class="section">
-<div class="quiz-section">
-<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
-<div class="quiz-q">
-<p data-lang="zh">1. Caduceus 的核心架構特色是？</p>
-<p data-lang="en">1. Caduceus's core architectural feature is?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="0">A. Vanilla Transformer</div>
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. Mamba 狀態空間 + 反向互補等變性</span><span data-lang="en">B. Mamba state-space + reverse-complement equivariance</span></div>
-<div class="quiz-opt" data-correct="0">C. CNN with PWM</div>
-<div class="quiz-opt" data-correct="0">D. RNN with attention</div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>SSM + RC 等變讓長 DNA 建模又準又快。</span><span data-lang="en"><strong>B.</strong> SSM + RC equivariance gives accurate &amp; fast long-DNA modeling.</span></div>
-</div>
-<div class="quiz-q">
-<p data-lang="zh">2. 「In-silico mutagenesis」是？</p>
-<p data-lang="en">2. "In-silico mutagenesis" is?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 真實的細胞編輯實驗</span><span data-lang="en">A. Real cell-editing experiment</span></div>
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 用模型對 ref vs alt 序列推論，記錄輸出差異作為變異效應</span><span data-lang="en">B. Run ref vs alt through a model and use the output delta as the variant effect</span></div>
-<div class="quiz-opt" data-correct="0">C. PCR primer 設計</div>
-<div class="quiz-opt" data-correct="0">D. CRISPR screen</div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>ISM 是序列 AI 最常用的解釋方法之一。</span><span data-lang="en"><strong>B.</strong> ISM is one of the most common interpretability tools for sequence AI.</span></div>
-</div>
-<div class="quiz-q">
-<p data-lang="zh">3. 為何 2024 benchmark 顯示「沒有單一模型在所有任務勝出」？</p>
-<p data-lang="en">3. Why does the 2024 benchmark show "no model wins all tasks"?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">A. 沒人會調參</span><span data-lang="en">A. No one knows how to tune</span></div>
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. 不同任務需要不同的 inductive bias（功能監督 vs 進化保守）</span><span data-lang="en">B. Different tasks need different inductive biases (functional supervision vs evolutionary conservation)</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">C. 因為 benchmark 設計有錯</span><span data-lang="en">C. The benchmark is flawed</span></div>
-<div class="quiz-opt" data-correct="0"><span data-lang="zh">D. 因為 Caduceus 還沒釋出</span><span data-lang="en">D. Caduceus wasn't released yet</span></div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>不同任務本質就是「不同的歸納偏好最契合」。</span><span data-lang="en"><strong>B.</strong> Different tasks favor different inductive biases.</span></div>
-</div>
-</div>
-</section>
-
-<nav class="page-nav">
-<a href="ch04-ethics-regulation.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="倫理、公平性與法規" data-en="Ethics, Fairness &amp; Regulation">倫理、公平性與法規</span></a>
-<a href="ch06-single-cell-foundation.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="單細胞 Foundation Models" data-en="Single-cell Foundation Models">單細胞 Foundation Models</span></a>
-</nav>
-
-</main>
-<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 05</footer>
-<script src="i18n.js"></script>
-</body></html>
+<div class="deep-dive">
+<h4 data-zh="為什麼基因體模型不像 AlphaFold 一樣用 MSA？" data-en="Why don't genome models use MSA like AlphaFold?">為什麼基因體模型不像 AlphaFold 一樣用 MSA？</h4>
+<div data-lang="zh">
+<p>AlphaFold 2 的 <strong>Evoformer</strong> 把同源蛋白的 MSA 編碼為「成對 (pairwise)」表示——每行是一條同源序列，每列是一個位置。利用<strong>共保 (co-evolution)</strong> 訊號（兩個位置常一起突變 = 結構上接觸）解出 3D 摺疊。數學上：</p>
+<div class="math">attn(Q, K, V) = softmax(QKᵀ / √d) · V</div>
+<p>注意力的問題在於 <strong>QKᵀ 是 O(N²)</strong>。對 200 個 residue 的蛋白，N²=40,000 個 entries——CPU 都能跑。但對 <strong>100 kb DNA</strong>，N=100,000，QKᵀ 矩陣有 <strong>100 億 entries</strong>，A100 80 GB GPU 也塞不下。Enformer 之所以用「local attention + dilation」就是要繞開這條牆。</p>
+<p><strong>第二個問題：</strong>DNA 沒有像蛋白質那樣豐富的 MSA。pan-mammal 保守訊號被 GERP / phyloP / GPN-MSA 利用，但跨物種 alignment 在重複序列、超長 intron、TE 區域常崩潰。所以 DNA FMs 多半改用「全序列 LM」+「conservation track 作為 auxiliary loss」（如 GPN-MSA, Benegas 2024）。</p>
+<p><strong>Mamba / S4 的數學直覺：</strong>把 attention 換成<strong>選擇性狀態空間</strong>：<br>
+<code>h<sub>t</sub> = A·h<sub>t-1</sub> + B·x<sub>t</sub>,  y<sub>t</sub> = C·h<sub>t</sub></code><br

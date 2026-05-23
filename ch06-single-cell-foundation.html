@@ -20,6 +20,33 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>第一次接觸 scRNA-seq</strong> 的生醫學生、<strong>已經跑過 Seurat</strong> 想了解新範式的研究員，還是<strong>剛從 NLP 轉進來</strong>的工程師，這一章是你的「scFM 全景」。讀完你會：</p>
+<ul>
+<li>說出 <strong>scGPT、Geneformer、scFoundation、UCE、CellFM</strong> 五大主流模型的關鍵差異</li>
+<li>分辨「微調 fine-tuning」「零樣本 zero-shot」「探測 probing」三種使用 scFM 的方式</li>
+<li>知道什麼時候 scFM 比 scVI 更好、什麼時候不該用</li>
+<li>避開「越大越好」「OOD 一定能 generalize」兩大迷思</li>
+</ul>
+<p>無 scRNA-seq 經驗者，建議先讀 <a href="../../../F_Omics_組學分析/scRNA-seq/scrna-interactive-tutorial/qc.html">scRNA-seq 教程 QC 章</a>。</p>
+</div>
+<div data-lang="en">
+<p>Whether you're <strong>new to scRNA-seq</strong>, an <strong>experienced Seurat user</strong> exploring the new paradigm, or an <strong>NLP engineer</strong> entering biology, this chapter is your scFM panorama. After reading:</p>
+<ul>
+<li>Tell apart <strong>scGPT, Geneformer, scFoundation, UCE, CellFM</strong>'s key differences</li>
+<li>Distinguish fine-tuning, zero-shot, and probing usage modes of scFMs</li>
+<li>Know when scFM beats scVI and when it shouldn't be used</li>
+<li>Steer clear of "bigger is better" and "OOD will generalize" myths</li>
+</ul>
+<p>No scRNA-seq background? Start with the <a href="../../../F_Omics_組學分析/scRNA-seq/scrna-interactive-tutorial/qc.html">scRNA-seq QC chapter</a>.</p>
+</div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
 <h2 data-zh="從「pipeline」到「foundation」" data-en="From pipeline to foundation">從「pipeline」到「foundation」</h2>
 <div data-lang="zh">
@@ -109,6 +136,127 @@ seu[[<span class="str">"scgpt"</span>]] &lt;- <span class="func">CreateDimReducO
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+單細胞 Foundation Model 不是「更好的 PCA」，而是「<em>跨組織、跨物種、跨條件的細胞語言</em>」——一旦學會這語言，下游任務只是翻譯題。
+<span class="src">— Theodoris 2023 Nature on Geneformer</span>
+</div>
+<div class="pull-quote" data-lang="en">
+A single-cell foundation model isn't "PCA on steroids" — it's a <em>language of cells across tissues, species, conditions</em>. Once learned, downstream tasks are translation problems.
+<span class="src">— Theodoris 2023 Nature on Geneformer</span>
+</div>
+
+<!-- Deep Dive -->
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？scGPT 的 tokenization 與 generative pretraining" data-en="Want to go deeper? scGPT tokenization & generative pretraining">想再深一點？scGPT 的 tokenization</h4>
+<div data-lang="zh">
+<p>scGPT 把一個細胞表達轉成 <strong>{gene_token, expression_bin}</strong> 對。基因 token 是 vocab 中 ~60K 基因 ID，表達 bin 把連續 log1p 表達分成 N 個離散等級。</p>
+<div class="math">x_cell → tokens = [(g₁, b₁), (g₂, b₂), ..., (gₖ, bₖ)]</div>
+<p>pretraining 目標是「<strong>給定 cell 的部分 token，預測被遮蔽的 token</strong>」——類似 BERT 但條件是<em>整個細胞的上下文</em>。這讓模型學到「基因 X 與基因 Y 在這類細胞共表達」的<strong>cellular grammar</strong>。</p>
+<p>Geneformer 用<strong>排序 (rank) tokenization</strong>：對每個細胞，根據表達量對 60K 基因排名，然後用 rank position 作為輸入。優點：對技術變異（library size、平台差異）天然 robust；缺點：失去絕對表達訊息。</p>
+<p>scFoundation / UCE 走<strong>連續表達 + asymmetric encoder/decoder</strong>，保留更多表達細節，但對 batch effect 較敏感。<strong>沒有絕對最佳的 tokenization</strong>，因任務而定。</p>
+</div>
+<div data-lang="en">
+<p>scGPT converts a cell's expression to <strong>{gene_token, expression_bin}</strong> pairs. Gene tokens are ~60K gene IDs; expression bins discretize log1p expression into N levels.</p>
+<div class="math">x_cell → tokens = [(g₁, b₁), (g₂, b₂), ..., (gₖ, bₖ)]</div>
+<p>Pretraining objective: <strong>given partial tokens of a cell, predict masked tokens</strong> — like BERT but conditioned on <em>the whole cell context</em>. The model learns "gene X co-expresses with gene Y in this cell type" — a <strong>cellular grammar</strong>.</p>
+<p>Geneformer uses <strong>rank tokenization</strong>: rank 60K genes by expression per cell, use rank position as input. Pros: robust to technical variation (library size, platforms); Cons: loses absolute expression.</p>
+<p>scFoundation / UCE use <strong>continuous expression + asymmetric encoder/decoder</strong>, preserving more expression detail but more sensitive to batch effects. <strong>No single best tokenization</strong> — depends on task.</p>
+</div>
+</div>
+</section>
+
+<!-- Story -->
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024-03 · Geneformer 在心衰預測</span>
+<h3 data-zh="Geneformer 預測新心肌細胞基因擾動標的" data-en="Geneformer predicts novel cardiomyocyte targets">Geneformer 預測新心肌細胞基因擾動標的</h3>
+<div data-lang="zh">
+<p>Theodoris 等人（<em>Nature</em> 2023）用 Geneformer 做了一個漂亮實驗：用 30M 健康細胞 pretrain 後，在 cardiomyocyte 上 fine-tune，然後做<strong>in-silico knockout</strong>——預測敲掉每個基因會把細胞推向「健康」還是「衰竭」狀態。</p>
+<p>模型挑出 100 個候選基因，其中 <strong>14 個被濕實驗驗證為新治療標的</strong>，包含一個過去從未被注意的 RNA-binding protein。其中一個基因被認為可能逆轉 dilated cardiomyopathy。</p>
+<p>關鍵的工程細節：(1) 用 30M 細胞 pretrain 但只用 <strong>1500 個</strong> patient cardiomyocyte fine-tune；(2) virtual knockout 是把該基因 rank 設為 0 後重新計算 attention；(3) 排序 tokenization 讓模型對 cardiomyopathy 樣本的技術變異 robust。</p>
+<p><strong>啟示：</strong>scFM 的真正價值不是「跑得更快的 UMAP」，而是「<em>大規模 in-silico perturbation 篩選</em>」——把 CRISPR screen 從「實驗 1 萬基因」變成「電腦先篩 1 萬，實驗驗證 100」。CZI rBio 2025 把這個範式更進一步。</p>
+</div>
+<div data-lang="en">
+<p>Theodoris et al. (<em>Nature</em> 2023) ran a beautiful experiment with Geneformer: pretrain on 30M healthy cells, fine-tune on cardiomyocytes, then run <strong>in-silico knockout</strong> — predict whether silencing each gene would push cells toward "healthy" or "failing" state.</p>
+<p>The model surfaced 100 candidate genes; <strong>14 were validated as novel therapeutic targets</strong> in wet-lab experiments, including an RNA-binding protein never previously implicated, potentially reversing dilated cardiomyopathy.</p>
+<p>Key engineering details: (1) pretrain on 30M cells but fine-tune on only <strong>1,500</strong> patient cardiomyocytes; (2) virtual knockout sets the gene's rank to 0 and recomputes attention; (3) rank tokenization keeps the model robust to cardiomyopathy-sample technical variation.</p>
+<p><strong>Takeaway:</strong> scFM's real value isn't "faster UMAP" — it's <em>large-scale in-silico perturbation screening</em>: turn a 10K-gene CRISPR screen into 10K computational + 100 experimental validations. CZI's rBio 2025 pushes this paradigm further.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：scFM 的破壞性創新不在「跑 UMAP」，而在「pre-experimental virtual screening」——濕實驗成本壓縮 100×。</div>
+<div class="punchline" data-lang="en">Lesson: scFM's disruptive value lies in pre-experimental virtual screening, not UMAP — wet-lab cost compressed 100×.</div>
+</div>
+</section>
+
+<!-- Glossary -->
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>scFM<span class="gloss-en">single-cell Foundation Model</span></dt><dd data-lang="zh">在數千萬細胞上自監督預訓的大型 Transformer，可零樣本或微調應用。</dd><dd data-lang="en">Large Transformer self-supervised on tens of millions of cells; supports zero-shot and fine-tuning.</dd></div>
+<div class="glossary-item"><dt>Rank Tokenization<span class="gloss-en">排序 token 化</span></dt><dd data-lang="zh">Geneformer 用：對每個細胞把基因按表達排名，rank position 作為 token。</dd><dd data-lang="en">Geneformer's approach: rank genes by expression per cell; use position as token.</dd></div>
+<div class="glossary-item"><dt>In-silico Knockout<span class="gloss-en">虛擬基因敲除</span></dt><dd data-lang="zh">不做實驗，由模型預測敲除某基因後的細胞狀態轉變。</dd><dd data-lang="en">No experiment — model predicts cell-state shift after knocking out a gene.</dd></div>
+<div class="glossary-item"><dt>Batch Effect<span class="gloss-en">批次效應</span></dt><dd data-lang="zh">同樣本不同實驗時間/平台造成的技術變異；Harmony / scVI / scGPT 都在處理。</dd><dd data-lang="en">Technical variation from different experimental batches/platforms; addressed by Harmony / scVI / scGPT.</dd></div>
+<div class="glossary-item"><dt>UMI<span class="gloss-en">Unique Molecular Identifier</span></dt><dd data-lang="zh">細胞條碼上的隨機序列，用來區分 PCR 重複 vs 真實分子。</dd><dd data-lang="en">Random sequences on cell barcodes that distinguish PCR duplicates from real molecules.</dd></div>
+<div class="glossary-item"><dt>Doublet<span class="gloss-en">雙細胞</span></dt><dd data-lang="zh">兩個細胞共用一個液滴的技術假象；Scrublet/DoubletFinder 偵測。</dd><dd data-lang="en">Two cells sharing one droplet; detected by Scrublet/DoubletFinder.</dd></div>
+<div class="glossary-item"><dt>Cell Embedding<span class="gloss-en">細胞嵌入向量</span></dt><dd data-lang="zh">scFM 為每個細胞輸出的 256–1024 維向量，是下游分析輸入。</dd><dd data-lang="en">256–1024-dim vector scFMs output per cell; input to downstream analysis.</dd></div>
+<div class="glossary-item"><dt>Zero-shot Annotation<span class="gloss-en">零樣本註釋</span></dt><dd data-lang="zh">不訓練，直接用 pretrained scFM 把細胞 embedding 後 k-NN 到 reference。</dd><dd data-lang="en">No training; embed cell with pretrained scFM and k-NN to a reference.</dd></div>
+<div class="glossary-item"><dt>Probing<span class="gloss-en">探測</span></dt><dd data-lang="zh">凍結 scFM 權重，只訓一個淺層分類器；介於零樣本與全微調之間。</dd><dd data-lang="en">Freeze scFM weights, train a small classifier on top; between zero-shot and full fine-tune.</dd></div>
+<div class="glossary-item"><dt>HVG<span class="gloss-en">Highly Variable Genes</span></dt><dd data-lang="zh">傳統 pipeline 選 2000-3000 高變異基因；scFM 可省略此步。</dd><dd data-lang="en">Classical pipelines pick 2,000-3,000 highly variable genes; scFMs often skip this step.</dd></div>
+<div class="glossary-item"><dt>OOD<span class="gloss-en">Out-of-Distribution</span></dt><dd data-lang="zh">測試資料與訓練分布差異大；scFM 已知對 OOD cell type 失準。</dd><dd data-lang="en">Test data differs from training distribution; scFMs known to fail on OOD cell types.</dd></div>
+<div class="glossary-item"><dt>Perturb-seq<span class="gloss-en">擾動測序</span></dt><dd data-lang="zh">CRISPR + scRNA-seq；測量基因擾動對細胞轉錄組的影響。Geneformer 學的預測目標。</dd><dd data-lang="en">CRISPR + scRNA-seq; measures gene-perturbation effects on transcriptome. Geneformer's prediction target.</dd></div>
+</dl>
+</section>
+
+<!-- Discussion -->
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. scFM 真的勝過 scVI 嗎？</b>2024 Liu et al. <em>Adv Sci</em> 顯示 scGPT、Geneformer 在某些任務輸給 scVI（小資料集、高解析度狀態）。<span class="think">參考：Kedzierska 2023 bioRxiv 對 zero-shot scFM 的「冷水」評估。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Do scFMs really beat scVI?</b>2024 Liu et al. <em>Adv Sci</em> show scGPT, Geneformer lose to scVI on certain tasks (small data, high-res states).<span class="think">Reference: Kedzierska 2023 bioRxiv — a sobering eval of zero-shot scFMs.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. scFM 對「未見組織 / 疾病狀態」的泛化極限在哪？</b>scGPT 預訓於健康 HCA，對腫瘤 / 失智 brain 表現如何？2025 Universal Cell Embedding 試圖跨物種泛化。<span class="think">假設：100M cells 預訓 + 病變 1M cells fine-tune 可能是甜蜜點。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Where's scFM's generalization limit to unseen tissue / disease states?</b>scGPT pretrained on healthy HCA — how does it perform on tumors / dementia brain? 2025 Universal Cell Embedding tries cross-species.<span class="think">Hypothesis: 100M cell pretrain + 1M diseased fine-tune may be the sweet spot.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. 排序 token vs 連續 token：哪個是未來？</b>Rank robust 但失去絕對表達；continuous 細節多但 batch 敏感。CellFM 2025 混合兩者，可能是未來。<span class="think">技術問：bin 數 N 應該多少？Geneformer 用 60K rank、scGPT 用 51-bin 量化。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Rank vs continuous tokens — which is the future?</b>Rank robust but loses absolute expression; continuous more detail but batch-sensitive. CellFM 2025 mixes both — likely future.<span class="think">Technical: how many bins? Geneformer uses 60K ranks; scGPT 51-bin quantization.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. CZI rBio 用 virtual cell 訓練——這代表什麼？</b>2025 CZI rBio 是第一個在「模擬細胞」（不是真實資料）上訓練的推理模型。如果 virtual cells 夠真，未來會否完全免去濕實驗？<span class="think">辯論：reductio ad absurdum——可如此但會失去「真實生物複雜度」的訊號。</span></div>
+<div class="dq" data-lang="en"><b>Q4. CZI rBio trained on virtual cells — what does this mean?</b>2025 CZI rBio is the first reasoning model trained on simulated (not real) cells. If virtual cells are realistic enough, can we skip wet labs entirely?<span class="think">Debate: reductio ad absurdum — possible but loses real biological complexity signal.</span></div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="我有自己的 scRNA-seq 資料，該怎麼選 scFM？" data-en="I have my own scRNA-seq — which scFM?">該選哪個 scFM？</span></button><div class="accordion-body"><span data-lang="zh">三條原則：(1) <strong>資料 &lt; 50K 細胞</strong>—先試 scVI/Seurat 傳統方法；(2) <strong>跨樣本/跨組織整合</strong>—scGPT 最友善（8GB GPU 可跑）；(3) <strong>需要 in-silico KO</strong>—Geneformer；(4) <strong>跨物種</strong>—UCE。多數情況 scGPT 起步最快。</span><span data-lang="en">Three rules: (1) <strong>data &lt; 50K cells</strong> — try scVI/Seurat first; (2) <strong>cross-sample/tissue integration</strong> — scGPT friendliest (runs on 8GB GPU); (3) <strong>need in-silico KO</strong> — Geneformer; (4) <strong>cross-species</strong> — UCE. scGPT is the fastest entry point.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="scFM 需要多少 GPU 記憶體？" data-en="How much GPU memory?">需要多少 GPU？</span></button><div class="accordion-body"><span data-lang="zh">推論：scGPT 8GB / Geneformer 16GB / scFoundation 24GB / UCE 40GB / CellFM 80GB。微調：通常 ×2-3。可用 LoRA 把微調記憶體降一半。沒 GPU？Hugging Face Spaces 提供免費 scGPT inference。</span><span data-lang="en">Inference: scGPT 8GB / Geneformer 16GB / scFoundation 24GB / UCE 40GB / CellFM 80GB. Fine-tuning: ×2-3. LoRA halves fine-tune memory. No GPU? Hugging Face Spaces offers free scGPT inference.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="Seurat / Scanpy 怎麼接 scFM？" data-en="Seurat / Scanpy + scFM?">Seurat/Scanpy 如何接？</span></button><div class="accordion-body"><span data-lang="zh">Scanpy 端：scGPT/Geneformer 都吃 AnnData，把 embedding 寫入 <code>adata.obsm["X_scGPT"]</code>，後續 <code>sc.pp.neighbors(adata, use_rep="X_scGPT")</code> 即可。Seurat 端：用 <code>zellkonverter</code> 把 AnnData ↔ SCE 轉換；或用 <code>reticulate</code> 直接呼叫 Python scGPT。範例見 <a href="../../notebooks/02_scgpt_zero_shot.py">notebooks/02</a>.</span><span data-lang="en">Scanpy: scGPT/Geneformer take AnnData; write embedding to <code>adata.obsm["X_scGPT"]</code>, then <code>sc.pp.neighbors(adata, use_rep="X_scGPT")</code>. Seurat: convert AnnData ↔ SCE via <code>zellkonverter</code>, or use <code>reticulate</code> for Python scGPT. See <a href="../../notebooks/02_scgpt_zero_shot.py">notebooks/02</a>.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="scFM 的零樣本註釋可信嗎？" data-en="Can I trust zero-shot annotation?">零樣本可信嗎？</span></button><div class="accordion-body"><span data-lang="zh">三條 safety net：(1) <strong>OOD 偵測</strong>—若 embedding 最近鄰距離 &gt; 某閾值，標 "unknown"；(2) <strong>marker 對照</strong>—永遠用傳統 marker 驗證 top 細胞；(3) <strong>多模型集成</strong>—scGPT + Geneformer + Celltypist 同意才信。罕見細胞型、新組織狀態下永遠優先 fine-tune。</span><span data-lang="en">Three safety nets: (1) <strong>OOD detection</strong> — if nearest-neighbor distance > threshold, mark "unknown"; (2) <strong>marker validation</strong> — always verify top cells with classical markers; (3) <strong>ensemble</strong> — trust only when scGPT + Geneformer + Celltypist agree. Rare cell types / new tissue states — always prefer fine-tuning.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣有 scFM 訓練資源嗎？" data-en="scFM resources in Taiwan?">台灣資源？</span></button><div class="accordion-body"><span data-lang="zh">三選：(1) <strong>NCHC 台灣杉 3</strong>—學術免費 GPU 配額；(2) <strong>中研院 ASGC</strong>—生科專用 cluster；(3) <strong>HuggingFace Spaces</strong>—免費 inference。微調 scGPT 約 4–8 hours on A100；Geneformer 8–24 hours。建議先小資料集驗證 pipeline，再上 HPC。</span><span data-lang="en">Three picks: (1) <strong>NCHC Taiwania 3</strong> — academic free GPU quota; (2) <strong>Academia Sinica ASGC</strong> — life-sciences cluster; (3) <strong>HuggingFace Spaces</strong> — free inference. Fine-tuning scGPT: 4–8 hours on A100; Geneformer 8–24 hours. Validate pipeline on a small dataset before scaling.</span></div></div>
+</div>
+</section>
+
+<!-- Key Takeaway -->
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>scFM 不是「更好的 PCA」</strong>，而是「細胞語言模型」——學會跨組織共表達語法。</li>
+<li><strong>scGPT、Geneformer、scFoundation、UCE、CellFM 五大模型</strong>各有特色；scGPT 入門最友善，Geneformer 強於 perturbation。</li>
+<li><strong>三種使用模式</strong>：zero-shot（無訓練）、probing（凍結+淺層）、fine-tune（全參數）；資料量決定選哪個。</li>
+<li><strong>排序 vs 連續 tokenization</strong> 是核心設計選擇；rank robust 於 batch，continuous 保留細節。</li>
+<li><strong>真正的價值在 in-silico perturbation screening</strong>，不在「跑 UMAP」——把濕實驗成本壓縮 100×。</li>
+<li><strong>OOD 失準仍是已知限制</strong>；零樣本必須配 OOD 偵測 + marker 對照 + 集成驗證。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>scFMs aren't "PCA on steroids"</strong> — they're cellular language models learning co-expression grammar across tissues.</li>
+<li><strong>Five leading models</strong> each have niches; scGPT is friendliest entry; Geneformer is strongest for perturbation.</li>
+<li><strong>Three usage modes</strong>: zero-shot (no training), probing (frozen + shallow head), fine-tuning (full params) — pick by data volume.</li>
+<li><strong>Rank vs continuous tokenization</strong> is the core design choice; rank robust to batch, continuous preserves detail.</li>
+<li><strong>Real value: in-silico perturbation screening</strong>, not just UMAP — wet-lab cost compressed 100×.</li>
+<li><strong>OOD failure remains a known limit</strong>; zero-shot must combine OOD detection + marker validation + ensemble.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -155,5 +303,19 @@ seu[[<span class="str">"scgpt"</span>]] &lt;- <span class="func">CreateDimReducO
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 06</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch05-genomic-sequence-ai.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch05 基因體序列 AI</span></a>
+<a href="ch07-multiomics-integration.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch07 多體學整合</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch06</footer>
 <script src="i18n.js"></script>
 </body></html>

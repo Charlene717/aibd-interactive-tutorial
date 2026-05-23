@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ch04 · 倫理、公平性與法規</title>
-<link rel="stylesheet" href="styles.css"></head><body>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
 <nav class="top-nav"><div class="top-nav-inner">
   <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
   <ul class="top-nav-links">
@@ -18,6 +20,33 @@
 </header>
 
 <main class="content-wrap">
+
+<section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>第一次寫 IRB 申請</strong>、<strong>準備 FDA 510(k) 送件</strong>，還是<strong>想理解為什麼 ChatGPT 在歐洲被列為高風險</strong>，這一章是你的「合規地圖」。讀完你會：</p>
+<ul>
+<li>說出 Obermeyer 2019、Epic Sepsis、IBM Watson Oncology 三大警世故事的根本原因</li>
+<li>分辨 7 種公平性指標 + Chouldechova 不可能性定理的實務意義</li>
+<li>規劃符合 <strong>TRIPOD-AI 2024 + FDA PCCP 2024-12 + EU AI Act 2024/1689</strong> 的研究與部署流程</li>
+<li>避開「刪 18 項識別子 = 隱私」「校準好就 OK」「全球同一標準」三大誤會</li>
+</ul>
+<p>這章對<strong>所有人</strong>必修——不論你是寫程式、設計實驗、還是審論文。</p>
+</div>
+<div data-lang="en">
+<p>Whether it's your <strong>first IRB application</strong>, you're <strong>preparing an FDA 510(k)</strong>, or you want to understand <strong>why ChatGPT is classified high-risk in Europe</strong>, this chapter is your compliance map. After reading:</p>
+<ul>
+<li>Name the root causes of the three cautionary tales (Obermeyer 2019, Epic Sepsis, IBM Watson Oncology)</li>
+<li>Tell apart 7 fairness metrics + the practical meaning of Chouldechova's impossibility theorem</li>
+<li>Plan research & deployment compliant with <strong>TRIPOD-AI 2024 + FDA PCCP 2024-12 + EU AI Act 2024/1689</strong></li>
+<li>Steer clear of "remove 18 identifiers = privacy", "well-calibrated = OK", "one global standard" myths</li>
+</ul>
+<p>This chapter is mandatory for <strong>everyone</strong> — whether you write code, design experiments, or review papers.</p>
+</div>
+</div>
+</section>
 
 <section class="section">
 <div class="section-label" data-zh="案例" data-en="THE CASE">案例</div>
@@ -125,6 +154,153 @@ mf = <span class="func">MetricFrame</span>(metrics={<span class="str">"AUROC"</s
 </ol>
 </section>
 
+<!-- ===== Interactive: Chouldechova impossibility ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬" data-en="INTERACTIVE">互動模擬</div>
+<h2 data-zh="Chouldechova 不可能性三角" data-en="Chouldechova's impossibility triangle">Chouldechova 不可能性三角</h2>
+<div data-lang="zh"><p>拉動「<strong>族群基期差</strong>」拉桿（兩族群陽性盛行率差異）。當基期不等時，<strong>校準同等、均等機率、預測值同等三者不可同時成立</strong>（Chouldechova 2017, Kleinberg 2016）。你會看到三角形面積永遠 &gt; 0——這是 AI 醫療公平性的最根本兩難。</p></div>
+<div data-lang="en"><p>Drag the <strong>base-rate gap</strong> slider (difference in positive prevalence between groups). When base rates differ, <strong>calibration, equalized odds, predictive parity cannot simultaneously hold</strong> (Chouldechova 2017, Kleinberg 2016). Triangle area is always > 0 — the deepest dilemma of medical-AI fairness.</p></div>
+
+<div class="interactive-panel">
+<div class="widget-grid split">
+<div class="widget-controls">
+<h5 data-zh="調整族群基期差" data-en="Adjust base-rate gap">調整族群基期差</h5>
+<div class="slider-group"><label><span data-zh="基期差 (Δprevalence)" data-en="Base rate gap">基期差</span> <span id="brVal">0.10</span></label>
+<input type="range" id="brSlider" min="0" max="0.5" value="0.10" step="0.01"></div>
+<div class="widget-readout" id="brOut">三指標衝突 = —</div>
+</div>
+<div class="widget-output">
+<div class="chart-container" style="height:320px"><canvas id="brChart"></canvas></div>
+</div>
+</div>
+</div>
+</section>
+
+<div class="pull-quote" data-lang="zh">
+當族群基期不等，「校準 / 均等機率 / 預測值同等」三者不可能同時成立——選擇哪一個守住，是<strong>價值判斷</strong>，不是技術問題。
+<span class="src">— Chouldechova 2017, Big Data 5(2):153</span>
+</div>
+<div class="pull-quote" data-lang="en">
+When base rates differ, calibration, equalized odds, predictive parity cannot all hold — which to preserve is a <strong>value judgment</strong>, not technical.
+<span class="src">— Chouldechova 2017, Big Data 5(2):153</span>
+</div>
+
+<!-- ===== Story Card ===== -->
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<h2 data-zh="Epic Sepsis Model 撤回事件" data-en="The Epic Sepsis Model retraction">Epic Sepsis Model 撤回事件</h2>
+<div class="story-card">
+<span class="when">2017-2021 · Epic ESM 部署與崩盤</span>
+<h3 data-zh="從 170 家醫院部署到 BMJ 撕破臉" data-en="From 170-hospital deployment to BMJ exposé">從 170 家醫院部署到 BMJ 撕破臉</h3>
+<div data-lang="zh">
+<p>Epic 的 Sepsis Model (ESM) 是美國最大 EHR 廠商 Epic 在 2017 起內建的敗血症預警 AI——部署於 <strong>170+ 家美國醫院</strong>，影響數百萬病人。Epic 宣稱：AUC 0.76、sensitivity 0.76、能提早 8 小時警示。</p>
+<p>但 Wong 等人（<em>JAMA Intern Med</em> 2021）對密西根大學的 38,455 名病人外部驗證：<strong>真實 AUC 只有 0.63；sensitivity 33%；PPV 12%</strong>。為了一次真陽性，醫師會被誤觸發 7 次假警報——這在臨床上叫「<em>alert fatigue</em>」，醫師最後乾脆關掉警報。</p>
+<p>更嚴重的問題：Epic ESM 把「<strong>抗生素已開立</strong>」作為訓練特徵——但醫師開抗生素通常就是因為懷疑 sepsis，這形成了<strong>標籤洩漏</strong>。模型實際上學到「醫師已經想到 sepsis」，而不是「預測 sepsis」。</p>
+<p>2022 Epic 推出修訂版 ESM v3，但已經失去信任。Bauer 等人在 <em>BMJ</em> 撰寫長文，呼籲所有 EHR AI 必須做<strong>跨機構外部驗證 + alert burden 評估</strong>才能上市。這啟發了 FDA PCCP 2024 終版指引納入 "real-world performance monitoring" 強制條款。</p>
+</div>
+<div data-lang="en">
+<p>Epic's Sepsis Model (ESM) is the largest US EHR vendor's built-in sepsis-alert AI since 2017, deployed at <strong>170+ US hospitals</strong>, affecting millions of patients. Epic claimed: AUC 0.76, sensitivity 0.76, 8-hour-early alerts.</p>
+<p>But Wong et al. (<em>JAMA Intern Med</em> 2021) externally validated on 38,455 University of Michigan patients: <strong>real AUC only 0.63; sensitivity 33%; PPV 12%</strong>. For every true positive, doctors get 7 false alarms — clinically this is "<em>alert fatigue</em>", and clinicians eventually mute the warning entirely.</p>
+<p>The deeper problem: Epic ESM included "<strong>antibiotics already ordered</strong>" as a feature — but doctors order antibiotics because they suspect sepsis. This is <strong>label leakage</strong>: the model learned "the doc already thought of sepsis", not "predict sepsis".</p>
+<p>In 2022 Epic released ESM v3, but trust was gone. Bauer et al. (<em>BMJ</em>) called for mandatory <strong>cross-institutional external validation + alert burden assessment</strong> for all EHR AI. This shaped FDA's PCCP 2024 final guidance mandating real-world performance monitoring.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：高 AUC + 沒做外部驗證 + 標籤洩漏 = 影響百萬病人的醫療誤導；監管必須跨越「廠商自驗」。</div>
+<div class="punchline" data-lang="en">Lesson: high AUC + no external validation + label leakage = medical misguidance for millions; regulators must move beyond "vendor self-validation".</div>
+</div>
+</section>
+
+<!-- ===== Myth vs Fact ===== -->
+<section class="section">
+<div class="section-label" data-zh="迷思 vs 事實" data-en="MYTH vs FACT">迷思 vs 事實</div>
+<h2 data-zh="關於倫理與監管，四個常見誤會" data-en="Four common myths">四個常見誤會</h2>
+<div class="myth-fact">
+<div class="myth"><strong data-zh="① 刪除 HIPAA 18 項識別子 = 完全去識別化。" data-en="① Removing 18 HIPAA identifiers = fully de-identified.">① 刪 18 項 = 完全去識別化。</strong></div>
+<div class="fact"><strong data-zh="① Sweeney 1997 證明 87% 美國人可由「郵遞區碼 + 生日 + 性別」重新識別。" data-en="① Sweeney 1997: 87% of US population is re-ID-able from ZIP + DOB + sex.">① 仍可從高維資料重識別。</strong><br><span data-lang="zh">基因組與影像可重識別性更高（Gymrek 2013：STR 重複可定位姓氏）。Safe Harbor 是底線，需搭配 k-anonymity / differential privacy。</span><span data-lang="en">Genomes and images are even more re-ID-able (Gymrek 2013: STRs can recover surnames). Safe Harbor is a floor; combine with k-anonymity / DP.</span></div>
+</div>
+<div class="myth-fact">
+<div class="myth"><strong data-zh="② AI 公平性問題可以「靠 algorithmic fix」解決。" data-en="② Algorithmic fixes solve AI fairness.">② Algorithmic fix 解決公平性。</strong></div>
+<div class="fact"><strong data-zh="② 標籤選擇 (label choice) 本身是偏差源；技術修補只能治標。" data-en="② Label choice itself is a bias source; technical patches treat symptoms.">② 標籤選擇本身是偏差源。</strong><br><span data-lang="zh">Obermeyer 2019 用「醫療支出」代理「健康需求」就是根本錯誤；換 loss function、加 fairness constraint 都無法修。需要回到「<strong>我們在預測什麼</strong>」的根本提問。</span><span data-lang="en">Obermeyer 2019 used "spending" as a proxy for "need" — fundamental error. Changing loss or adding fairness constraints can't fix it. Step back to "<strong>what are we actually predicting</strong>".</span></div>
+</div>
+<div class="myth-fact">
+<div class="myth"><strong data-zh="③ FDA / EU 規範差不多，做一套就好。" data-en="③ FDA and EU rules are similar — one set works.">③ FDA / EU 規範類似。</strong></div>
+<div class="fact"><strong data-zh="③ EU AI Act 2024/1689 是「橫向」風險法；FDA 仍是「縱向」產品法。" data-en="③ EU AI Act is horizontal risk law; FDA still vertical product law.">③ 邏輯完全不同。</strong><br><span data-lang="zh">EU 看 AI 應用情境的「<strong>風險等級</strong>」分四級（minimal / limited / high / unacceptable）；FDA 看醫材「<strong>類別 + intended use</strong>」（Class I/II/III）。同一個 AI 在 EU 可能高風險，在 FDA 是 510(k) exempt。</span><span data-lang="en">EU classifies by <strong>application risk tier</strong> (minimal / limited / high / unacceptable); FDA by <strong>device class + intended use</strong> (I/II/III). The same AI may be EU-high-risk and FDA-510(k)-exempt.</span></div>
+</div>
+<div class="myth-fact">
+<div class="myth"><strong data-zh="④ PCCP 通過後可以無限更新。" data-en="④ PCCP grants unlimited updates.">④ PCCP = 無限更新。</strong></div>
+<div class="fact"><strong data-zh="④ 只能在「protocol 預定範圍內」更新；超出仍需新申請。" data-en="④ Updates allowed only within the pre-authorized protocol; outside still needs new submission.">④ 在預定協定內更新。</strong><br><span data-lang="zh">PCCP 三件套（modification description + protocol + impact assessment）必須具體；超出範圍（如改任務、改 population）必須重新 510(k) / PMA。FDA 2024-12 終版明確：bias mitigation + post-market surveillance 也是必備條款。</span><span data-lang="en">PCCP triad (modification description + protocol + impact assessment) must be specific; outside-of-scope changes (new task, new population) require re-submission. FDA 2024-12 final: bias mitigation + post-market surveillance are mandatory.</span></div>
+</div>
+</section>
+
+<!-- ===== Glossary ===== -->
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<h2 data-zh="本章 12 個關鍵詞" data-en="12 key terms">本章 12 個關鍵詞</h2>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>PHI<span class="gloss-en">Protected Health Information</span></dt><dd data-lang="zh">HIPAA 定義的 18 種受保護健康資訊識別子（姓名、地址、日期 ...）。</dd><dd data-lang="en">HIPAA's 18 protected identifiers (name, address, dates ...).</dd></div>
+<div class="glossary-item"><dt>IRB<span class="gloss-en">Institutional Review Board</span></dt><dd data-lang="zh">機構審查委員會，審查人類受試者研究倫理；台灣稱 REC。</dd><dd data-lang="en">Reviews human-subjects research ethics; in Taiwan called REC.</dd></div>
+<div class="glossary-item"><dt>Belmont Report<span class="gloss-en">貝爾蒙特報告</span></dt><dd data-lang="zh">1979 美國，建立 respect for persons / beneficence / justice 三大原則。</dd><dd data-lang="en">1979 US — three principles: respect for persons / beneficence / justice.</dd></div>
+<div class="glossary-item"><dt>Demographic Parity<span class="gloss-en">統計獨立</span></dt><dd data-lang="zh">P(ŷ=1|A=a) 對所有 a 相同；最簡單但與基期衝突。</dd><dd data-lang="en">P(ŷ=1|A=a) equal across a; simplest but conflicts with base rate.</dd></div>
+<div class="glossary-item"><dt>Equal Opportunity<span class="gloss-en">機會均等</span></dt><dd data-lang="zh">TPR 跨族群相同；臨床上常被優先採用。</dd><dd data-lang="en">TPR equal across groups; usually preferred clinically.</dd></div>
+<div class="glossary-item"><dt>Equalized Odds<span class="gloss-en">均等機率</span></dt><dd data-lang="zh">TPR + FPR 都跨族群相同；比 Equal Opportunity 嚴格。</dd><dd data-lang="en">TPR and FPR equal across groups; stricter than equal opportunity.</dd></div>
+<div class="glossary-item"><dt>Calibration<span class="gloss-en">校準</span></dt><dd data-lang="zh">預測機率 ≈ 實際機率；可分組別檢驗。</dd><dd data-lang="en">Predicted probability ≈ actual probability; testable per group.</dd></div>
+<div class="glossary-item"><dt>PCCP<span class="gloss-en">Predetermined Change Control Plan</span></dt><dd data-lang="zh">FDA 2024-12 終版機制；廠商可在預核准 protocol 內迭代更新。</dd><dd data-lang="en">FDA's 2024-12 final mechanism; vendors iterate within a pre-authorized protocol.</dd></div>
+<div class="glossary-item"><dt>EU AI Act<span class="gloss-en">Regulation 2024/1689</span></dt><dd data-lang="zh">2024-08-01 生效，醫療 AI 自動高風險；高風險條款 2026-08 全面適用。</dd><dd data-lang="en">In force 2024-08-01; medical AI auto-high-risk; high-risk fully applies 2026-08.</dd></div>
+<div class="glossary-item"><dt>TRIPOD-AI<span class="gloss-en">Transparent Reporting AI</span></dt><dd data-lang="zh">BMJ 2024 發布的 27 項 AI 預測模型報告規範，含子族 AUC + 外部驗證。</dd><dd data-lang="en">BMJ 2024's 27-item AI prediction reporting standard; subgroup AUC + external validation.</dd></div>
+<div class="glossary-item"><dt>CONSORT-AI<span class="gloss-en">Consort for AI Trials</span></dt><dd data-lang="zh">介入性研究的 AI 報告規範；SPIRIT-AI 是其 protocol 版。</dd><dd data-lang="en">AI reporting for interventional studies; SPIRIT-AI is the protocol version.</dd></div>
+<div class="glossary-item"><dt>Model Card / Datasheet<span class="gloss-en">模型卡 / 資料卡</span></dt><dd data-lang="zh">Mitchell 2019 / Gebru 2018 提出；記錄模型/資料的用途、限制、偏差。</dd><dd data-lang="en">Mitchell 2019 / Gebru 2018; documents model/data intended use, limits, biases.</dd></div>
+</dl>
+</section>
+
+<!-- ===== Discussion ===== -->
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. 為了公平性犧牲整體準確率，值得嗎？</b>若 demographic parity 讓黑人受益但整體 AUC 下降 3pp，這 3pp 等於多少病人延誤診斷？這是純技術回答不了的<strong>價值判斷</strong>。<span class="think">參考：Pleiss 2017 NeurIPS 對 fairness-accuracy 權衡的形式化討論。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Is fairness worth a global accuracy hit?</b>If demographic parity helps Black patients but drops global AUC 3pp, how many patients suffer delayed diagnosis? This is a <strong>value judgment</strong> beyond technique.<span class="think">Reference: Pleiss 2017 NeurIPS formalization of fairness-accuracy tradeoffs.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. AI 犯錯誰負責？醫師、廠商還是 AI？</b>FDA / EU 都把 final responsibility 放在「醫師 + 廠商」雙肩；但歐盟 2026 起新增 "AI Liability Directive"，使被害人提告更容易。<span class="think">台灣現況：尚無 AI 特定 liability，仍依民法 184 條侵權處理。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Who's liable when AI errs — physician, vendor, or AI?</b>FDA / EU place final responsibility on physician + vendor jointly; from 2026 EU adds an "AI Liability Directive" easing victim lawsuits.<span class="think">Taiwan: no AI-specific liability yet; falls under Civil Code §184 torts.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. 台灣 PIPA 與歐盟 GDPR、美國 HIPAA 的關鍵差異？</b>PIPA 範圍最廣（含特種資料、敏感資料；不分醫療/商業）但執行較鬆；GDPR 罰款 4% 全球營收；HIPAA 只管 covered entity。<span class="think">行動：跨國研究務必同時做三套 DPIA。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Key differences between Taiwan PIPA, EU GDPR, US HIPAA?</b>PIPA has the broadest scope (includes special and sensitive data; no domain restriction) but lighter enforcement; GDPR fines 4% global revenue; HIPAA covers only covered entities.<span class="think">Action: cross-border research needs all three DPIAs.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. AI 醫材通過 FDA 後，可以多久不再驗證？</b>FDA PCCP 要求年度 progress report + drift detection；但「實質性」變更（model retrain on new population）仍需重新提交。長期維護成本被嚴重低估。<span class="think">行業現況：很多新創公司燒完 grant 後就放生模型，FDA 2025 起加強稽核。</span></div>
+<div class="dq" data-lang="en"><b>Q4. After FDA clearance, how long until re-validation?</b>FDA PCCP mandates annual progress reports + drift detection; but "substantive" changes (retraining on new population) require resubmission. Long-term maintenance is severely underestimated.<span class="think">Industry: many startups abandon models after grant runs out; FDA tightening audits from 2025.</span></div>
+</div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<h2 data-zh="5 個常見問題" data-en="5 most-asked questions">5 個常見問題</h2>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣的 AI 醫材怎麼上市？" data-en="How to market AI medical device in Taiwan?">台灣的 AI 醫材怎麼上市？</span></button><div class="accordion-body"><span data-lang="zh">TFDA 採用「分類管理」：(1) Class I 一般醫材（如電子體溫計式 AI）—登記制；(2) Class II 中度（如影像分析輔助）—簡易查驗；(3) Class III 高度（如自動診斷）—臨床試驗 + 完整查驗。2024 TFDA 發布「<strong>含 AI 軟體醫療器材技術性資料審查重點</strong>」對齊 FDA SaMD + IMDRF GMLP。台灣杉與台灣 AI Labs 已有聯邦學習平台供本地醫院使用。</span><span data-lang="en">TFDA uses tiered classification: Class I (e.g., AI thermometer) – registration; Class II (e.g., imaging aid) – simplified review; Class III (e.g., autonomous diagnosis) – clinical trial + full review. 2024 TFDA released "<strong>AI-containing medical device technical review highlights</strong>" aligned with FDA SaMD + IMDRF GMLP. Taiwania + Taiwan AI Labs provide federated learning platforms for local hospitals.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="如何寫一份過得了 FDA 的 model card？" data-en="How to write an FDA-passable model card?">如何寫 FDA 過關的 model card？</span></button><div class="accordion-body"><span data-lang="zh">8 項必備：(1) <strong>Intended use</strong> 明確人群 + 任務；(2) <strong>訓練資料概述</strong>—來源、N、demographic；(3) <strong>表現指標</strong>—整體 + 子族 AUC / calibration；(4) <strong>外部驗證</strong>跨機構結果；(5) <strong>限制</strong>—OOD、罕病、cohort drift；(6) <strong>更新機制</strong>—PCCP 三件套；(7) <strong>偏差緩解</strong>—子族審計與 mitigation；(8) <strong>使用者警告</strong>—何時不該用此 AI。</span><span data-lang="en">8 essentials: (1) <strong>Intended use</strong> — specific population + task; (2) <strong>Training data summary</strong> — source, N, demographics; (3) <strong>Performance</strong> — global + subgroup AUC/calibration; (4) <strong>External validation</strong> across institutions; (5) <strong>Limitations</strong> — OOD, rare disease, cohort drift; (6) <strong>Update mechanism</strong> — PCCP triad; (7) <strong>Bias mitigation</strong> — subgroup audits; (8) <strong>User warnings</strong> — when NOT to use this AI.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="ChatGPT / Claude 可以用在醫療嗎？" data-en="Can ChatGPT / Claude be used in clinical care?">LLM 可以用在臨床嗎？</span></button><div class="accordion-body"><span data-lang="zh">分三層：(1) <strong>輔助文書</strong>（病歷草擬、信件）—OK，但需 PHI 處理 + 醫師最後簽字；(2) <strong>輔助決策</strong>—需要 RAG + 引用追溯 + human-in-the-loop；(3) <strong>自主診斷 / 處方</strong>—FDA / EU 均未核准任何純 LLM 做此。台灣 NHI 2025 規定院內 AI 文書必須註明 "AI 生成、由 [醫師] 審核"。</span><span data-lang="en">Three tiers: (1) <strong>Document assistance</strong> (chart drafting, letters) — OK with PHI handling + final physician sign-off; (2) <strong>Decision support</strong> — needs RAG + citation tracing + human-in-loop; (3) <strong>Autonomous diagnosis / Rx</strong> — not approved by FDA / EU for any pure LLM. Taiwan NHI 2025 requires hospital AI documents to indicate "AI-generated, reviewed by [physician]".</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="哪些 fairness metric 該優先？" data-en="Which fairness metric to prioritize?">哪個公平性指標優先？</span></button><div class="accordion-body"><span data-lang="zh">看「<strong>傷害類型</strong>」決定：(1) <strong>diagnostic AI</strong>（過診 vs 漏診）—Equal Opportunity（TPR 跨族群相同）；(2) <strong>resource allocation</strong>（如腎臟移植）—Demographic Parity（分配比例相同）；(3) <strong>risk scoring</strong>—Calibration（同一分數對應相同實際風險）。<strong>Chouldechova 三者不能同時</strong>——和倫理委員會討論優先順序。</span><span data-lang="en">Depends on <strong>harm type</strong>: (1) <strong>diagnostic AI</strong> (over/under-diagnosis) — Equal Opportunity (equal TPR); (2) <strong>resource allocation</strong> (e.g., transplant) — Demographic Parity (equal allocation); (3) <strong>risk scoring</strong> — Calibration (same score = same actual risk). <strong>Chouldechova: can't have all three</strong> — discuss priority with ethics board.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="差分隱私 ε 設多少才安全？" data-en="What ε for differential privacy?">DP 的 ε 設多少？</span></button><div class="accordion-body"><span data-lang="zh">常見錨點：(1) <strong>ε ≤ 1</strong>—強隱私（如 Apple 鍵盤）；(2) <strong>ε = 2-10</strong>—中等（醫療研究 sweet spot）；(3) <strong>ε > 10</strong>—名義隱私，實際保護薄弱。US Census 2020 用 ε=19.61。生醫場景建議 <strong>ε=4-8, δ=1e-5</strong>，並用 Privacy Loss Distribution 監控長期 budget。</span><span data-lang="en">Common anchors: (1) <strong>ε ≤ 1</strong> — strong privacy (Apple keyboard); (2) <strong>ε = 2-10</strong> — medium (sweet spot for medical research); (3) <strong>ε > 10</strong> — nominal privacy, weak protection. US Census 2020 used ε=19.61. Biomedical recommended: <strong>ε=4-8, δ=1e-5</strong>, monitor long-term budget via Privacy Loss Distribution.</span></div></div>
+</div>
+</section>
+
+<!-- ===== Key Takeaway ===== -->
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>Obermeyer 2019 教訓</strong>：標籤選擇本身可以是偏差來源；技術修補只能治標。</li>
+<li><strong>七種公平性指標 + Chouldechova 不可能性</strong>：基期不等時，三大指標不可同時成立，必須做<strong>價值判斷</strong>。</li>
+<li><strong>FDA PCCP（2024-12 終版）+ EU AI Act 2024/1689（2024-08 生效）</strong>合力結束 AI 醫療「狂野西部」時代。</li>
+<li><strong>HIPAA Safe Harbor 18 項是底線</strong>，高維資料仍可重識別；搭配 k-anonymity / DP 才足夠。</li>
+<li><strong>送審前 10 項自查</strong>：TRIPOD-AI / 標籤定義 / CONSORT-AI / Model Card / 預先註冊 / 利益揭露 / 人類監督 / 隱私評估 / PCCP / 後市監測。</li>
+<li><strong>Epic Sepsis Model 撤回事件</strong>提醒我們：高 AUC + 廠商自驗 + 無外部驗證 + 標籤洩漏 = 災難。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>Obermeyer 2019 lesson</strong>: label choice itself is a bias source; technical patches treat symptoms only.</li>
+<li><strong>7 fairness metrics + Chouldechova impossibility</strong>: with unequal base rates, three metrics can't co-hold — make a <strong>value judgment</strong>.</li>
+<li><strong>FDA PCCP (2024-12 final) + EU AI Act 2024/1689 (effective 2024-08)</strong> jointly end the Wild West era of medical AI.</li>
+<li><strong>HIPAA Safe Harbor 18 identifiers is a floor</strong>; high-dim data still re-ID-able; combine with k-anonymity / DP.</li>
+<li><strong>10-item pre-submission self-audit</strong>: TRIPOD-AI / label defn / CONSORT-AI / model card / pre-registration / conflict disclosure / human oversight / privacy / PCCP / post-market.</li>
+<li><strong>Epic Sepsis Model lesson</strong>: high AUC + vendor self-validation + no external check + label leakage = catastrophe.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -171,5 +347,48 @@ mf = <span class="func">MetricFrame</span>(metrics={<span class="str">"AUROC"</s
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 04</footer>
+<script src="i18n.js"></script>
+<script>
+// Chouldechova impossibility triangle
+let brChart;
+function renderBR(){
+  const gap = parseFloat(document.getElementById('brSlider').value);
+  document.getElementById('brVal').textContent = gap.toFixed(2);
+  // Triangle metric: violation magnitude scales with gap
+  const cal = gap * 1.0;
+  const eo = gap * 0.8;
+  const pp = gap * 0.6;
+  const area = (cal + eo + pp) / 3;
+  document.getElementById('brOut').textContent =
+    `Calibration violation = ${cal.toFixed(3)}   EO violation = ${eo.toFixed(3)}   PP violation = ${pp.toFixed(3)}    ${gap<0.05?'✅ 接近 OK':gap<0.2?'⚠️ 中度衝突':'🚨 高度衝突'}`;
+  if(brChart) brChart.destroy();
+  const ctx = document.getElementById('brChart').getContext('2d');
+  brChart = new Chart(ctx,{
+    type:'radar',
+    data:{labels:['Calibration violation','Equalized Odds violation','Predictive Parity violation'],
+      datasets:[{label:'Current base-rate gap',data:[cal,eo,pp],
+        borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.25)',pointRadius:6},
+        {label:'Perfect parity (impossible)',data:[0,0,0],
+        borderColor:'#059669',backgroundColor:'rgba(5,150,105,.1)',borderDash:[6,4]}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{r:{min:0,max:0.5,ticks:{stepSize:0.1}}}}
+  });
+}
+document.getElementById('brSlider').addEventListener('input',renderBR);
+renderBR();
+</script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch03-ml-dl-foundations.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch03 ML/DL 基礎</span></a>
+<a href="ch05-genomic-sequence-ai.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch05 基因體序列 AI</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch04</footer>
 <script src="i18n.js"></script>
 </body></html>

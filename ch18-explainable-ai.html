@@ -20,7 +20,24 @@
 <main class="content-wrap">
 
 <section class="section">
-<div class="section-label" data-zh="為什麼解釋" data-en="WHY EXPLAIN">為什麼解釋</h2>
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh"><p>從<strong>第一次聽到 SHAP</strong>的學生到<strong>已用過 Grad-CAM</strong>的工程師：</p>
+<ul><li>分辨 SHAP / LIME / IG / Grad-CAM / Concept Bottleneck / Counterfactual 六大方法</li>
+<li>讀懂「attention ≠ explanation」的爭論</li>
+<li>知道何時用 deletion test、sanity check 量化解釋忠實度</li>
+<li>避開「視覺化 attribution map 就代表解釋」「attention 一定可信」迷思</li></ul></div>
+<div data-lang="en"><p>From <strong>SHAP newcomers</strong> to <strong>Grad-CAM users</strong>:</p>
+<ul><li>Differentiate SHAP / LIME / IG / Grad-CAM / Concept Bottleneck / Counterfactual</li>
+<li>Understand the "attention ≠ explanation" debate</li>
+<li>Know when to use deletion test, sanity check to quantify faithfulness</li>
+<li>Steer clear of "visualizing attribution = explanation" and "attention is trustworthy" myths</li></ul></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="為什麼解釋" data-en="WHY EXPLAIN">為什麼解釋</div>
 <h2 data-zh="可解釋性的三個目的" data-en="Three purposes of explainability">三個目的</h2>
 <div data-lang="zh">
 <p>(1) <strong>除錯</strong>：模型是不是學到「scanner ID」而非疾病？(2) <strong>建立信任</strong>：醫師能否認可 AI 的輸出？(3) <strong>科學發現</strong>：高重要度特徵是不是新的生物標誌？這三者要求的解釋程度與方法不同。<em>不要把所有解釋當「解釋」</em>。</p>
@@ -101,6 +118,99 @@ shap_long &lt;- <span class="func">shap.prep</span>(xgb_model=xgb_mod, X_train=<
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+解釋不是「看圖說故事」，是「<em>能通過 deletion test、sanity check、與專家共識三重驗證</em>」的科學主張。
+<span class="src">— Adebayo et al. 2018 NeurIPS Sanity Checks for Saliency Maps</span>
+</div>
+<div class="pull-quote" data-lang="en">
+An explanation isn't "looking at a heatmap and telling a story" — it's a scientific claim that <em>passes deletion test + sanity check + expert consensus</em>.
+<span class="src">— Adebayo et al. 2018 NeurIPS Sanity Checks for Saliency Maps</span>
+</div>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2018 · Caruana 「Pneumonia 反事實」</span>
+<h3 data-zh="一個關於「氣喘 → 肺炎風險低」的可解釋 AI 警世故事" data-en="The cautionary tale of "asthma → low pneumonia risk"">「氣喘 → 肺炎風險低」的警世故事</h3>
+<div data-lang="zh">
+<p>1990 年代，Caruana 等人訓練了一個神經網路預測肺炎患者死亡風險，整體 AUC 高。後來他們訓練一個<strong>可解釋的廣義加性模型 (GA²M)</strong> 在同樣資料上做相同任務——發現一個荒謬的學習：「<strong>有氣喘病史 → 肺炎死亡風險較低</strong>」。</p>
+<p>真相：氣喘患者一進 ER 就被優先送 ICU 並打強效抗生素，他們<em>實際死亡率較低是治療的結果</em>。神經網路把「我們會優先救治氣喘患者」誤學成「氣喘是肺炎的 protective factor」——若把這個模型導入決策，反而會<strong>不去優先救治氣喘患者</strong>，導致災難。</p>
+<p>Caruana 2015 KDD 論文後，這個案例成為「為何 deep learning 必須有 explainability」的經典教材。<strong>啟示：</strong>不可解釋的高 AUC 模型 + 沒做反事實分析 = 隱形災難。當前 EU AI Act 把高風險 AI 的可解釋性列為強制條款，這個故事是直接驅動之一。</p>
+</div>
+<div data-lang="en">
+<p>In the 1990s, Caruana et al. trained a neural network on pneumonia patient mortality with high AUC overall. They later trained an <strong>interpretable Generalized Additive Model (GA²M)</strong> on the same data — and found an absurd pattern: "<strong>history of asthma → LOWER pneumonia mortality risk</strong>".</p>
+<p>The truth: asthma patients arriving at the ER are prioritized for ICU and strong antibiotics — their <em>lower mortality is a treatment effect</em>. The neural network learned "we prioritize asthma patients" as "asthma is protective for pneumonia". Deploying this model would <strong>deprioritize asthma patients</strong> — disastrous.</p>
+<p>Caruana 2015 KDD paper made this the classic teaching case for "why deep learning needs explainability". <strong>Lesson:</strong> uninterpretable high-AUC model + no counterfactual analysis = invisible catastrophe. EU AI Act mandates explainability for high-risk AI; this story directly drove that requirement.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：高 AUC ≠ 高臨床效益；不解釋的模型可能學到「治療效應」當「疾病風險」，反向決策會傷害病人。</div>
+<div class="punchline" data-lang="en">Lesson: high AUC ≠ high clinical benefit; uninterpreted models may learn "treatment effects" as "disease risk", and reversing decisions harms patients.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>SHAP<span class="gloss-en">Shapley Additive exPlanations</span></dt><dd data-lang="zh">Lundberg Lee 2017；基於 Shapley value 的 fair attribution；TreeSHAP 對樹模型超快。</dd><dd data-lang="en">Lundberg Lee 2017; Shapley-value-based fair attribution; TreeSHAP is very fast for tree models.</dd></div>
+<div class="glossary-item"><dt>LIME<span class="gloss-en">Local Interpretable Model-Agnostic</span></dt><dd data-lang="zh">Ribeiro 2016；對單一樣本擾動，擬合局部線性模型。</dd><dd data-lang="en">Ribeiro 2016; perturb a single instance, fit a local linear model.</dd></div>
+<div class="glossary-item"><dt>Integrated Gradients<span class="gloss-en">積分梯度</span></dt><dd data-lang="zh">Sundararajan 2017；從 baseline 到 input 路徑積分；滿足 completeness。</dd><dd data-lang="en">Sundararajan 2017; integrate gradients from baseline to input; satisfies completeness.</dd></div>
+<div class="glossary-item"><dt>Grad-CAM<span class="gloss-en">梯度權重類激活圖</span></dt><dd data-lang="zh">Selvaraju 2017；用最後一層 conv 的梯度產生 heatmap；醫療影像標配。</dd><dd data-lang="en">Selvaraju 2017; use last-conv-layer gradients to make a heatmap; medical-imaging staple.</dd></div>
+<div class="glossary-item"><dt>Counterfactual<span class="gloss-en">反事實解釋</span></dt><dd data-lang="zh">「若改變 X 預測會怎變」；DiCE、Wachter 2017 等。Actionable 性最強。</dd><dd data-lang="en">"What if X changes — how does the prediction change?" DiCE, Wachter 2017. Most actionable.</dd></div>
+<div class="glossary-item"><dt>Concept Bottleneck Model<span class="gloss-en">概念瓶頸模型</span></dt><dd data-lang="zh">Koh 2020；強迫模型先預測人類可讀的「概念」，再從概念預測標籤。臨床友善。</dd><dd data-lang="en">Koh 2020; force the model to predict human-readable "concepts" first, then labels. Clinician-friendly.</dd></div>
+<div class="glossary-item"><dt>Faithfulness<span class="gloss-en">忠實度</span></dt><dd data-lang="zh">解釋是否真正反映模型內部決策；用 deletion / insertion test 測。</dd><dd data-lang="en">Whether an explanation truly reflects the model's internal decision; measured by deletion/insertion tests.</dd></div>
+<div class="glossary-item"><dt>Deletion Test<span class="gloss-en">刪除測試</span></dt><dd data-lang="zh">依 attribution 高到低逐步刪除特徵，看 prediction 下降速度；越快越忠實。</dd><dd data-lang="en">Iteratively delete features by attribution rank, observe prediction drop rate; faster drop = more faithful.</dd></div>
+<div class="glossary-item"><dt>Sanity Check<span class="gloss-en">完整性檢查</span></dt><dd data-lang="zh">Adebayo 2018；隨機化模型權重後 attribution 是否變化；不變 = 解釋有問題。</dd><dd data-lang="en">Adebayo 2018; do attributions change when model weights are randomized? No change = explanation is broken.</dd></div>
+<div class="glossary-item"><dt>Attention ≠ Explanation<span class="gloss-en">注意力不等於解釋</span></dt><dd data-lang="zh">Jain Wallace 2019；高 attention 不一定對應重要特徵；需 IG / probing 補強。</dd><dd data-lang="en">Jain Wallace 2019; high attention doesn't always mean important features; needs IG / probing.</dd></div>
+<div class="glossary-item"><dt>Saliency Map<span class="gloss-en">顯著性圖</span></dt><dd data-lang="zh">早期 gradient × input 方法；簡單但對 noise 敏感。</dd><dd data-lang="en">Early gradient × input method; simple but noise-sensitive.</dd></div>
+<div class="glossary-item"><dt>Prototypes<span class="gloss-en">原型解釋</span></dt><dd data-lang="zh">ProtoPNet 2019；每個 class 學一個「典型例子」，預測時比對。</dd><dd data-lang="en">ProtoPNet 2019; each class learns a "typical example"; prediction compares to it.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. 解釋對臨床醫師真的有幫助嗎？</b>Bansal 2021 顯示：對「常見任務 + 高表現 AI」，解釋反而<strong>降低醫師信任校準</strong>（醫師過度信任解釋）。對「罕見任務 + AI 不確定」解釋才真有效。<span class="think">參考：Lai et al. 2023 ACM FAccT對醫師-AI 協作的元評估。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Do explanations really help clinicians?</b>Bansal 2021: for "common tasks + high-performing AI", explanations <strong>worsen trust calibration</strong> (over-trust). Explanations help only for "rare tasks + AI uncertainty".<span class="think">Reference: Lai et al. 2023 ACM FAccT meta-eval of clinician-AI collaboration.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. EU AI Act 強制可解釋性會如何改變產業？</b>2026-08 起高風險 AI 須提供「meaningful information about logic」。預期：(1) Concept Bottleneck Model 興起；(2) post-hoc SHAP / Grad-CAM 不夠，需要 inherently interpretable architecture；(3) audit 標準化。<span class="think">行動：學界投入「inherently interpretable foundation models」研究。</span></div>
+<div class="dq" data-lang="en"><b>Q2. How will EU AI Act's interpretability mandate change industry?</b>From 2026-08 high-risk AI must provide "meaningful information about logic". Expect: (1) Concept Bottleneck Models rise; (2) post-hoc SHAP/Grad-CAM insufficient — need inherently interpretable architectures; (3) standardized audits.<span class="think">Action: academia invests in "inherently interpretable foundation models".</span></div>
+<div class="dq" data-lang="zh"><b>Q3. SHAP 在大型 LLM 上還行得通嗎？</b>計算 SHAP 對 billion-parameter LLM 太貴；常用 attention rollout、Integrated Gradients、或 logit lens 替代。但這些方法的忠實度仍存疑。<span class="think">前沿：Anthropic 2024 mechanistic interpretability for LLM internals。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Does SHAP work on huge LLMs?</b>Computing SHAP for billion-parameter LLMs is too costly; alternatives: attention rollout, Integrated Gradients, logit lens. But their faithfulness remains contested.<span class="think">Frontier: Anthropic 2024 mechanistic interpretability for LLM internals.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. 反事實解釋實務上多有用？</b>對「actionable」決策（如「LDL 降到 100 預測會改變嗎」）極有用；對「不可改變」變數（性別、年齡）無意義。DiCE、Alibi 等工具已在金融、醫療部分情境落地。<span class="think">挑戰：生成「真實可行」的反事實仍困難。</span></div>
+<div class="dq" data-lang="en"><b>Q4. How useful are counterfactual explanations in practice?</b>Hugely useful for "actionable" decisions (e.g., "if LDL drops to 100, will the prediction change?"); meaningless for immutable variables (sex, age). DiCE, Alibi deployed in finance and some medical settings.<span class="think">Challenge: generating "realistic, feasible" counterfactuals remains hard.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="該選哪個 XAI 起步？" data-en="Which XAI to start?">XAI 起步？</span></button><div class="accordion-body"><span data-lang="zh">三條建議：(1) <strong>Tabular / XGBoost / RF</strong>—TreeSHAP（pip install shap，超快）；(2) <strong>影像 CNN</strong>—Grad-CAM（pytorch-grad-cam）；(3) <strong>NLP / Transformer</strong>—Integrated Gradients (Captum)。永遠搭 deletion test 量化忠實度。</span><span data-lang="en">Three picks: (1) <strong>Tabular / XGBoost / RF</strong> — TreeSHAP (pip install shap, very fast); (2) <strong>image CNN</strong> — Grad-CAM (pytorch-grad-cam); (3) <strong>NLP / Transformer</strong> — Integrated Gradients (Captum). Always pair with deletion test for faithfulness.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="Faithfulness 測試怎麼做？" data-en="How to do faithfulness tests?">忠實度測試？</span></button><div class="accordion-body"><span data-lang="zh">三標準：(1) <strong>Deletion test</strong>—依 attribution 高到低逐步遮蔽，畫 AUC drop curve；(2) <strong>Insertion test</strong>—從空白逐步加 attribution 高區，畫 AUC rise curve；(3) <strong>Sanity check</strong>—隨機化 model weights 後 attribution 應該變。三者皆過才能信。</span><span data-lang="en">Three standards: (1) <strong>Deletion test</strong> — mask top-attribution features stepwise, plot AUC drop; (2) <strong>Insertion test</strong> — from blank, add top-attribution stepwise, plot AUC rise; (3) <strong>Sanity check</strong> — randomize model weights, attribution should change. Trust only after all three pass.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="Grad-CAM 失效情境？" data-en="When does Grad-CAM fail?">Grad-CAM 失效？</span></button><div class="accordion-body"><span data-lang="zh">(1) <strong>淺層 CNN</strong>—最後 conv 太小，heatmap 不夠精細；(2) <strong>Transformer 影像模型</strong>（ViT）—沒 conv，需 Grad-CAM++ 或 attention rollout；(3) <strong>非分類任務</strong>—Grad-CAM 主要設計給 classification。對 segmentation 用 Score-CAM 或 LRP。</span><span data-lang="en">(1) <strong>shallow CNN</strong> — last conv too small for fine heatmaps; (2) <strong>Transformer image models</strong> (ViT) — no conv, need Grad-CAM++ or attention rollout; (3) <strong>non-classification tasks</strong> — Grad-CAM is built for classification. For segmentation use Score-CAM or LRP.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="送 FDA 時 XAI 該怎麼報？" data-en="Reporting XAI to FDA?">FDA XAI 報告？</span></button><div class="accordion-body"><span data-lang="zh">FDA 2024 PCCP 終版要求「meaningful explanation of model outputs」。建議報告：(1) 主要 XAI 方法（SHAP / Grad-CAM）；(2) Faithfulness 量化（deletion + sanity check）；(3) 子族解釋差異審計；(4) 用戶介面如何呈現解釋。EU AI Act 對 high-risk 要求更嚴。</span><span data-lang="en">FDA 2024 PCCP final requires "meaningful explanation of model outputs". Report: (1) primary XAI method (SHAP / Grad-CAM); (2) faithfulness quantification (deletion + sanity check); (3) subgroup explanation audit; (4) UI showing explanations. EU AI Act high-risk is stricter.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="醫師會接受 SHAP heatmap 嗎？" data-en="Will clinicians accept SHAP heatmaps?">醫師會用 SHAP？</span></button><div class="accordion-body"><span data-lang="zh">研究顯示：(1) <strong>Concept Bottleneck</strong> 醫師接受度最高（直接看到「腫瘤大小 = 5cm → 高風險」）；(2) <strong>SHAP waterfall</strong> 適合中階醫師；(3) <strong>Grad-CAM 影像 overlay</strong> 適合放射科。臨床部署常結合 2-3 種視覺化讓醫師自選。</span><span data-lang="en">Studies show: (1) <strong>Concept Bottleneck</strong> has highest clinician acceptance (sees "tumor size = 5cm → high risk" directly); (2) <strong>SHAP waterfall</strong> suits mid-level clinicians; (3) <strong>Grad-CAM image overlay</strong> for radiology. Clinical deployments often combine 2-3 visualizations.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>解釋有三個目的</strong>：除錯、建立信任、科學發現——不要把所有解釋當「解釋」。</li>
+<li><strong>SHAP / Grad-CAM / IG / Counterfactual / Concept Bottleneck</strong> 五大方法各有適用情境。</li>
+<li><strong>Attention ≠ Explanation</strong>（Jain Wallace 2019）—單靠 attention 不夠。</li>
+<li><strong>Faithfulness 必須測</strong>：deletion + sanity check 是最低標準。</li>
+<li><strong>Caruana 氣喘故事</strong>提醒：不解釋的高 AUC 模型可能學到災難性的因果反向。</li>
+<li><strong>EU AI Act 2026-08 強制可解釋性</strong>—臨床部署必修。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>Three purposes</strong>: debugging, trust-building, scientific discovery — don't treat every "explanation" as "the explanation".</li>
+<li><strong>SHAP / Grad-CAM / IG / Counterfactual / Concept Bottleneck</strong> — five methods with distinct use cases.</li>
+<li><strong>Attention ≠ Explanation</strong> (Jain Wallace 2019) — attention alone is insufficient.</li>
+<li><strong>Faithfulness must be tested</strong>: deletion + sanity check is the minimum bar.</li>
+<li><strong>Caruana's asthma story</strong>: uninterpretable high-AUC models may learn catastrophic causal reversals.</li>
+<li><strong>EU AI Act 2026-08 mandates interpretability</strong> — required for clinical deployment.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -147,5 +257,19 @@ shap_long &lt;- <span class="func">shap.prep</span>(xgb_model=xgb_mod, X_train=<
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 18</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch17-evaluation-calibration.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch17 模型評估與校準</span></a>
+<a href="ch19-mlops-privacy.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch19 MLOps、隱私與聯邦</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch18</footer>
 <script src="i18n.js"></script>
 </body></html>

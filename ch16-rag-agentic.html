@@ -20,6 +20,23 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh"><p>不管你是<strong>想用 LLM 卻怕幻覺</strong>的臨床研究者、<strong>剛聽到 MCP</strong>的工程師，或<strong>想做醫療助理產品</strong>的創業者：</p>
+<ul><li>串起 RAG 的 indexing → retrieval → re-rank → generate → verify → iterate 六段管線</li>
+<li>分辨 BM25 / dense / hybrid retrieval 三種方法</li>
+<li>讀懂 MIRAGE (7663 問題) / i-MedRAG / MedAgents benchmark 結果</li>
+<li>避開「RAG 消除幻覺」「context 越多越好」迷思</li></ul></div>
+<div data-lang="en"><p>For <strong>clinicians wanting LLMs but fearing hallucination</strong>, <strong>engineers new to MCP</strong>, or <strong>medical-assistant founders</strong>:</p>
+<ul><li>Chain RAG's 6-step pipeline: indexing → retrieval → re-rank → generate → verify → iterate</li>
+<li>Differentiate BM25 / dense / hybrid retrieval</li>
+<li>Read MIRAGE (7,663 questions) / i-MedRAG / MedAgents benchmarks</li>
+<li>Steer clear of "RAG eliminates hallucination" and "more context is better" myths</li></ul></div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="動機" data-en="MOTIVATION">動機</div>
 <h2 data-zh="LLM 知道的不夠，而且會幻覺" data-en="LLMs don't know enough — and they hallucinate">LLM 知道的不夠，而且會幻覺</h2>
 <div data-lang="zh">
@@ -121,6 +138,101 @@ hits &lt;- db$<span class="func">similarity_search</span>(<span class="str">"HER
 </div></div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+RAG 不是消除幻覺的銀彈——它把幻覺從「<em>編出來</em>」變成「<em>引用錯了或漏了</em>」，這仍需要人工監督。
+<span class="src">— Xiong et al. 2024 ACL MIRAGE paper</span>
+</div>
+<div class="pull-quote" data-lang="en">
+RAG isn't a silver bullet against hallucination — it shifts hallucination from "<em>fabricated</em>" to "<em>misquoted or missed</em>", still needing human oversight.
+<span class="src">— Xiong et al. 2024 ACL MIRAGE paper</span>
+</div>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024 · Stanford OpenEvidence</span>
+<h3 data-zh="OpenEvidence：第一個真正規模化的臨床 RAG" data-en="OpenEvidence: the first truly scaled clinical RAG">OpenEvidence：規模化臨床 RAG</h3>
+<div data-lang="zh">
+<p>OpenEvidence (Stanford spin-off, 2024) 是一個免費臨床決策支援工具——醫師輸入問題（如「78 歲 ER+ HER2- 乳癌患者 NACT 該選哪個 regimen?」），系統 24/7 回應，並附 PubMed 引用。</p>
+<p>內部架構：(1) 索引 PubMed + UpToDate + NCCN guidelines + ClinicalTrials.gov 約 3500 萬筆；(2) Hybrid retrieval（BM25 + dense BGE-M3）；(3) cross-encoder re-rank；(4) GPT-4o 生成答案，要求每個 claim 引用具體 PMID；(5) 後處理 verifier 檢查引用有效性。</p>
+<p>2024 年底成果：(1) 已有 <strong>20 萬+ 醫師</strong>使用；(2) 平均回應時間 12 秒；(3) JAMA 對照研究顯示比 Google Search 提供更<em>精確且引用率高</em>的臨床答案（86% vs 32% 可追溯）。</p>
+<p><strong>但仍有限制：</strong>(1) 對「<em>未在 PubMed 索引</em>」的最新指引（如剛發布的 ASCO 2024）反應慢；(2) 對<strong>跨族裔特異性</strong>問題（亞洲乳癌特殊 HER2 突變模式）回答仍 western-centric；(3) 罕病問題覆蓋率僅 ~60%。</p>
+</div>
+<div data-lang="en">
+<p>OpenEvidence (Stanford spin-off, 2024) is a free clinical decision-support tool — clinicians type questions (e.g., "78 yo ER+ HER2- breast cancer, NACT regimen?"), system answers 24/7 with PubMed citations.</p>
+<p>Architecture: (1) indexes ~35M items across PubMed + UpToDate + NCCN guidelines + ClinicalTrials.gov; (2) hybrid retrieval (BM25 + dense BGE-M3); (3) cross-encoder re-rank; (4) GPT-4o generates answers with PMID citation per claim; (5) verifier post-processing checks citation validity.</p>
+<p>By end-2024: (1) <strong>200K+ clinicians</strong> using it; (2) avg response 12 seconds; (3) JAMA comparison study showed more <em>accurate and citation-rich</em> clinical answers than Google Search (86% vs 32% traceable).</p>
+<p><strong>Limits remain:</strong> (1) slow on guidelines <em>not yet PubMed-indexed</em> (e.g., fresh ASCO 2024 releases); (2) <strong>cross-ancestry specific</strong> questions (Asian breast cancer HER2 mutation patterns) still western-centric; (3) rare-disease coverage only ~60%.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：規模化臨床 RAG 已成現實，但「最新 + 跨族裔 + 罕病」仍是當前邊界。</div>
+<div class="punchline" data-lang="en">Lesson: scaled clinical RAG is reality, but "latest + cross-ancestry + rare disease" remain frontiers.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>RAG<span class="gloss-en">檢索增強生成</span></dt><dd data-lang="zh">Lewis 2020 NeurIPS；先檢索相關文件，再由 LLM 在其上生成答案。</dd><dd data-lang="en">Lewis 2020 NeurIPS; retrieve relevant docs, then LLM generates grounded on them.</dd></div>
+<div class="glossary-item"><dt>BM25<span class="gloss-en">字詞統計檢索</span></dt><dd data-lang="zh">經典 TF-IDF 衍生；對精確關鍵字匹配最有效。Elasticsearch 內建。</dd><dd data-lang="en">Classical TF-IDF derivative; best for exact keyword match. Built into Elasticsearch.</dd></div>
+<div class="glossary-item"><dt>Dense Retrieval<span class="gloss-en">向量檢索</span></dt><dd data-lang="zh">用 embedding model（如 BGE-M3）把 query/document 投影到向量空間，cosine 排序。</dd><dd data-lang="en">Use embedding models (e.g., BGE-M3) to project query/docs into vector space; cosine ranking.</dd></div>
+<div class="glossary-item"><dt>Hybrid Retrieval<span class="gloss-en">混合檢索</span></dt><dd data-lang="zh">BM25 + Dense 加權集成；通常勝過單一方法（OpenEvidence 採此）。</dd><dd data-lang="en">Weighted ensemble of BM25 + dense; usually beats either alone (OpenEvidence uses this).</dd></div>
+<div class="glossary-item"><dt>Cross-encoder Re-ranker<span class="gloss-en">交叉編碼器重排</span></dt><dd data-lang="zh">第二階段精排：把 query + doc concatenate 進 Transformer，更精確但慢。</dd><dd data-lang="en">Second-stage re-rank: concat query + doc into a Transformer; more accurate but slow.</dd></div>
+<div class="glossary-item"><dt>FAISS / Milvus / Qdrant<span class="gloss-en">向量資料庫</span></dt><dd data-lang="zh">支援 billion-scale 向量檢索的開源工具；HNSW、IVF-PQ 索引演算法。</dd><dd data-lang="en">Billion-scale vector retrieval open-source tools; HNSW, IVF-PQ algorithms.</dd></div>
+<div class="glossary-item"><dt>BGE-M3<span class="gloss-en">BAAI 多功能 embedding</span></dt><dd data-lang="zh">BAAI 2024；單一模型支援 dense + sparse + multi-vector + multilingual。</dd><dd data-lang="en">BAAI 2024; single model supports dense + sparse + multi-vector + multilingual.</dd></div>
+<div class="glossary-item"><dt>Lost-in-the-Middle<span class="gloss-en">中段資訊遺失</span></dt><dd data-lang="zh">Liu 2023 發現：LLM 對 prompt 中間段 retrieval 結果記憶較差。</dd><dd data-lang="en">Liu 2023 finding: LLMs forget retrieval results in the middle of prompts.</dd></div>
+<div class="glossary-item"><dt>i-MedRAG<span class="gloss-en">迭代追問</span></dt><dd data-lang="zh">Xiong 2024 PSB；模型自動生成 follow-up question，回到 retrieval 再來一輪。</dd><dd data-lang="en">Xiong 2024 PSB; model auto-generates follow-up questions, loops back to retrieval.</dd></div>
+<div class="glossary-item"><dt>MedAgents<span class="gloss-en">多代理協作</span></dt><dd data-lang="zh">Tang 2024 ACL；多 LLM 扮演心臟科 / 影像科 / 藥師等專家會診。</dd><dd data-lang="en">Tang 2024 ACL; multiple LLMs play cardiology/radiology/pharmacy specialists in consult.</dd></div>
+<div class="glossary-item"><dt>MCP<span class="gloss-en">Model Context Protocol</span></dt><dd data-lang="zh">Anthropic 2024 開源標準；讓 LLM agent 透過統一介面呼叫外部 tool / DB / API。</dd><dd data-lang="en">Anthropic 2024 open standard; lets LLM agents invoke external tools/DBs/APIs uniformly.</dd></div>
+<div class="glossary-item"><dt>MIRAGE<span class="gloss-en">醫療 RAG benchmark</span></dt><dd data-lang="zh">Xiong 2024 ACL；7663 個來自 5 個醫療 QA 資料集的問題。</dd><dd data-lang="en">Xiong 2024 ACL; 7,663 questions from 5 medical QA datasets.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. RAG 能完全消除幻覺嗎？</b>不能。MIRAGE 顯示 i-MedRAG 雖達 69.68%，仍有 30% 錯誤。RAG 把幻覺從「無中生有」變成「引用錯誤」，仍需人工驗證。<span class="think">解法：claim-evidence alignment 自動 verifier，OpenEvidence 採此。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Can RAG fully eliminate hallucination?</b>No. MIRAGE shows i-MedRAG hits 69.68% but 30% still errs. RAG turns "fabrication" into "misquote"; manual verification still needed.<span class="think">Fix: claim-evidence alignment verifiers — OpenEvidence uses this.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 為什麼 hybrid retrieval 通常勝過單一方法？</b>BM25 對「精確關鍵字」強（藥名、ICD code、變異 HGVS）；dense 對「語意相似」強（症狀描述、概念）。臨床問題常兩者皆有，hybrid 取長補短。<span class="think">調 BM25:dense 權重通常 0.3:0.7 起步。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Why does hybrid retrieval usually win?</b>BM25 excels at "exact keyword" (drug names, ICD codes, HGVS variants); dense excels at "semantic similarity" (symptom descriptions, concepts). Clinical questions blend both — hybrid combines strengths.<span class="think">Tune BM25:dense weight; 0.3:0.7 is a good start.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. MCP 會如何改變醫療 AI 部署？</b>2024 Anthropic 推出 MCP 統一 agent-tool 通訊。預期：醫療資訊系統（EMR、PACS、藥典）會逐漸提供 MCP server；agent 透過 MCP 就能整合 retrieval + tool use。<span class="think">瓶頸：醫療資料隱私導致 on-premise MCP server 是主流。</span></div>
+<div class="dq" data-lang="en"><b>Q3. How will MCP change medical AI deployment?</b>Anthropic launched MCP in 2024 to unify agent-tool comms. Expect medical info systems (EMR, PACS, formularies) to expose MCP servers progressively; agents can then integrate retrieval + tool use.<span class="think">Bottleneck: medical privacy mandates on-premise MCP servers.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. 醫療 agent 的自主性邊界在哪？</b>三層光譜：(1) <strong>read-only retrieval</strong>（只查詢）—FDA 不視為醫材；(2) <strong>draft assistant</strong>（草擬報告）—Class II SaMD；(3) <strong>autonomous decision</strong>（自主下處方）—Class III + 嚴格臨床試驗。<span class="think">當前部署多停留在 (1)、(2)，(3) 在 2030 前不太可能。</span></div>
+<div class="dq" data-lang="en"><b>Q4. Where's the autonomy boundary for medical agents?</b>Three-tier spectrum: (1) <strong>read-only retrieval</strong> — FDA doesn't consider it a device; (2) <strong>draft assistant</strong> — Class II SaMD; (3) <strong>autonomous decision</strong> — Class III + strict trials.<span class="think">Most deployments stay at (1) & (2); (3) is unlikely before 2030.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="自建 RAG 起步該怎麼做？" data-en="How to build a RAG starter?">自建起步？</span></button><div class="accordion-body"><span data-lang="zh">五步驟：(1) <strong>選 embedding model</strong>—BGE-M3 或 NV-Embed-v2；(2) <strong>選 vector DB</strong>—Qdrant（單機）或 Milvus（cluster）；(3) <strong>chunk 文件</strong>—500-1000 字 + 50 字 overlap；(4) <strong>選 LLM</strong>—Claude / GPT-4o / 本地 MedGemma；(5) <strong>引用追溯</strong>—把 chunk ID 嵌入 prompt 要求 LLM 引用。範例：<a href="../../notebooks/03_medrag_minimal.py">notebooks/03</a>.</span><span data-lang="en">Five steps: (1) <strong>pick embedding</strong> — BGE-M3 or NV-Embed-v2; (2) <strong>vector DB</strong> — Qdrant (single-node) or Milvus (cluster); (3) <strong>chunk docs</strong> — 500-1000 chars + 50-char overlap; (4) <strong>pick LLM</strong> — Claude / GPT-4o / local MedGemma; (5) <strong>citation tracing</strong> — embed chunk IDs into prompt, require LLM to cite. Example: <a href="../../notebooks/03_medrag_minimal.py">notebooks/03</a>.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="UpToDate / Cochrane 等知識庫怎麼接？" data-en="UpToDate / Cochrane integration?">知識庫接入？</span></button><div class="accordion-body"><span data-lang="zh">三條路：(1) <strong>合法授權</strong>—UpToDate Enterprise API（醫院已有訂閱可申請 API）；(2) <strong>開源替代</strong>—NCCN guidelines、Cochrane Reviews 開放部分；(3) <strong>本地索引 PubMed + PMC</strong>—2024 PubMed 提供 batch download API。台灣 NHRI MAHA 中心有醫療文獻 RAG 開放資源。</span><span data-lang="en">Three paths: (1) <strong>legitimate licensing</strong> — UpToDate Enterprise API (subscribed hospitals can request); (2) <strong>open alternatives</strong> — NCCN guidelines, partial Cochrane Reviews; (3) <strong>local index of PubMed + PMC</strong> — 2024 PubMed offers batch download API. Taiwan NHRI MAHA Center has open medical-literature RAG resources.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣本地 LLM 選哪個？" data-en="Which Taiwan-local LLM?">台灣本地 LLM？</span></button><div class="accordion-body"><span data-lang="zh">2025 選擇：(1) <strong>TAIDE</strong>—NCHC 國科會自主訓練，繁中強；(2) <strong>Taiwan-LLM</strong>—Twinkle 系列、Breeze；(3) <strong>fine-tuned Llama / Gemma</strong>—中研院、台灣 AI Labs 多家提供；(4) <strong>商業 API</strong>—Claude / GPT 在台灣可用，但 PHI 限制需注意。MedGemma 在台灣 fine-tune 可作為 on-premise 起點。</span><span data-lang="en">2025 options: (1) <strong>TAIDE</strong> — NCHC's traditional-Chinese model; (2) <strong>Taiwan-LLM</strong> — Twinkle, Breeze; (3) <strong>fine-tuned Llama / Gemma</strong> — Academia Sinica, Taiwan AI Labs offer; (4) <strong>commercial APIs</strong> — Claude / GPT available, but PHI restrictions apply. MedGemma fine-tuned for Taiwan is a great on-premise starting point.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="醫療 agent 該用 LangGraph 還是自己寫？" data-en="LangGraph or DIY for medical agent?">框架選擇？</span></button><div class="accordion-body"><span data-lang="zh">四選：(1) <strong>LangGraph</strong>—graph-based agent orchestration，工業最強；(2) <strong>OpenAI Assistants v2</strong>—簡單但綁定 OpenAI；(3) <strong>Anthropic MCP</strong>—standard 化 tool calling；(4) <strong>DIY with Pydantic</strong>—小應用最簡。建議從 LangGraph + MCP 起步，能維護又標準化。</span><span data-lang="en">Four picks: (1) <strong>LangGraph</strong> — graph-based agent orchestration, strongest industrial choice; (2) <strong>OpenAI Assistants v2</strong> — simple but vendor-locked; (3) <strong>Anthropic MCP</strong> — standardized tool calling; (4) <strong>DIY with Pydantic</strong> — simplest for small apps. Start with LangGraph + MCP for maintainable, standardized agents.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="醫療 RAG 該怎麼驗證？" data-en="How to validate medical RAG?">如何驗證？</span></button><div class="accordion-body"><span data-lang="zh">三層 benchmark：(1) <strong>MIRAGE</strong>（7663 MedQA 問題）跑準確度；(2) <strong>引用 grounding ratio</strong>—自動檢查每個 claim 是否有 supporting citation；(3) <strong>臨床醫師 blind 評估</strong>—50-100 個本地真實問題請專科醫師打分。OpenEvidence 用此三層；TFDA 也建議類似流程。</span><span data-lang="en">Three benchmarking tiers: (1) <strong>MIRAGE</strong> (7,663 MedQA questions) for accuracy; (2) <strong>citation grounding ratio</strong> — auto-check claim-citation support; (3) <strong>blind clinician review</strong> — 50-100 local real questions scored by specialists. OpenEvidence uses all three; TFDA recommends similar.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>RAG 把 LLM 從「閉卷考」變「開卷考」</strong>，但<em>不等於消除幻覺</em>——仍可能引用錯誤。</li>
+<li><strong>六段管線</strong>：indexing → retrieval (hybrid) → re-rank → generate → verify → iterate (i-MedRAG)。</li>
+<li><strong>MIRAGE benchmark</strong>：MedRAG 把 6 個 LLM 提升 18%；i-MedRAG 達 69.68%。</li>
+<li><strong>MedAgents（多代理）</strong>在複雜推理上勝過 single-LLM CoT。</li>
+<li><strong>Anthropic MCP</strong>是 2024-2026 agent-tool 通訊新標準。</li>
+<li><strong>臨床部署永遠 human-in-the-loop</strong>；引用必須可追溯。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>RAG turns LLMs from closed-book to open-book exams</strong>; doesn't <em>eliminate hallucination</em> — can still misquote.</li>
+<li><strong>Six-stage pipeline</strong>: indexing → retrieval (hybrid) → re-rank → generate → verify → iterate (i-MedRAG).</li>
+<li><strong>MIRAGE benchmark</strong>: MedRAG lifts 6 LLMs by 18%; i-MedRAG hits 69.68%.</li>
+<li><strong>MedAgents (multi-agent)</strong> beat single-LLM CoT on complex reasoning.</li>
+<li><strong>Anthropic MCP</strong> is the 2024-2026 standard for agent-tool comms.</li>
+<li><strong>Clinical deployment always human-in-the-loop</strong>; citations must be traceable.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -167,5 +279,19 @@ hits &lt;- db$<span class="func">similarity_search</span>(<span class="str">"HER
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 16</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch15-multimodal-foundation.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch15 多模態 Foundation</span></a>
+<a href="ch17-evaluation-calibration.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch17 模型評估與校準</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch16</footer>
 <script src="i18n.js"></script>
 </body></html>

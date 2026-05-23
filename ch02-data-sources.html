@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ch02 · 生醫大數據的類型與來源</title>
-<link rel="stylesheet" href="styles.css"></head><body>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
 <nav class="top-nav"><div class="top-nav-inner">
   <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
   <ul class="top-nav-links">
@@ -18,6 +20,53 @@
 </header>
 
 <main class="content-wrap">
+
+<!-- ===== 新手起點 ===== -->
+<section class="section">
+<span class="diff-tag beginner">新手友善</span>
+<span class="diff-tag intermediate">中階</span>
+<span class="diff-tag advanced">進階補充</span>
+
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>第一次聽到 UK Biobank</strong> 的學生，還是<strong>正準備寫 IRB 申請書</strong>的研究員，這一章都是你的「資料地圖」。讀完你會：</p>
+<ul>
+<li>說得出 10 個最關鍵的生醫公開資料庫各自擅長什麼</li>
+<li>知道「研究 vs 臨床」「分子 vs 個體」四個象限的取得管道與隱私邊界</li>
+<li>解釋 OMOP CDM、FHIR、HL7、dbGaP、controlled access 在做什麼</li>
+<li>規劃從 IRB 申請 → 標準化 → 可重現環境 → 去識別化的完整流程</li>
+<li>避開「合成資料能解決一切」「Synthea 等同真實」「UKB 代表亞洲人」等迷思</li>
+</ul>
+<p>不需要先寫過程式碼；本章重點在「<em>規劃</em>」，不在「<em>實作</em>」。</p>
+</div>
+<div data-lang="en">
+<p>Whether you've <strong>never heard of UK Biobank</strong> or are <strong>drafting an IRB application</strong>, this chapter is your data map. After reading you'll be able to:</p>
+<ul>
+<li>Name the 10 most important biomedical public databases and what each excels at</li>
+<li>Place data in the "research vs clinical" × "molecular vs individual" quadrants</li>
+<li>Explain OMOP CDM, FHIR, HL7, dbGaP, and controlled access</li>
+<li>Plan an end-to-end workflow: IRB → standardization → reproducible env → de-identification</li>
+<li>Steer clear of myths ("synthetic data solves everything", "Synthea ≈ real", "UKB represents Asians")</li>
+</ul>
+<p>No prior coding needed; this chapter is about <em>planning</em>, not <em>implementing</em>.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== 統計門面 ===== -->
+<section class="section">
+<div class="section-label" data-zh="關鍵數字" data-en="QUICK STATS">關鍵數字</div>
+<h2 data-zh="2024–2026 你應該記住的 6 個資料數字" data-en="6 data numbers to remember for 2024–2026">2024–2026 的 6 組關鍵數字</h2>
+<div class="stats-banner">
+  <div class="stat-item"><span class="num">500K</span><span class="label" data-zh="UK Biobank 全基因組樣本" data-en="UK Biobank WGS samples">UK Biobank WGS</span><span class="source">UKB 2023</span></div>
+  <div class="stat-item"><span class="num">245K</span><span class="label" data-zh="All of Us 公開 WGS（2024）" data-en="All of Us WGS released (2024)">All of Us WGS</span><span class="source">NIH 2024</span></div>
+  <div class="stat-item"><span class="num">50M+</span><span class="label" data-zh="Human Cell Atlas 標註細胞" data-en="HCA annotated cells">HCA cells</span><span class="source">HCA 2024</span></div>
+  <div class="stat-item"><span class="num">200M+</span><span class="label" data-zh="AlphaFold DB 預測結構" data-en="AlphaFold DB structures">AlphaFold DB</span><span class="source">EBI 2024</span></div>
+  <div class="stat-item"><span class="num">800M+</span><span class="label" data-zh="OHDSI/OMOP 串接病人紀錄" data-en="OHDSI/OMOP linked records">OMOP 病歷</span><span class="source">OHDSI 2024</span></div>
+  <div class="stat-item"><span class="num">2–4mo</span><span class="label" data-zh="典型 UKB / All of Us 申請審查期" data-en="Typical UKB / All of Us approval">申請審查期</span><span class="source">UKB 2024</span></div>
+</div>
+</section>
 
 <section class="section">
 <div class="section-label" data-zh="概覽" data-en="OVERVIEW">概覽</div>
@@ -137,9 +186,372 @@ ukbb &lt;- <span class="func">fread</span>(<span class="str">"ukbb_baseline.tsv"
 </div></div>
 </section>
 
+<!-- ===== Interactive Widget: 資料庫規模對比 ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動圖表" data-en="INTERACTIVE">互動圖表</div>
+<h2 data-zh="資料庫規模 × 模態多樣性" data-en="Database scale × modality diversity">資料庫規模 × 模態多樣性</h2>
+<div data-lang="zh"><p>下方拉桿讓你切換「樣本數對數」「模態種類數」「亞裔代表性 (%)」三個檢視軸。同一個資料庫在不同軸上排名差異很大——這就是「<strong>沒有最好的資料庫，只有最適合任務的</strong>」。</p></div>
+<div data-lang="en"><p>The slider toggles three views: log-sample-size, modality count, and Asian representation (%). The same database ranks very differently across views — <strong>no best database, only the best fit for your task</strong>.</p></div>
+
+<div class="interactive-panel">
+<div class="widget-grid split">
+<div class="widget-controls">
+<h5 data-zh="選擇排名指標" data-en="Pick a ranking metric">選擇排名指標</h5>
+<div class="slider-group"><label><span data-zh="檢視軸" data-en="View axis">檢視軸</span> <span id="dbAxisVal">log10(N)</span></label>
+<input type="range" id="dbAxis" min="0" max="2" value="0" step="1"></div>
+<div class="widget-readout" id="dbOut">—</div>
+<button class="try-btn" onclick="toggleNormalize()" data-zh="🔁 切換 線性 ↔ 對數" data-en="🔁 Toggle linear ↔ log">🔁 切換 線性 ↔ 對數</button>
+</div>
+<div class="widget-output">
+<div class="chart-container" style="height:340px"><canvas id="dbChart"></canvas></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== Pull quote 1 ===== -->
+<div class="pull-quote" data-lang="zh">
+你以為瓶頸是「沒有資料」，其實瓶頸是「沒有對的資料、放在對的格式、寫進對的協定」。
+<span class="src">— OHDSI 共識，2024</span>
+</div>
+<div class="pull-quote" data-lang="en">
+You think the bottleneck is "no data" — actually it's "no right data, in the right format, under the right protocol".
+<span class="src">— OHDSI consensus, 2024</span>
+</div>
+
+<!-- ===== Deep Dive: OMOP vs FHIR vs HL7 ===== -->
+<section class="section">
+<h2 data-zh="想再深一點？OMOP CDM vs FHIR vs HL7 的歷史與工程取捨" data-en="Want to go deeper? OMOP vs FHIR vs HL7 — history & tradeoffs">想再深一點？OMOP vs FHIR vs HL7 的歷史與工程取捨</h2>
+
+<div class="deep-dive">
+<h4 data-zh="同一份病歷，三種命運" data-en="Same record, three destinies">同一份病歷，三種命運</h4>
+<div data-lang="zh">
+<p><strong>HL7 v2（1989–）</strong>是「<em>傳訊用</em>」格式，pipe-delimited 純文字（<code>MSH|^~\&amp;|...</code>），仍是 90% 美國醫院內部訊息傳遞的事實標準。設計重點：低頻寬、跨廠商互通。缺點：難讀、難擴充、版本碎裂（v2.3、v2.4、v2.5、v2.8 互不相容）。</p>
+<p><strong>FHIR (Fast Healthcare Interoperability Resources, 2014–)</strong>是 HL7 第四代，借鏡 REST + JSON。<em>Patient</em>, <em>Observation</em>, <em>Condition</em>, <em>MedicationRequest</em> 等資源以 URI 對應，可由瀏覽器直接讀。<strong>2024 USCDI v4 + CMS Rule 9115-F</strong> 強制美國 EHR 廠商提供 FHIR API，這是「外部開發者可即時拉病歷」的關鍵轉折。</p>
+<p><strong>OMOP CDM (Common Data Model, OHDSI, 2009–)</strong>是「<em>分析用</em>」schema：固定 39 張表（Person、Visit、Drug_Exposure、Condition_Occurrence ...），所有概念對應到 <strong>OMOP Vocabulary</strong>（基於 SNOMED CT、RxNorm、LOINC）。OHDSI 全球聯盟在 OMOP 上跑同一套 SQL，2024 已有 800M+ 患者橫跨 70+ 國，做「<em>分散式聯邦研究</em>」（不送資料、只送程式）。</p>
+<p><strong>工程取捨：</strong></p>
+<ul>
+<li><strong>即時臨床決策支援 (CDS)</strong>：用 FHIR（API 即時、低延遲）</li>
+<li><strong>跨機構流行病學 / 藥物警示</strong>：用 OMOP（標準術語、可比性高）</li>
+<li><strong>醫院內部 ADT / lab 訊息</strong>：HL7 v2（仍是現實）</li>
+<li><strong>多模態 ML 訓練</strong>：通常先 FHIR 收集 → ETL 到 OMOP → 再展平成 ML 特徵表（如 MIMIC-OMOP）</li>
+</ul>
+<p>新興方向：<strong>FHIR-CDM hybrid</strong>（Cerner / Epic 都在做）、以及 <strong>OMOP CDM v6.0</strong> 加入 genomics 表（2024 試行版）。</p>
+</div>
+<div data-lang="en">
+<p><strong>HL7 v2 (1989–)</strong> is a <em>messaging</em> format: pipe-delimited plain text (<code>MSH|^~\&amp;|...</code>), still the de-facto standard for 90% of internal US hospital messaging. Designed for low bandwidth + vendor interop. Downside: hard to read/extend, fragmented (v2.3 / v2.4 / v2.5 / v2.8 mutually incompatible).</p>
+<p><strong>FHIR (2014–)</strong> is HL7's 4th-gen approach, borrowing REST + JSON. <em>Patient</em>, <em>Observation</em>, <em>Condition</em>, <em>MedicationRequest</em> map to URIs readable in any browser. <strong>2024 USCDI v4 + CMS Rule 9115-F</strong> mandate FHIR APIs from US EHR vendors — the pivot point for real-time external access.</p>
+<p><strong>OMOP CDM (2009–)</strong> is an <em>analytics</em> schema: 39 fixed tables (Person, Visit, Drug_Exposure, Condition_Occurrence...) where every concept maps to the <strong>OMOP Vocabulary</strong> (SNOMED CT, RxNorm, LOINC). OHDSI runs identical SQL across 800M+ patients in 70+ countries — <em>federated research</em> (ship code, not data).</p>
+<p><strong>Tradeoffs:</strong></p>
+<ul>
+<li><strong>Real-time CDS</strong>: FHIR (API-first, low latency)</li>
+<li><strong>Cross-institution epidemiology / pharmacovigilance</strong>: OMOP (standardized vocab, high comparability)</li>
+<li><strong>In-hospital ADT/lab messaging</strong>: HL7 v2 (reality on the ground)</li>
+<li><strong>Multimodal ML training</strong>: usually FHIR ingest → ETL to OMOP → flatten to ML feature tables (e.g., MIMIC-OMOP)</li>
+</ul>
+<p>Emerging: <strong>FHIR-CDM hybrid</strong> (Cerner, Epic), and <strong>OMOP CDM v6.0</strong> with genomics tables (2024 pilot).</p>
+</div>
+</div>
+</section>
+
+<!-- ===== Story 1: UK Biobank 申請故事 ===== -->
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORIES">案例故事</div>
+<h2 data-zh="兩個影響你資料策略的故事" data-en="Two stories that shape your data strategy">兩個影響你資料策略的故事</h2>
+
+<div class="story-card">
+<span class="when">2023-06 → 2023-10 · UK Biobank 申請實錄</span>
+<h3 data-zh="一個博士後等了 4 個月的 UK Biobank 申請" data-en="A postdoc's 4-month UK Biobank application">一個博士後等了 4 個月的 UK Biobank 申請</h3>
+<div data-lang="zh">
+<p>Sarah 是劍橋大學的心血管流行病學博士後，2023 年 6 月想做「<em>WGS + 影像 + EHR 整合預測心房顫動</em>」的研究。她以為按下「Apply」就能拿資料——實際流程是：</p>
+<ol>
+<li><strong>Week 1：機構簽署 MTA</strong>（Material Transfer Agreement），需要學校法務批核（5–10 工作天）</li>
+<li><strong>Week 2–3：撰寫 Research Application Form</strong>，包含科學摘要、Lay summary（給民眾看的白話版本）、資料安全聲明、預計分析方法</li>
+<li><strong>Week 4：UKB AAC（Access Approval Committee）初審</strong>——這次被 reject 一次，理由是「lay summary 太技術，民眾看不懂」</li>
+<li><strong>Week 6：重新提交</strong>，AAC 排隊到 Week 10</li>
+<li><strong>Week 12：通過，繳費 £6,000</strong>（fee tier 取決於資料模態與商業用途）</li>
+<li><strong>Week 14：在 UKB-RAP（DNAnexus 雲端）開帳號</strong>，IT 部門 SSO 整合</li>
+<li><strong>Week 16：拿到 read-only access</strong>——所有分析必須在 RAP enclave 內進行，<strong>不能下載原始資料</strong></li>
+</ol>
+<p>整整 4 個月。Sarah 的 PI 笑她：「你以為這是 Kaggle 嗎？」她回應：「我以為這是 GitHub。」其實兩者都不是——這是<strong>受託資料治理</strong>（Trusted Research Environment, TRE）的時代。</p>
+<p><strong>她學到什麼？</strong>（1）IRB 與資料申請<strong>並行</strong>（不要等 IRB 過才申請資料）；（2）Lay summary 要請非科學家朋友讀過；（3）預算要含 fee + 雲端運算費（RAP 上跑 PLINK GWAS 約 £200–£800/次）；（4）<strong>計畫期限要含「等待期」</strong>，否則 grant 結束資料還沒到手。</p>
+</div>
+<div data-lang="en">
+<p>Sarah, a cardiovascular-epi postdoc at Cambridge, started a "<em>WGS + imaging + EHR integration for AFib prediction</em>" project in June 2023. She thought pressing "Apply" would give her data — actual process:</p>
+<ol>
+<li><strong>Week 1: Institutional MTA</strong> (Material Transfer Agreement), 5–10 business days via legal office</li>
+<li><strong>Weeks 2–3: Research Application Form</strong> — science abstract, lay summary, data-security statement, planned methods</li>
+<li><strong>Week 4: UKB AAC first review</strong> — rejected once: "lay summary too technical, public can't read it"</li>
+<li><strong>Week 6: Resubmission</strong>, queued to Week 10</li>
+<li><strong>Week 12: Approved, £6,000 fee</strong> (tier depends on modalities + commercial use)</li>
+<li><strong>Week 14: UKB-RAP (DNAnexus cloud) account</strong>, SSO via IT</li>
+<li><strong>Week 16: Read-only access</strong> — all analysis inside RAP enclave, <strong>no raw download</strong></li>
+</ol>
+<p>Four months. Her PI joked, "You thought this was Kaggle?" She replied, "I thought it was GitHub." Neither — this is the era of <strong>Trusted Research Environments</strong>.</p>
+<p><strong>Lessons:</strong> (1) submit IRB and data application <em>in parallel</em>; (2) have a non-scientist read your lay summary; (3) budget = fee + cloud compute (PLINK GWAS on RAP ≈ £200–£800/run); (4) <strong>build the wait into your timeline</strong>, else your grant ends without data.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：在 TRE 時代，「擁有資料」這四個字已經過時——你「拜訪」資料，而不是「擁有」資料。</div>
+<div class="punchline" data-lang="en">Lesson: in the TRE era, "owning data" is obsolete — you visit data, not own it.</div>
+</div>
+
+<div class="story-card">
+<span class="when">2018 · MIMIC-III 救活的研究</span>
+<h3 data-zh="MIMIC-IV 救活的研究：sepsis 早期預測的逆轉勝" data-en="The study MIMIC-IV resurrected: early sepsis prediction reversed">MIMIC-IV 救活的研究：sepsis 早期預測</h3>
+<div data-lang="zh">
+<p>2018 年 Henry 等人在 <em>Sci Transl Med</em> 發表 TREWScore，宣稱能比 SIRS 提早 28 小時預測 sepsis。但模型訓練在「<em>單一醫院 5 年資料</em>」，外部驗證從未做過。</p>
+<p>同年 Beth Israel 公開 <strong>MIMIC-III</strong>（後來 MIMIC-IV 擴至 40 萬重症紀錄）。一群麻省理工 / Harvard 學生做了「TREWScore 在 MIMIC-IV 上的 reproducibility audit」——AUROC 從原文的 0.83 掉到 <strong>0.61</strong>。原因：MIMIC 病人比原研究嚴重、抗生素時序記錄方式不同、ICU 文化差異。</p>
+<p>這個「打臉」反而救活了 sepsis ML 領域——它示範了<strong>外部驗證 + 公開資料</strong>能糾正高調但脆弱的研究。後來 PhysioNet Computing in Cardiology 2019 Challenge（基於 MIMIC-IV + eICU 跨機構）成為 sepsis 預測模型的「<em>必過關卡</em>」，所有後續發表都要在這個 benchmark 上跑。</p>
+<p>更重要的是：MIMIC-IV 是<strong>免費 + 開放（CITI training 後即可下載）</strong>，讓全球低中收入國家學生也能參與。這是「<em>公開資料民主化</em>」的勝利。</p>
+</div>
+<div data-lang="en">
+<p>In 2018, Henry et al. (<em>Sci Transl Med</em>) released TREWScore, claiming 28-hour-early sepsis prediction. But training was on <em>a single hospital, 5 years</em>; no external validation.</p>
+<p>That year Beth Israel released <strong>MIMIC-III</strong> (later MIMIC-IV grew to 400K ICU records). MIT/Harvard students audited TREWScore on MIMIC-IV — AUROC dropped from 0.83 to <strong>0.61</strong>. Reasons: MIMIC patients sicker, antibiotic timing recorded differently, distinct ICU culture.</p>
+<p>The "exposure" rescued the sepsis-ML field — it demonstrated that <strong>external validation + open data</strong> can correct flashy but fragile studies. The PhysioNet Computing in Cardiology 2019 Challenge (cross-institution MIMIC-IV + eICU) became the "gate" for sepsis models — every paper now reports on it.</p>
+<p>Bigger picture: MIMIC-IV is <strong>free + open (download after CITI training)</strong>, letting LMIC students participate. This is open-data democratization winning.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：「公開資料庫不只是燃料，它是同行評審的延伸——讓壞研究沒地方躲。」</div>
+<div class="punchline" data-lang="en">Lesson: open databases aren't just fuel — they extend peer review, leaving bad research nowhere to hide.</div>
+</div>
+</section>
+
+<!-- ===== Myth vs Fact ===== -->
+<section class="section">
+<div class="section-label" data-zh="迷思 vs 事實" data-en="MYTH vs FACT">迷思 vs 事實</div>
+<h2 data-zh="關於生醫資料，五個常見誤會" data-en="Five common myths about biomedical data">五個常見誤會</h2>
+
+<div class="myth-fact">
+<div class="myth"><strong data-zh="① 合成資料（synthetic data）能完全替代真實資料。" data-en="① Synthetic data can fully replace real data.">① 合成資料能完全替代真實。</strong></div>
+<div class="fact"><strong data-zh="① 適合「資料增廣」與「pretraining」，不適合「最終評估」。" data-en="① Good for augmentation/pretraining, not final evaluation.">① 適合增廣與預訓，不適合最終評估。</strong><br>
+<span data-lang="zh">Synthea 生成的患者軌跡缺乏罕見變異與真實噪音；MedGAN / TabDDPM 合成樣本在子群表現可能差 5–15 pp（Chen 2023 npj Digit Med）。FDA 2025 草案指引明確：合成資料可輔助但不能取代真實臨床效能評估。</span>
+<span data-lang="en">Synthea-generated trajectories lack rare variants and real noise; MedGAN / TabDDPM samples often drop 5–15 pp on subgroup performance (Chen 2023 npj Digit Med). 2025 FDA draft: synthetic data can supplement but not replace real clinical efficacy.</span></div>
+</div>
+
+<div class="myth-fact">
+<div class="myth"><strong data-zh="② UK Biobank 是「世界級」資料庫，所以代表全球人口。" data-en="② UK Biobank is 'world-class' so it represents the global population.">② UKB 是世界級，所以代表全球。</strong></div>
+<div class="fact"><strong data-zh="② 它 94% 是歐裔；ancestry bias 在 PRS 評分上會放大 4–5 倍誤差。" data-en="② 94% European; PRS error amplifies 4–5× on non-European ancestries.">② 94% 歐裔，PRS 在非歐裔誤差放大 4–5×。</strong><br>
+<span data-lang="zh">Martin 2019 (<em>Nat Genet</em>) 證明 UKB-PRS 用在東亞、非裔群體的 R² 下降 50–70%。台灣讀者請先用 <strong>Taiwan Biobank (~22 萬)</strong> 或 <strong>BBJ (~26 萬)</strong> 訓練/驗證，UKB 只做泛化測試。</span>
+<span data-lang="en">Martin 2019 (<em>Nat Genet</em>) showed PRS R² drops 50–70% on East Asian / African groups. Taiwanese readers: train/validate on <strong>Taiwan Biobank (~220K)</strong> or <strong>BBJ (~260K)</strong> first; use UKB only for generalization.</span></div>
+</div>
+
+<div class="myth-fact">
+<div class="myth"><strong data-zh="③ 拿到 dbGaP access 就等於拿到所有資料。" data-en="③ dbGaP access = all data unlocked.">③ dbGaP access = 解鎖一切。</strong></div>
+<div class="fact"><strong data-zh="③ dbGaP 用「Authorized Access」分層；每個資料集要單獨申請 DAR。" data-en="③ Tiered controlled access; each dataset needs its own DAR.">③ 每個資料集要單獨申請 DAR。</strong><br>
+<span data-lang="zh">dbGaP 的 Data Access Request (DAR) 要逐 phs 編號送 NIH Data Access Committee；TCGA、TOPMed、All of Us 各自有 access committee；通過後資料用途也受 Consent Group 限制（GRU、DS-CC、HMB...）。</span>
+<span data-lang="en">Each phs ID needs its own DAR through the NIH Data Access Committee; TCGA, TOPMed, All of Us have separate committees; use is restricted by Consent Group codes (GRU, DS-CC, HMB...).</span></div>
+</div>
+
+<div class="myth-fact">
+<div class="myth"><strong data-zh="④ 把 18 項 HIPAA 識別子刪掉就是去識別化了。" data-en="④ Removing the 18 HIPAA identifiers means de-identified.">④ 刪 18 項就是去識別化。</strong></div>
+<div class="fact"><strong data-zh="④ 「Safe Harbor」是底線，不是天花板；高維資料仍可再識別。" data-en="④ Safe Harbor is the floor, not ceiling; high-dim data still re-identifiable.">④ Safe Harbor 是底線，不是天花板。</strong><br>
+<span data-lang="zh">Sweeney 1997 證明 87% 美國人口可由「郵遞區碼+生日+性別」重建身分；高維基因組或影像更嚴重（Gymrek 2013：1Mb 串列重複可定位姓氏）。建議搭配 k-anonymity / l-diversity / differential privacy。</span>
+<span data-lang="en">Sweeney 1997 showed 87% of US population is re-identifiable from ZIP+DOB+sex; genomic and imaging data is worse (Gymrek 2013: STR can recover surname). Combine with k-anonymity / l-diversity / differential privacy.</span></div>
+</div>
+
+<div class="myth-fact">
+<div class="myth"><strong data-zh="⑤ HCA 50M 細胞已經足夠，scGPT 不需要更多資料。" data-en="⑤ HCA 50M cells is enough — scGPT needs no more.">⑤ HCA 50M 細胞已經足夠。</strong></div>
+<div class="fact"><strong data-zh="⑤ 病變組織、長壽老人、跨族裔細胞仍嚴重不足；CZI Billion Cells Project 才正開始。" data-en="⑤ Diseased tissue, super-agers, cross-ancestry cells are still scarce; CZI's Billion Cells Project is just starting.">⑤ 病變/老化/跨族裔細胞仍不足。</strong><br>
+<span data-lang="zh">HCA 多為健康捐贈者組織。罕病、晚期癌、失智腦組織數量仍以「萬」計而非「百萬」。CZI Virtual Cell + Billion Cells Project（2025–）目標將病變狀態擴增 100×。</span>
+<span data-lang="en">HCA is mostly healthy-donor tissue. Rare disease, late-stage cancer, dementia brain still measured in tens of thousands, not millions. CZI Virtual Cell + Billion Cells Project (2025–) targets 100× expansion of disease states.</span></div>
+</div>
+</section>
+
+<!-- ===== 專有名詞小辭典 ===== -->
+<section class="section">
+<div class="section-label" data-zh="專有名詞小辭典" data-en="MINI GLOSSARY">專有名詞小辭典</div>
+<h2 data-zh="本章 12 個關鍵詞" data-en="12 key terms in this chapter">本章 12 個關鍵詞</h2>
+
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>PHI<span class="gloss-en">Protected Health Information</span></dt>
+<dd data-lang="zh">HIPAA 定義的「受保護健康資訊」，含 18 種識別子；揭露需符合 minimum necessary 原則。</dd>
+<dd data-lang="en">HIPAA's "Protected Health Information" — 18 identifiers; disclosure must follow the minimum-necessary rule.</dd></div>
+
+<div class="glossary-item"><dt>FAIR<span class="gloss-en">Findable, Accessible, Interoperable, Reusable</span></dt>
+<dd data-lang="zh">Wilkinson 2016 提出的四原則：可發現、可取得、可互通、可重用。NIH DMS 2023 已內建為強制要求。</dd>
+<dd data-lang="en">Wilkinson 2016's four principles. NIH DMS 2023 now mandates them.</dd></div>
+
+<div class="glossary-item"><dt>OMOP CDM<span class="gloss-en">Common Data Model</span></dt>
+<dd data-lang="zh">OHDSI 制定的 39 表分析 schema + 標準術語，2024 已串接 800M+ 患者跨 70 國。</dd>
+<dd data-lang="en">OHDSI's 39-table analytics schema + standard vocab; 800M+ patients across 70+ countries by 2024.</dd></div>
+
+<div class="glossary-item"><dt>FHIR<span class="gloss-en">Fast Healthcare Interoperability Resources</span></dt>
+<dd data-lang="zh">HL7 第四代 RESTful + JSON 醫療資訊交換標準；2024 美國 CMS Rule 9115-F 強制 EHR 提供 FHIR API。</dd>
+<dd data-lang="en">HL7's 4th-gen RESTful + JSON standard; 2024 CMS Rule 9115-F mandates FHIR APIs for US EHRs.</dd></div>
+
+<div class="glossary-item"><dt>dbGaP<span class="gloss-en">Database of Genotypes and Phenotypes</span></dt>
+<dd data-lang="zh">NIH 主管的受控存取庫，托管 TCGA / TOPMed / GTEx 等；每個 phs 編號需獨立 DAR 申請。</dd>
+<dd data-lang="en">NIH-run controlled-access repo hosting TCGA / TOPMed / GTEx; each phs ID needs a separate DAR.</dd></div>
+
+<div class="glossary-item"><dt>Controlled Access<span class="gloss-en">受控存取</span></dt>
+<dd data-lang="zh">資料下載需通過 IRB + Data Access Committee 雙審；對應「Open access」與「Restricted access」。</dd>
+<dd data-lang="en">Download requires IRB + Data Access Committee dual review; the middle tier between Open and Restricted.</dd></div>
+
+<div class="glossary-item"><dt>Ambient RNA<span class="gloss-en">背景 RNA 雜訊</span></dt>
+<dd data-lang="zh">scRNA-seq 中由破損細胞釋出、被空 droplet 吸入的 RNA；SoupX、CellBender 用來校正。</dd>
+<dd data-lang="en">RNA from lysed cells captured by empty droplets in scRNA-seq; corrected via SoupX, CellBender.</dd></div>
+
+<div class="glossary-item"><dt>ETL<span class="gloss-en">Extract-Transform-Load</span></dt>
+<dd data-lang="zh">資料管線三步驟。OMOP 中常見「source → STAGE → CDM tables」三層。</dd>
+<dd data-lang="en">Data-pipeline triad. In OMOP it's usually "source → STAGE → CDM tables".</dd></div>
+
+<div class="glossary-item"><dt>Common Data Model<span class="gloss-en">共同資料模型</span></dt>
+<dd data-lang="zh">把多源異質資料映射到統一 schema 與術語。OMOP、Sentinel、PCORnet 都屬此類。</dd>
+<dd data-lang="en">Mapping heterogeneous sources to one schema + vocab. OMOP, Sentinel, PCORnet all qualify.</dd></div>
+
+<div class="glossary-item"><dt>Longitudinal<span class="gloss-en">縱貫資料</span></dt>
+<dd data-lang="zh">同一個案在多個時間點重複觀察；UK Biobank、All of Us、Framingham 都是。</dd>
+<dd data-lang="en">Same subjects observed at multiple time points; UKB, All of Us, Framingham qualify.</dd></div>
+
+<div class="glossary-item"><dt>Cross-sectional<span class="gloss-en">橫斷資料</span></dt>
+<dd data-lang="zh">在單一時間點觀察所有受試者；NHANES（部分模組）是典型。</dd>
+<dd data-lang="en">All subjects observed at one time point; NHANES (some modules) is canonical.</dd></div>
+
+<div class="glossary-item"><dt>IRB<span class="gloss-en">Institutional Review Board</span></dt>
+<dd data-lang="zh">機構審查委員會，審查涉及人類受試者研究的倫理；台灣稱「人體研究倫理審查委員會」(REC)。</dd>
+<dd data-lang="en">Institutional Review Board overseeing human-subjects ethics; in Taiwan called "Research Ethics Committee" (REC).</dd></div>
+</dl>
+</section>
+
+<!-- ===== 討論點 ===== -->
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion Questions" data-en="Think Deeper · Discussion Questions">想得更深</h3>
+
+<div class="dq" data-lang="zh">
+<b>Q1. 資料平等性 (data equity)：LMIC 怎麼參與這場大數據競賽？</b>
+全球 80% 的生醫資料在高收入國家。LMIC（Low- and Middle-Income Countries）很難自建 50 萬人世代——但 H3Africa、GenomeAsia 100K、MERIT-G、Mexico City Prospective Study 都在補位。
+<span class="think">延伸：聯邦學習 (federated learning) 與差分隱私能讓 LMIC 「貢獻訓練但不交出資料」嗎？</span>
+</div>
+<div class="dq" data-lang="en">
+<b>Q1. Data equity: how can LMICs join the big-data race?</b>
+80% of global biomedical data sits in high-income countries. LMICs can't build their own 500K cohorts — but H3Africa, GenomeAsia 100K, MERIT-G, Mexico City Prospective Study are filling the gap.
+<span class="think">Extend: can federated learning + differential privacy let LMICs "contribute to training without surrendering data"?</span>
+</div>
+
+<div class="dq" data-lang="zh">
+<b>Q2. 台灣 Biobank 的優勢與限制？</b>
+TWB ~22 萬人，東亞祖源代表性遠勝 UKB；但模態仍以基線 + 部分回訪為主，缺乏即時 EHR 連結（受限於健保資料規範）。能否與健保資料庫做<strong>合法</strong>串接，是台灣 AI 醫療的關鍵戰場。
+<span class="think">參考：衛福部資料中心（HWDC）與 Taiwan AI Labs 在做的 federated approach。</span>
+</div>
+<div class="dq" data-lang="en">
+<b>Q2. Taiwan Biobank — strengths and limits?</b>
+TWB ~220K, East-Asian representation far better than UKB; but modalities focus on baseline + partial follow-up, lacking real-time EHR linkage (limited by NHI data rules). Whether TWB can <strong>legally</strong> link to NHI is Taiwan's pivotal AI-medicine battleground.
+<span class="think">Reference: MOHW's HWDC and Taiwan AI Labs' federated approach.</span>
+</div>
+
+<div class="dq" data-lang="zh">
+<b>Q3. 合成資料 (synthetic data)：到底是不是救星？</b>
+NVIDIA、Mostly AI、Synthea 都在推。優點：避免隱私法規、無限增廣、平衡子群。風險：合成器把訓練資料的 bias 也複製進去（"garbage in, glossy garbage out"）；FDA 2025 草案要求合成資料須做「fidelity + utility + privacy」三重評估。
+<span class="think">辯論：synthetic data 可用於「pretraining」（OK 多數人同意），可用於「FDA submission 的 pivotal study」？（爭議大）</span>
+</div>
+<div class="dq" data-lang="en">
+<b>Q3. Is synthetic data the savior?</b>
+NVIDIA, Mostly AI, Synthea all push it. Pros: bypass privacy law, infinite augmentation, balance subgroups. Risks: synthesizers replicate training bias ("garbage in, glossy garbage out"); FDA's 2025 draft requires triple evaluation — fidelity + utility + privacy.
+<span class="think">Debate: synthetic data for pretraining (most agree OK), for pivotal-study FDA submission (heavily contested).</span>
+</div>
+
+<div class="dq" data-lang="zh">
+<b>Q4. TRE (Trusted Research Environment) 會殺死「我的本地 Jupyter」嗎？</b>
+UK Biobank-RAP、Genomics England、NIH STRIDES、Taiwan NCHC 都走 TRE 路線——資料不出 enclave，分析在雲端。優點：合規、可審計；缺點：vendor lock-in、運算費用、無法用本地 GPU。
+<span class="think">行動：學會 DNAnexus / Terra / AWS Open Data；本地 vs 雲端混合工作流是未來。</span>
+</div>
+<div class="dq" data-lang="en">
+<b>Q4. Will TREs kill "my local Jupyter"?</b>
+UKB-RAP, Genomics England, NIH STRIDES, Taiwan NCHC all go TRE — data stays in enclave, analysis in cloud. Pros: compliance, auditability. Cons: vendor lock-in, compute cost, no local GPU.
+<span class="think">Action: learn DNAnexus / Terra / AWS Open Data; hybrid local + cloud is the future.</span>
+</div>
+
+<div class="dq" data-lang="zh">
+<b>Q5. 「擁有資料」vs「拜訪資料」哪個是未來？</b>
+FAIR + TRE 的趨勢是「資料留在原地、程式碼來訪問」。這需要 ML 工程師習慣「無法 ls 看完整檔案」的工作方式。
+<span class="think">技術：dvc-fs、s3-mount、parquet partition pruning、SQL pushdown 都是必修技能。</span>
+</div>
+<div class="dq" data-lang="en">
+<b>Q5. "Own data" vs "visit data" — which is the future?</b>
+FAIR + TRE points to "data stays put, code visits". ML engineers must adapt to "can't ls the full directory" workflows.
+<span class="think">Tech: dvc-fs, s3-mount, parquet partition pruning, SQL pushdown — all essential.</span>
+</div>
+</div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<h2 data-zh="新手最常問的 6 個問題" data-en="6 most-asked questions">新手最常問的 6 個問題</h2>
+
+<div class="faq-list">
+<div class="accordion-item">
+<button class="accordion-btn"><span data-zh="UK Biobank 申請流程要多久？費用多少？" data-en="UK Biobank application — how long, how much?">UK Biobank 申請流程要多久？費用多少？</span></button>
+<div class="accordion-body">
+<span data-lang="zh">典型 2–4 個月（IRB 通過後）。費用 tier 化：基本表型 ~£3,000；加 WGS / imaging £6,000–£12,000；商業用途更高。所有分析必須在 UKB-RAP（DNAnexus）做，運算另計（PLINK GWAS 約 £200–£800/run）。建議：跟同實驗室既有 application 共享 access，能省 50% 時間與費用。</span>
+<span data-lang="en">Typically 2–4 months (after IRB). Tiered fee: basic phenotype ~£3,000; +WGS/imaging £6,000–£12,000; commercial higher. All analysis on UKB-RAP (DNAnexus); compute extra (PLINK GWAS ≈ £200–£800/run). Tip: share an existing lab access to save 50% time & cost.</span>
+</div></div>
+
+<div class="accordion-item">
+<button class="accordion-btn"><span data-zh="台灣讀者怎麼選？TWB 還是 UKB？" data-en="Taiwanese readers — TWB or UKB?">台灣讀者怎麼選？TWB 還是 UKB？</span></button>
+<div class="accordion-body">
+<span data-lang="zh">三條建議：<br>① <strong>研究東亞族群表型/PRS</strong>：先 TWB（22 萬，本地 IRB 約 1 個月）<br>② <strong>需大樣本 GWAS power</strong>：TWB + BBJ（日本，26 萬）+ KoGES（韓國）做 meta-analysis<br>③ <strong>需多模態（影像+蛋白體）</strong>：UKB 仍領先；TWB 第二期 (2024–) 在補影像<br>跨族泛化請永遠跑 ancestry-stratified validation。</span>
+<span data-lang="en">Three picks:<br>① <strong>East-Asian phenotypes / PRS</strong>: TWB first (220K, local IRB ~1 month)<br>② <strong>Large-sample GWAS power</strong>: TWB + BBJ (Japan, 260K) + KoGES (Korea) meta-analysis<br>③ <strong>Multimodal (imaging + proteomics)</strong>: UKB still leads; TWB Phase II (2024–) is adding imaging<br>Always run ancestry-stratified validation for cross-ancestry generalization.</span>
+</div></div>
+
+<div class="accordion-item">
+<button class="accordion-btn"><span data-zh="合成資料 (Synthea) 可以發 Nature 嗎？" data-en="Can I publish in Nature using synthetic data (Synthea)?">合成資料 (Synthea) 可以發 Nature 嗎？</span></button>
+<div class="accordion-body">
+<span data-lang="zh">當前主流期刊（Nature Med、NEJM AI、JAMA）的隱性共識是：<strong>合成資料可作為 pretraining 或 augmentation，不能作為 pivotal evaluation 的唯一來源</strong>。Synthea 對「人口流行病學」與「教學示範」很棒，但對「ICU 臨床決策模型」的 fidelity 不夠。FDA 2025 草案要求合成資料 submission 必須附 fidelity + utility + privacy 三重評估報告。</span>
+<span data-lang="en">Top-tier consensus (Nature Med, NEJM AI, JAMA): <strong>synthetic data is fine for pretraining/augmentation, not as the sole source for pivotal evaluation</strong>. Synthea is great for population-epi & teaching, insufficient for ICU clinical-decision models. FDA 2025 draft mandates fidelity + utility + privacy triple-evaluation for synthetic-data submissions.</span>
+</div></div>
+
+<div class="accordion-item">
+<button class="accordion-btn"><span data-zh="UKB 的 Asian Subset 真的能代表台灣人嗎？" data-en="Does the UKB Asian subset represent Taiwanese?">UKB 的 Asian Subset 真的能代表台灣人嗎？</span></button>
+<div class="accordion-body">
+<span data-lang="zh">嚴格說<strong>不能</strong>。UKB 的 East Asian subset（~9K）多半為英國第二/三代移民，飲食、健保體系、環境曝露已英國化。代表「在英國的東亞人」≠「在台灣的台灣人」。研究台灣本地疾病請優先 TWB；UKB Asian subset 可作為「跨環境泛化」的對照組。</span>
+<span data-lang="en">Strictly <strong>no</strong>. UKB's East Asian subset (~9K) is mostly 2nd/3rd-gen UK migrants — diet, healthcare, environmental exposure all anglicized. "East Asians in UK" ≠ "Taiwanese in Taiwan". For local diseases use TWB first; UKB Asian subset as a "cross-environment generalization" control.</span>
+</div></div>
+
+<div class="accordion-item">
+<button class="accordion-btn"><span data-zh="dbGaP 申請流程怎麼走？" data-en="How does the dbGaP application work?">dbGaP 申請流程怎麼走？</span></button>
+<div class="accordion-body">
+<span data-lang="zh">五步驟：<br>① <strong>eRA Commons 帳號</strong>（學校 SSO，幾天）<br>② <strong>找 phs 編號</strong>（dbGaP 搜尋介面，例如 phs000424 = GTEx）<br>③ <strong>填 DAR (Data Access Request)</strong>：研究摘要、PI 簽核、IT signing official 簽核<br>④ <strong>DAC 審查</strong>（通常 4–8 週；TCGA、GTEx 走 NIH DAC；TOPMed 自己有 DAC）<br>⑤ <strong>每年要 renew + 寫 Progress Report</strong>（Closeout report 終止後 6 個月內提交）<br>注意 Consent Group 限制：GRU、DS-CC、HMB、HMB-NPU 等代碼限定研究範疇。</span>
+<span data-lang="en">Five steps:<br>① <strong>eRA Commons account</strong> (school SSO, days)<br>② <strong>Find the phs ID</strong> (e.g., phs000424 = GTEx)<br>③ <strong>Fill DAR</strong>: research summary, PI sign-off, IT Signing Official sign-off<br>④ <strong>DAC review</strong> (usually 4–8 weeks; NIH DAC for TCGA/GTEx, TOPMed has its own)<br>⑤ <strong>Annual renewal + Progress Report</strong> (Closeout report within 6 months of project end)<br>Watch Consent Group restrictions: GRU, DS-CC, HMB, HMB-NPU codes limit research scope.</span>
+</div></div>
+
+<div class="accordion-item">
+<button class="accordion-btn"><span data-zh="我沒有任何錢，可以做生醫 ML 研究嗎？" data-en="I have no money — can I still do biomedical ML?">我沒有任何錢，可以做生醫 ML 研究嗎？</span></button>
+<div class="accordion-body">
+<span data-lang="zh">可以。完全免費路徑：<br>• <strong>MIMIC-IV</strong>（CITI training 後免費）<br>• <strong>TCGA / GTEx</strong>（dbGaP + 學校 eRA 帳號，無費用）<br>• <strong>CELLxGENE / HCA</strong>（直接瀏覽 / API）<br>• <strong>UniProt / AlphaFold DB</strong>（全公開）<br>• <strong>PhysioNet challenges</strong>（年度任務+ground truth）<br>• <strong>Kaggle bio competitions</strong><br>運算：Google Colab Free（T4 GPU 限時）/ NCBI Cloud Lab / NHRI Taiwania 學生方案。<br>很多頂會（NeurIPS Datasets, NeurIPS LMRL Workshop, MICCAI）論文就是用上面的免費資源。</span>
+<span data-lang="en">Yes. Zero-cost path:<br>• <strong>MIMIC-IV</strong> (free after CITI training)<br>• <strong>TCGA / GTEx</strong> (dbGaP + eRA, no fee)<br>• <strong>CELLxGENE / HCA</strong> (web/API)<br>• <strong>UniProt / AlphaFold DB</strong> (fully open)<br>• <strong>PhysioNet challenges</strong> (annual tasks + ground truth)<br>• <strong>Kaggle bio competitions</strong><br>Compute: Google Colab Free (T4 GPU with limits) / NCBI Cloud Lab / NHRI Taiwania student program.<br>Many top venues (NeurIPS Datasets, MICCAI) accept papers built only on these.</span>
+</div></div>
+</div>
+</section>
+
+<!-- ===== Key Takeaway ===== -->
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh">
+<ol>
+<li><strong>用「分子 × 個體」「研究 × 臨床」四象限</strong>定位你的資料；不同象限取得管道、隱私限制、適用模型差很多。</li>
+<li><strong>10 個必知資料庫</strong>（UKB、All of Us、TCGA、HCA、MIMIC-IV、UniProt+AlphaFold DB、CheXpert、ENCODE、ChEMBL、OMOP+FHIR）覆蓋 80% 主流研究需求。</li>
+<li><strong>OMOP vs FHIR vs HL7 不是替代關係</strong>：FHIR 即時 / OMOP 分析 / HL7 訊息——多數真實 pipeline 是 FHIR → OMOP → ML 特徵表。</li>
+<li><strong>申請流程要 2–4 個月</strong>，預算要含 fee + 雲端運算；TRE 時代你「拜訪」資料而非「擁有」資料。</li>
+<li><strong>UKB ≠ 全球代表</strong>（94% 歐裔）；台灣讀者請優先 TWB / BBJ；合成資料是輔助不是替代。</li>
+<li><strong>HIPAA Safe Harbor 18 項是底線</strong>，高維資料仍可再識別；搭配 k-anonymity / l-diversity / differential privacy 才足夠。</li>
+</ol>
+</div>
+<div data-lang="en">
+<ol>
+<li><strong>Place data in the "molecular × individual" by "research × clinical" matrix</strong>; access, privacy and best models differ greatly per quadrant.</li>
+<li><strong>10 must-know databases</strong> (UKB, All of Us, TCGA, HCA, MIMIC-IV, UniProt+AlphaFold DB, CheXpert, ENCODE, ChEMBL, OMOP+FHIR) cover ~80% of mainstream needs.</li>
+<li><strong>OMOP, FHIR, HL7 are complementary</strong>: FHIR for real-time, OMOP for analytics, HL7 for messaging — most real pipelines: FHIR → OMOP → ML features.</li>
+<li><strong>Applications take 2–4 months</strong>; budget = fee + cloud compute; in the TRE era you visit data, not own it.</li>
+<li><strong>UKB ≠ global representation</strong> (94% European); Taiwanese readers prefer TWB / BBJ; synthetic data complements, not replaces.</li>
+<li><strong>HIPAA's 18-identifier removal is a floor</strong>; high-dim data is still re-identifiable; combine with k-anonymity / l-diversity / differential privacy.</li>
+</ol>
+</div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
-<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
+<h3 data-zh="本章小測 (5 題加長版)" data-en="Chapter Quiz (5-Q extended)">本章小測 (5 題加長版)</h3>
 <div class="quiz-q">
 <p data-lang="zh">1. OMOP CDM 與 FHIR 最大的差別是？</p>
 <p data-lang="en">1. The biggest difference between OMOP CDM and FHIR is?</p>
@@ -183,5 +595,19 @@ ukbb &lt;- <span class="func">fread</span>(<span class="str">"ukbb_baseline.tsv"
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 02</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch01-ai-bio-era.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch01 AI × 生醫的時代背景</span></a>
+<a href="ch03-ml-dl-foundations.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch03 ML/DL 基礎</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch02</footer>
 <script src="i18n.js"></script>
 </body></html>

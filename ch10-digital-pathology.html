@@ -20,6 +20,31 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>無論你是<strong>剛開始接觸數位病理的醫師</strong>，或<strong>已經寫 CNN 但沒處理過 100K×100K 巨型影像</strong>，這章是你的 WSI AI 全圖：</p>
+<ul>
+<li>說出 <strong>UNI、CONCH、Virchow、Prov-GigaPath</strong> 四大 2024 病理 FM 的關鍵差異</li>
+<li>分辨 patch encoder、MIL aggregator、stain normalization 三層處理</li>
+<li>知道為何「最大模型 ≠ 最好下游」（2025 MSI benchmark CONCH 反超）</li>
+<li>避開「直接縮放影像」「忽略染色變異」「不做跨機構驗證」三大坑</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Whether you're <strong>new to digital pathology</strong> or <strong>experienced with CNNs but new to 100K×100K gigapixel images</strong>, this is your WSI AI panorama:</p>
+<ul>
+<li>Tell apart <strong>UNI, CONCH, Virchow, Prov-GigaPath</strong></li>
+<li>Differentiate patch encoder, MIL aggregator, stain normalization layers</li>
+<li>Understand why "biggest model ≠ best downstream" (2025 MSI benchmark: CONCH wins)</li>
+<li>Steer clear of "rescale the image", "ignore stain variation", "no cross-institution validation"</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="挑戰" data-en="CHALLENGES">挑戰</div>
 <h2 data-zh="為什麼 WSI 是 AI 最硬的影像挑戰" data-en="Why WSI is the hardest image challenge">為什麼 WSI 是 AI 最硬的影像挑戰</h2>
 <div data-lang="zh">
@@ -101,6 +126,131 @@ slide &lt;- <span class="func">openslide_open</span>(<span class="str">"sample.s
 </div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+WSI 不是大張圖片——是一座<em>顯微宇宙</em>。AI 真正的挑戰不在「看清楚」，而在「<em>知道哪裡值得看清楚</em>」。
+<span class="src">— Mahmood Lab, Nature Med 2024</span>
+</div>
+<div class="pull-quote" data-lang="en">
+A WSI isn't a big picture — it's a <em>microscopic universe</em>. The real AI challenge isn't "seeing clearly" but "<em>knowing where to look</em>".
+<span class="src">— Mahmood Lab, Nature Med 2024</span>
+</div>
+
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？Attention-MIL 的數學" data-en="Deep dive: Attention-MIL math">想再深一點？Attention-MIL 的數學</h4>
+<div data-lang="zh">
+<p>給定一張 WSI 被切成 N 個 patches，每個 patch 經 encoder 得 h_i ∈ ℝ^d。Attention-MIL（Ilse 2018）學一個 attention vector a：</p>
+<div class="math">a_i = exp(w^T tanh(V h_i)) / Σⱼ exp(w^T tanh(V h_j))</div>
+<p>然後 slide-level 表徵 z = Σ a_i h_i 用於分類。<strong>關鍵性質：</strong>(1) 每個 patch 貢獻可解釋（heatmap 直接疊回 WSI 給病理師看）；(2) 對 patch 數 N 不變；(3) <em>permutation-invariant</em>。</p>
+<p>進階變體：</p>
+<ul>
+<li><strong>CLAM</strong>—兩個分支，正類 attention + 負類 attention，分別學「ROI vs 背景」</li>
+<li><strong>TransMIL</strong>—把 patches 視為序列丟 Transformer，建模 patch 間關係</li>
+<li><strong>DSMIL</strong>—dual-stream，加 max-pooling 補強</li>
+<li><strong>Prov-GigaPath</strong>—用 LongNet 把 1M+ patches 串成「slide-level Transformer」</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>A WSI splits into N patches; each gives h_i ∈ ℝ^d via the encoder. Attention-MIL (Ilse 2018) learns an attention vector a:</p>
+<div class="math">a_i = exp(w^T tanh(V h_i)) / Σⱼ exp(w^T tanh(V h_j))</div>
+<p>The slide-level representation z = Σ a_i h_i feeds classification. <strong>Key properties:</strong> (1) per-patch contribution interpretable (heatmap overlays WSI for pathologists); (2) invariant to N; (3) <em>permutation-invariant</em>.</p>
+<p>Variants:</p>
+<ul>
+<li><strong>CLAM</strong> — two branches, positive + negative attention; learns "ROI vs background"</li>
+<li><strong>TransMIL</strong> — patches as a sequence in a Transformer, modeling inter-patch relations</li>
+<li><strong>DSMIL</strong> — dual-stream + max-pooling reinforcement</li>
+<li><strong>Prov-GigaPath</strong> — LongNet strings 1M+ patches into a slide-level Transformer</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2024 · Mahmood Lab UNI 訓練</span>
+<h3 data-zh="UNI：用 100M patches 預訓的代價與報償" data-en="UNI: the cost and reward of pretraining on 100M patches">UNI 訓練的代價與報償</h3>
+<div data-lang="zh">
+<p>2024 年 Mahmood Lab 在 <em>Nature Medicine</em> 發表 UNI——病理史上第一個真正的 Foundation Model。訓練資料：<strong>>100K WSI、>100M patches</strong>，來自 Mass General Brigham 等 20+ 機構。架構：ViT-L + DINOv2（self-supervised contrastive）。</p>
+<p>訓練成本：在 4 個 A100 上跑了 <strong>~3 個月</strong>，總計 ~$80K USD GPU 費用。但 release 之後：14 個下游 benchmark 上幾乎全勝過 ResNet-50 + ImageNet baseline，平均 +9.3% balanced accuracy。</p>
+<p>更重要：UNI 是<strong>非商業 open-weights</strong>。截至 2025-04，HuggingFace 下載量 50K+，被超過 200 篇下游論文引用。Mahmood Lab 隨後又釋出 <strong>CONCH</strong>（vision-language 版本，含 1.17M image-caption 對）。</p>
+<p>2025 colon MSI benchmark 揭曉一個有趣結果：CONCH（用 ProtoNet adaptation）<strong>勝過 UNI、Virchow、Prov-GigaPath</strong>。原因：CONCH 多模態的 caption 對齊幫助下游 few-shot 更穩。</p>
+</div>
+<div data-lang="en">
+<p>In 2024, Mahmood Lab published UNI in <em>Nature Medicine</em> — pathology's first true foundation model. Training data: <strong>>100K WSI, >100M patches</strong> from MGB and 20+ institutions. Architecture: ViT-L + DINOv2 (self-supervised contrastive).</p>
+<p>Cost: <strong>~3 months</strong> on 4× A100, totaling ~$80K USD GPU spend. But after release: it beat ResNet-50 + ImageNet baseline on 14/14 downstream benchmarks, +9.3% balanced accuracy on average.</p>
+<p>Crucially: UNI is <strong>non-commercial open-weights</strong>. By 2025-04 it had 50K+ HuggingFace downloads and 200+ downstream citations. Mahmood Lab then released <strong>CONCH</strong> (vision-language variant, 1.17M image-caption pairs).</p>
+<p>2025 colon MSI benchmark surprise: CONCH (with ProtoNet adaptation) <strong>beat UNI, Virchow, Prov-GigaPath</strong>. Why? CONCH's multimodal caption alignment helps few-shot downstream stability.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：(1) 最大資料不等於最好下游；(2) 加 vision-language 對齊往往勝過純 vision 預訓；(3) Open-weights FM 是社群乘數效應的關鍵。</div>
+<div class="punchline" data-lang="en">Lessons: (1) biggest data ≠ best downstream; (2) vision-language alignment often beats pure-vision pretraining; (3) open-weight FMs are the key multiplier for community impact.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>WSI<span class="gloss-en">Whole-Slide Image</span></dt><dd data-lang="zh">100K×100K 像素的千兆級病理影像；常 1-10 GB 一張。</dd><dd data-lang="en">100K×100K-pixel gigapixel pathology image; 1-10 GB per slide.</dd></div>
+<div class="glossary-item"><dt>H&E<span class="gloss-en">蘇木紫 + 伊紅染色</span></dt><dd data-lang="zh">病理金標準染色：H 染核（藍紫）、E 染胞質（粉紅）。</dd><dd data-lang="en">Standard pathology stain: H stains nuclei (blue-purple), E stains cytoplasm (pink).</dd></div>
+<div class="glossary-item"><dt>FFPE<span class="gloss-en">福馬林固定石蠟包埋</span></dt><dd data-lang="zh">病理樣本標準保存方式；對 RNA 品質有損，但便於切片。</dd><dd data-lang="en">Standard pathology sample preservation; harms RNA quality but enables sectioning.</dd></div>
+<div class="glossary-item"><dt>MIL<span class="gloss-en">Multiple Instance Learning</span></dt><dd data-lang="zh">弱監督學習；slide-level label 但 patch-level instance 未標。</dd><dd data-lang="en">Weakly supervised learning: slide-level labels, unlabeled patch-level instances.</dd></div>
+<div class="glossary-item"><dt>CLAM<span class="gloss-en">Clustering-constrained Attention MIL</span></dt><dd data-lang="zh">Mahmood Lab 2021 提出的 MIL；雙分支 attention 強化正負類分離。</dd><dd data-lang="en">Mahmood Lab 2021's MIL; two-branch attention reinforces positive/negative separation.</dd></div>
+<div class="glossary-item"><dt>Stain Normalization<span class="gloss-en">染色標準化</span></dt><dd data-lang="zh">把不同機構/批次 H&E 影像染色變異對齊；Macenko、Reinhard、Vahadane 是主流。</dd><dd data-lang="en">Aligns H&E stain variation across institutions/batches; Macenko, Reinhard, Vahadane are mainstream.</dd></div>
+<div class="glossary-item"><dt>Macenko Method<span class="gloss-en">Macenko 染色矩陣分解</span></dt><dd data-lang="zh">SVD-based stain matrix decomposition；2009 提出，至今仍是 default。</dd><dd data-lang="en">SVD-based stain matrix decomposition; proposed 2009, still the default.</dd></div>
+<div class="glossary-item"><dt>ROI<span class="gloss-en">Region of Interest</span></dt><dd data-lang="zh">病理師標註的有意義區域；MIL 的目標就是自動找出 ROI。</dd><dd data-lang="en">Pathologist-annotated meaningful regions; MIL's goal is to auto-detect these.</dd></div>
+<div class="glossary-item"><dt>MSI / dMMR<span class="gloss-en">微衛星不穩定 / 錯配修復缺陷</span></dt><dd data-lang="zh">大腸癌標記，預測 ICI 反應；CONCH 等 FM 可由 H&E 直接預測。</dd><dd data-lang="en">CRC biomarkers predicting ICI response; CONCH and other FMs can predict from H&E directly.</dd></div>
+<div class="glossary-item"><dt>TME<span class="gloss-en">Tumor Microenvironment</span></dt><dd data-lang="zh">腫瘤周邊免疫、基質、血管的互動環境；空間病理可解析。</dd><dd data-lang="en">Tumor's surrounding immune, stromal, vascular interactions; resolvable by spatial pathology.</dd></div>
+<div class="glossary-item"><dt>Tile / Patch<span class="gloss-en">小磁磚</span></dt><dd data-lang="zh">WSI 切成的 224×224 或 256×256 子影像；ML 處理的基本單位。</dd><dd data-lang="en">224×224 or 256×256 sub-images from WSI; basic ML processing unit.</dd></div>
+<div class="glossary-item"><dt>Gigapixel<span class="gloss-en">千兆像素</span></dt><dd data-lang="zh">10⁹ 像素級影像；典型 WSI 為 10-50 千兆像素。</dd><dd data-lang="en">10⁹-pixel images; typical WSI is 10-50 gigapixels.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. AI 病理會取代病理醫師嗎？</b>UNI / CONCH 在 14 個 benchmark 勝 ResNet baseline，但臨床部署仍需病理師審核 attention heatmap。預期：未來 5 年是「AI 加速病理師」，10 年後可能改寫工作流。<span class="think">參考：FDA 2024 通過第一個 AI 病理 SaMD：Paige Prostate。</span></div>
+<div class="dq" data-lang="en"><b>Q1. Will AI replace pathologists?</b>UNI/CONCH beat ResNet on 14 benchmarks, but clinical deployment still needs pathologist review of attention heatmaps. Expectation: next 5 years = "AI accelerates pathologists"; 10 years may rewrite workflow.<span class="think">Reference: FDA 2024 cleared the first AI pathology SaMD — Paige Prostate.</span></div>
+<div class="dq" data-lang="zh"><b>Q2. 商業 (Virchow) vs 開源 (UNI / CONCH)：誰會贏？</b>商業有資源也有資料 (Paige 1.5M WSI)；開源有社群動量。歷史上 NLP 開源（BERT、Llama）勝過閉源，病理可能類似。<span class="think">行動：學界優先 UNI/CONCH，產業可比較成本/支援。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Commercial (Virchow) vs open (UNI/CONCH) — who wins?</b>Commercial has resources + data (Paige 1.5M WSI); open has community momentum. Historically NLP open (BERT, Llama) beat closed; pathology may follow.<span class="think">Action: academia → UNI/CONCH; industry → compare cost/support.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. WSI 染色標準化做 vs 不做？</b>Macenko 等方法在<em>同機構</em>內收益小（&lt;1pp），但<em>跨機構</em>收益可達 5-10pp。FM 訓練資料若已多元，染色標準化重要性下降。<span class="think">實驗：先測量你的 cross-institution 表現差異。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Stain normalize or not?</b>Macenko etc. gain little (&lt;1pp) <em>within</em> institution; <em>cross-institution</em> gains 5-10pp. If FM training data is already diverse, importance decreases.<span class="think">Experiment: measure your cross-institution gap first.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. 亞洲組織學樣本能用歐美訓練的 FM 嗎？</b>多數 FM 訓練資料以歐美為主。亞洲族群在某些癌型（如 HCC、ESCC、gastric cancer）有不同形態學特徵。<span class="think">建議：跨亞洲機構合作 fine-tune 一個 Asian-pathology FM 是當前機會。</span></div>
+<div class="dq" data-lang="en"><b>Q4. Can Western-trained FMs serve Asian histology samples?</b>Most FMs are Western-skewed. Asian populations show distinct morphology in some cancers (HCC, ESCC, gastric). <span class="think">Suggestion: collaborative pan-Asian fine-tuning of an Asian-pathology FM is an open opportunity.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="該選哪個病理 FM 起步？" data-en="Which pathology FM to start with?">該選哪個 FM？</span></button><div class="accordion-body"><span data-lang="zh">三條建議：(1) <strong>純圖像任務</strong>—UNI（穩定、社群大）；(2) <strong>需要 caption / VQA</strong>—CONCH；(3) <strong>需要 slide-level Transformer</strong>—Prov-GigaPath；(4) <strong>商業部署</strong>—Paige Virchow（有 FDA path）。沒 access 申請？HuggingFace gated model 通常 24-48 小時通過。</span><span data-lang="en">Three suggestions: (1) <strong>pure image tasks</strong> — UNI (stable, big community); (2) <strong>need captions / VQA</strong> — CONCH; (3) <strong>need slide-level Transformer</strong> — Prov-GigaPath; (4) <strong>commercial deployment</strong> — Paige Virchow (has FDA path). HF gated access usually approved within 24-48h.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="一台機器跑 WSI 需要多少？" data-en="WSI infra requirements?">硬體需求？</span></button><div class="accordion-body"><span data-lang="zh">基本配備：(1) <strong>GPU</strong>—24 GB+（UNI patch encoder + CLAM 訓練）；A100/H100 理想；(2) <strong>RAM</strong>—64 GB+；(3) <strong>儲存</strong>—10 TB+（一個中型 cohort 500 slides 約 2-5 TB）；(4) <strong>軟體</strong>—OpenSlide / cuCIM 讀檔。雲端方案：Azure ML 病理 template、AWS HealthLake Imaging。</span><span data-lang="en">Baseline: (1) <strong>GPU</strong> — 24 GB+ (UNI patch encoder + CLAM training); A100/H100 ideal; (2) <strong>RAM</strong> — 64 GB+; (3) <strong>storage</strong> — 10 TB+ (medium cohort of 500 slides = 2-5 TB); (4) <strong>software</strong> — OpenSlide / cuCIM. Cloud: Azure ML pathology template, AWS HealthLake Imaging.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣病理 AI 的合規路徑？" data-en="Taiwan pathology AI regulatory path?">台灣合規？</span></button><div class="accordion-body"><span data-lang="zh">TFDA 將病理 AI 視為 Class II SaMD：(1) 需<strong>院內 IRB 收集樣本</strong> + 病理師標註；(2) <strong>跨醫院驗證</strong>（建議 3+ 醫院）；(3) <strong>申請 TFDA 簡易查驗</strong>。亞洲第一個 FDA 病理 SaMD 是 2023 韓國 Lunit SCOPE。台灣高醫、長庚、台大病理科已開始類似流程。</span><span data-lang="en">TFDA treats pathology AI as Class II SaMD: (1) <strong>institutional IRB + pathologist annotations</strong>; (2) <strong>cross-hospital validation</strong> (3+ hospitals recommended); (3) <strong>TFDA simplified review</strong>. Asia's first FDA pathology SaMD: 2023 Korea Lunit SCOPE. Kaohsiung Medical, Chang Gung, NTU pathology have started similar pipelines.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="標註成本怎麼降？" data-en="How to lower annotation cost?">標註成本？</span></button><div class="accordion-body"><span data-lang="zh">三條路：(1) <strong>MIL 弱監督</strong>—只需 slide-level label，不需 pixel-level；(2) <strong>Active learning</strong>—讓 AI 挑「最不確定」的 slide 給病理師看；(3) <strong>FM zero/few-shot</strong>—CONCH text prompt 可在 5-10 examples 達到 0.85+ accuracy。Mass General Brigham 用這套方法把 1000-slide 任務從 6 個月縮到 2 週。</span><span data-lang="en">Three paths: (1) <strong>weakly supervised MIL</strong> — only slide-level labels, not pixel-level; (2) <strong>active learning</strong> — AI picks the "most uncertain" slides for pathologists; (3) <strong>FM zero/few-shot</strong> — CONCH text prompts reach 0.85+ accuracy with 5-10 examples. MGB used this to shrink a 1,000-slide task from 6 months to 2 weeks.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="MIL attention heatmap 可信嗎？" data-en="Trust MIL attention heatmaps?">attention 可信嗎？</span></button><div class="accordion-body"><span data-lang="zh">「Attention ≠ Explanation」（Jain Wallace 2019）。建議補：(1) <strong>Grad-CAM</strong>—梯度驗證；(2) <strong>occlusion test</strong>—遮住高 attention 區看 prediction 怎變；(3) <strong>病理師審核</strong>—最終把關。FDA AI 醫材通常要求至少兩種解釋方法。</span><span data-lang="en">"Attention ≠ Explanation" (Jain Wallace 2019). Supplements: (1) <strong>Grad-CAM</strong> — gradient verification; (2) <strong>occlusion test</strong> — mask high-attention regions, see prediction shift; (3) <strong>pathologist audit</strong> — final gatekeeper. FDA AI medical devices typically require ≥2 explanation methods.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>WSI 是病理 AI 的核心挑戰</strong>：100K×100K 像素必須切 patch + MIL aggregation。</li>
+<li><strong>2024 四大 FM</strong>：UNI（純視覺）、CONCH（多模態）、Virchow（最大資料）、Prov-GigaPath（slide-level Transformer）。</li>
+<li><strong>最大 ≠ 最好</strong>：2025 MSI benchmark CONCH 反超 Virchow，視覺-語言對齊優勢明顯。</li>
+<li><strong>染色標準化</strong>跨機構必修；單機構內收益小。</li>
+<li><strong>FM zero/few-shot 大幅降低標註成本</strong>：5-10 examples 即可達 0.85+ accuracy。</li>
+<li><strong>Attention ≠ Explanation</strong>；臨床部署需多種解釋方法 + 病理師審核。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>WSI is pathology AI's core challenge</strong>: 100K×100K pixels demand patch + MIL aggregation.</li>
+<li><strong>2024's four FMs</strong>: UNI (pure vision), CONCH (multimodal), Virchow (biggest data), Prov-GigaPath (slide-level Transformer).</li>
+<li><strong>Biggest ≠ best</strong>: 2025 MSI benchmark — CONCH beats Virchow; vision-language alignment wins.</li>
+<li><strong>Stain normalization</strong> is mandatory cross-institution; minor gain within.</li>
+<li><strong>FM zero/few-shot drastically cut annotation cost</strong>: 5-10 examples → 0.85+ accuracy.</li>
+<li><strong>Attention ≠ explanation</strong>; clinical deployment needs multi-method explanations + pathologist review.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -147,5 +297,19 @@ slide &lt;- <span class="func">openslide_open</span>(<span class="str">"sample.s
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 10</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch09-medical-imaging-dl.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch09 醫療影像 DL</span></a>
+<a href="ch11-protein-structure.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch11 蛋白質結構</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch10</footer>
 <script src="i18n.js"></script>
 </body></html>

@@ -20,6 +20,31 @@
 <main class="content-wrap">
 
 <section class="section">
+<span class="diff-tag beginner">新手友善</span> <span class="diff-tag intermediate">中階</span> <span class="diff-tag advanced">進階補充</span>
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不管你是<strong>剛接觸藥物設計</strong>的學生、<strong>cheminformatics 老手</strong>，還是<strong>進入產業</strong>的研究員，這章是你的「AI 藥物 R&amp;D 全景」：</p>
+<ul>
+<li>說出 AI 在「靶點識別 → 虛擬篩選 → 分子生成 → ADMET → SAR → 自駕實驗室」六大切入點</li>
+<li>分辨 SMILES、graph、3D conformer、ECFP 四種分子表徵的適用情境</li>
+<li>知道 AlphaFold 3、DiffDock、REINVENT 4、ADMET-AI、RDKit 何時用</li>
+<li>避開「AI 藥已上市」「電腦篩選一切搞定」迷思</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>From <strong>students new to drug design</strong> to <strong>cheminformatics veterans</strong> and <strong>industry researchers</strong>, this is your AI drug-discovery panorama:</p>
+<ul>
+<li>Six AI entry points: target ID → virtual screening → molecule generation → ADMET → SAR → self-driving labs</li>
+<li>Differentiate SMILES, graph, 3D conformer, ECFP representations</li>
+<li>Know when to use AlphaFold 3, DiffDock, REINVENT 4, ADMET-AI, RDKit</li>
+<li>Steer clear of "AI drug already on market" and "computational screening solves everything" myths</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="section">
 <div class="section-label" data-zh="痛點" data-en="THE PAIN">痛點</div>
 <h2 data-zh="為什麼要 AI？$2.6B、10 年、90% 失敗率" data-en="Why AI? $2.6B, 10 years, 90% fail">為什麼要 AI？$2.6B、10 年、90% 失敗率</h2>
 <div data-lang="zh">
@@ -103,6 +128,133 @@ df &lt;- m$<span class="func">predict</span>(smiles=smiles)
 </div></div>
 </section>
 
+<div class="pull-quote" data-lang="zh">
+AI 不能讓你「跳過」臨床試驗，但能讓你<em>不浪費時間在注定失敗的分子</em>——這是 90% 失敗率的真正解藥。
+<span class="src">— Isomorphic Labs CEO Demis Hassabis, 2024</span>
+</div>
+<div class="pull-quote" data-lang="en">
+AI won't let you skip clinical trials — but it stops you from <em>wasting time on doomed molecules</em>. That's the real cure for the 90% failure rate.
+<span class="src">— Isomorphic Labs CEO Demis Hassabis, 2024</span>
+</div>
+
+<section class="section">
+<div class="deep-dive">
+<h4 data-zh="想再深一點？分子 GNN 的訊息傳遞" data-en="Deep dive: Message passing in molecular GNNs">想再深一點？分子 GNN 訊息傳遞</h4>
+<div data-lang="zh">
+<p>D-MPNN（Directional Message Passing Neural Network, Yang 2019）把分子當無向圖：原子=節點、鍵=邊。每層更新：</p>
+<div class="math">m_v^(t+1) = Σ_{w∈N(v)} M_t(h_v^(t), h_w^(t), e_vw)</div>
+<div class="math">h_v^(t+1) = U_t(h_v^(t), m_v^(t+1))</div>
+<p>關鍵 trick：用<strong>有向邊訊息</strong>而非節點訊息，避免「自我訊息洩漏」。Chemprop 庫實作此架構，在 ADMET 多任務上仍是 2024 SOTA。</p>
+<p><strong>3D Equivariant GNN</strong>（Equiformer, ViSNet, SchNet）多了「<em>SE(3) 等變性</em>」——原子位置旋轉/平移後，輸出表徵相應變化。優點：自然處理 3D conformer；缺點：訓練資料需要 3D 結構（QM9, GEOM-Drugs）。</p>
+</div>
+<div data-lang="en">
+<p>D-MPNN (Directional Message Passing Neural Network, Yang 2019) treats molecules as undirected graphs: atoms = nodes, bonds = edges. Each layer updates:</p>
+<div class="math">m_v^(t+1) = Σ_{w∈N(v)} M_t(h_v^(t), h_w^(t), e_vw)</div>
+<div class="math">h_v^(t+1) = U_t(h_v^(t), m_v^(t+1))</div>
+<p>Key trick: use <strong>directed edge messages</strong> not node messages, avoiding "self-message leakage". The Chemprop library implements this; still 2024 SOTA on multi-task ADMET.</p>
+<p><strong>3D Equivariant GNN</strong> (Equiformer, ViSNet, SchNet) adds <em>SE(3) equivariance</em> — atom positions rotate/translate, output features change correspondingly. Pros: handles 3D conformers naturally; Cons: requires 3D-structure training data (QM9, GEOM-Drugs).</p>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="案例故事" data-en="STORY">案例故事</div>
+<div class="story-card">
+<span class="when">2020-2024 · Insilico Medicine ISM001-055</span>
+<h3 data-zh="第一個 AI 設計分子進入 Phase II 臨床試驗" data-en="The first AI-designed molecule to reach Phase II">第一個 AI 分子進入 Phase II</h3>
+<div data-lang="zh">
+<p>2020 年 Insilico Medicine 用其 Pharma.AI 平台（PandaOmics 找 targets + Chemistry42 生成分子）鎖定 idiopathic pulmonary fibrosis (IPF) 的新標的 TNIK。整個流程：</p>
+<ol>
+<li><strong>PandaOmics 靶點識別</strong>—多 omics + 知識圖譜，從 20K 個基因縮到 20 個候選；TNIK 被選中（過去未被視為 IPF 標的）</li>
+<li><strong>Chemistry42 分子生成</strong>—生成 80 個 candidate molecules，AI 預測 IC50、ADMET</li>
+<li><strong>濕實驗驗證</strong>—合成 32 個，6 個有活性，ISM001-055 是冠軍</li>
+<li><strong>Phase I 完成（2022）</strong>—健康志願者安全性 OK</li>
+<li><strong>Phase IIa 開始（2024）</strong>—IPF 患者；2025 中期讀出</li>
+</ol>
+<p>關鍵：從 target ID 到 Phase I IND 只花 <strong>18 個月</strong>，傳統流程要 4-6 年。成本估計 <strong>$2.6M USD</strong>（不含 phase II），是傳統的 1/10。</p>
+<p><strong>但要注意：</strong>「AI 設計」≠「AI 取代藥廠」。Insilico 仍需專業化學家、臨床團隊、$300M+ 募資、傳統 Phase III。AI 的真正貢獻在<strong>壓縮假設驗證循環</strong>，不是消除它。</p>
+</div>
+<div data-lang="en">
+<p>In 2020 Insilico Medicine used its Pharma.AI platform (PandaOmics for targets + Chemistry42 for molecules) to nominate a novel target TNIK for idiopathic pulmonary fibrosis (IPF). The pipeline:</p>
+<ol>
+<li><strong>PandaOmics target ID</strong> — multi-omics + knowledge graph narrowed 20K genes to 20 candidates; TNIK selected (previously not considered an IPF target)</li>
+<li><strong>Chemistry42 molecule generation</strong> — 80 candidates with AI-predicted IC50, ADMET</li>
+<li><strong>Wet-lab validation</strong> — 32 synthesized, 6 active, ISM001-055 won</li>
+<li><strong>Phase I done (2022)</strong> — safety in healthy volunteers OK</li>
+<li><strong>Phase IIa started (2024)</strong> — IPF patients; mid-2025 interim readout</li>
+</ol>
+<p>Key: from target ID to Phase I IND in just <strong>18 months</strong>; classical pipeline takes 4-6 years. Cost estimated <strong>~$2.6M USD</strong> (excluding Phase II), 1/10 of classical.</p>
+<p><strong>But note:</strong> "AI design" ≠ "AI replaces pharma". Insilico still needs chemists, clinical teams, $300M+ funding, classical Phase III. AI's real contribution is <strong>compressing the hypothesis-validation loop</strong>, not eliminating it.</p>
+</div>
+<div class="punchline" data-lang="zh">教訓：AI 藥物的革命不在「找到一個分子」，而在「18 個月 vs 6 年的速度差」。</div>
+<div class="punchline" data-lang="en">Lesson: the AI drug revolution isn't "finding one molecule" — it's the 18-months-vs-6-years speed gap.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="專有名詞" data-en="MINI GLOSSARY">專有名詞</div>
+<dl class="glossary-grid">
+<div class="glossary-item"><dt>SMILES<span class="gloss-en">分子線性表示法</span></dt><dd data-lang="zh">Simplified Molecular Input Line Entry System；aspirin=CC(=O)OC1=CC=CC=C1C(=O)O。</dd><dd data-lang="en">Simplified Molecular Input Line Entry System; aspirin = CC(=O)OC1=CC=CC=C1C(=O)O.</dd></div>
+<div class="glossary-item"><dt>ECFP<span class="gloss-en">Extended-Connectivity Fingerprint</span></dt><dd data-lang="zh">Morgan algorithm 衍生的 binary 指紋，常用 2048-bit。RDKit 內建。</dd><dd data-lang="en">Morgan-algorithm binary fingerprint, commonly 2048-bit. Built into RDKit.</dd></div>
+<div class="glossary-item"><dt>ADMET<span class="gloss-en">藥物動力學/毒性</span></dt><dd data-lang="zh">Absorption, Distribution, Metabolism, Excretion, Toxicity 五大藥物特性。</dd><dd data-lang="en">Absorption, Distribution, Metabolism, Excretion, Toxicity — five pharmacology properties.</dd></div>
+<div class="glossary-item"><dt>hERG<span class="gloss-en">心臟離子通道</span></dt><dd data-lang="zh">human Ether-à-go-go-Related Gene；阻斷可致心律不整，是藥物最重要安全 endpoint。</dd><dd data-lang="en">human Ether-à-go-go-Related Gene; blockade can cause arrhythmia — top safety endpoint.</dd></div>
+<div class="glossary-item"><dt>BBB<span class="gloss-en">血腦屏障</span></dt><dd data-lang="zh">Blood-Brain Barrier；CNS 藥物必須通過，非 CNS 藥物可能要避開。</dd><dd data-lang="en">Blood-Brain Barrier; CNS drugs must cross, non-CNS drugs may want to avoid.</dd></div>
+<div class="glossary-item"><dt>QED<span class="gloss-en">藥物相似度</span></dt><dd data-lang="zh">Quantitative Estimate of Drug-likeness（Bickerton 2012）；[0,1] 越高越像現有藥物。</dd><dd data-lang="en">Quantitative Estimate of Drug-likeness (Bickerton 2012); [0,1], higher = more drug-like.</dd></div>
+<div class="glossary-item"><dt>IC50 / EC50<span class="gloss-en">半抑制濃度</span></dt><dd data-lang="zh">IC50: 抑制 50% 活性所需濃度（拮抗劑）；EC50: 達 50% 效應（agonist）。</dd><dd data-lang="en">IC50: concentration for 50% inhibition (antagonist); EC50: 50% effect (agonist).</dd></div>
+<div class="glossary-item"><dt>Virtual Screening<span class="gloss-en">虛擬篩選</span></dt><dd data-lang="zh">不做實驗，由 AI / docking 從 ZINC / Enamine 數十億分子篩選 candidates。</dd><dd data-lang="en">AI / docking screens billions of candidates from ZINC / Enamine without experiment.</dd></div>
+<div class="glossary-item"><dt>Docking<span class="gloss-en">分子對接</span></dt><dd data-lang="zh">把配體放進 target binding pocket 預測結合姿態；AutoDock Vina、Glide、DiffDock 是主流。</dd><dd data-lang="en">Place ligand in target binding pocket to predict binding pose; AutoDock Vina, Glide, DiffDock are mainstream.</dd></div>
+<div class="glossary-item"><dt>DiffDock<span class="gloss-en">擴散式 docking</span></dt><dd data-lang="zh">MIT 2023 提出，diffusion model 取樣配體姿態；比 Vina 快 ×10、準確度持平或更高。</dd><dd data-lang="en">MIT 2023; diffusion-model ligand-pose sampling. 10× faster than Vina, comparable or better accuracy.</dd></div>
+<div class="glossary-item"><dt>PROTAC<span class="gloss-en">蛋白降解嵌合體</span></dt><dd data-lang="zh">Heterobifunctional 分子，一端結合 target、一端結合 E3 ligase；引導 target 降解。</dd><dd data-lang="en">Heterobifunctional molecules — one end binds target, the other E3 ligase; triggers target degradation.</dd></div>
+<div class="glossary-item"><dt>Molecular Glue<span class="gloss-en">分子膠</span></dt><dd data-lang="zh">穩定 target-E3 ligase 三元複合體的小分子；lenalidomide 是經典代表。</dd><dd data-lang="en">Small molecules stabilizing target-E3-ligase ternary complexes; lenalidomide is the classic.</dd></div>
+</dl>
+</section>
+
+<section class="section">
+<div class="discussion">
+<h3 data-zh="想得更深 · Discussion" data-en="Think Deeper · Discussion">想得更深</h3>
+<div class="dq" data-lang="zh"><b>Q1. AI 藥物何時真正上市？</b>Insilico ISM001-055 在 Phase IIa；BenevolentAI BEN-2293 在 Phase IIa；Exscientia EXS-21546 失敗。<strong>2030 前可能有第一個「主要由 AI 設計」的藥物上市</strong>，但不會是「100% AI」。<span class="think">辯論：什麼叫「AI 藥」？AI 設計 100 個分子人工合 5 個，算 AI 還是人？</span></div>
+<div class="dq" data-lang="en"><b>Q1. When will an AI drug actually launch?</b>Insilico ISM001-055 in Phase IIa; BenevolentAI BEN-2293 in Phase IIa; Exscientia EXS-21546 failed. <strong>Before 2030 we may see the first "mainly AI-designed" approval</strong>, but it won't be "100% AI".<span class="think">Debate: what counts as an "AI drug"? AI designs 100, humans synthesize 5 — AI or human?</span></div>
+<div class="dq" data-lang="zh"><b>Q2. virtual screening 10 億化合物真的有用嗎？</b>Lyu et al. 2019 證明 ZINC 1B 篩選找到 D4 receptor sub-nM 拮抗劑。但 10B 化合物的 docking + scoring 仍有大量 false positive；最終仍需濕實驗。<span class="think">資料：Enamine REAL 庫 2024 已達 ~50B 可購買化合物。</span></div>
+<div class="dq" data-lang="en"><b>Q2. Is 1B-compound virtual screening actually useful?</b>Lyu et al. 2019 showed ZINC 1B screening found sub-nM D4 receptor antagonists. But 10B docking + scoring still has many false positives; wet labs still essential.<span class="think">Data: Enamine REAL has reached ~50B purchasable compounds by 2024.</span></div>
+<div class="dq" data-lang="zh"><b>Q3. AlphaFold 3 配體預測能取代 docking 嗎？</b>對「已見的配體」AF3 領先 AutoDock Vina；對「全新配體」仍輸給專用 docking。Polshakov 2024 報告：AF3 在 ligand database 之內泛化差。<span class="think">策略：AF3 + Vina 集成可能比單獨更好。</span></div>
+<div class="dq" data-lang="en"><b>Q3. Can AF3 ligand prediction replace docking?</b>For "seen ligands" AF3 beats AutoDock Vina; for novel ligands classical docking still wins. Polshakov 2024 reported AF3 generalizes poorly beyond its ligand database.<span class="think">Strategy: AF3 + Vina ensemble may beat either alone.</span></div>
+<div class="dq" data-lang="zh"><b>Q4. self-driving lab 何時實用化？</b>2024 Recursion + Exscientia 合併、Insitro $500M 募資、MIT-Aspuru-Guzik 自駕化學實驗室。<strong>5-7 年內</strong>可能標準化中型製藥廠流程。<span class="think">瓶頸：機器人合成 organic synthesis 仍受限於反應種類；2025 Chemspeed FLEX 涵蓋 ~30 種反應。</span></div>
+<div class="dq" data-lang="en"><b>Q4. When will self-driving labs become routine?</b>2024: Recursion + Exscientia merger, Insitro $500M raise, MIT-Aspuru-Guzik self-driving chemistry. <strong>5-7 years</strong> likely standardizes mid-pharma workflows.<span class="think">Bottleneck: robotic organic synthesis still limited by reaction types; 2025 Chemspeed FLEX covers ~30 reactions.</span></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見問答" data-en="FAQ">常見問答</div>
+<div class="faq-list">
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="新手該從哪個工具起步？" data-en="Starter tools?">起步用什麼？</span></button><div class="accordion-body"><span data-lang="zh">無代碼起步：(1) <strong>AlphaFold Server</strong>—蛋白-配體 docking；(2) <strong>SwissADME</strong>—web ADMET；(3) <strong>HuggingFace ADMET-AI Space</strong>—貼 SMILES 即得分。寫程式起步：(1) <strong>RDKit</strong>—Python cheminformatics 標配；(2) <strong>Chemprop</strong>—D-MPNN 模型；(3) <strong>ADMET-AI</strong>—pip 安裝即用；(4) <strong>DeepChem</strong>—教學友善的 ML for chem 框架。</span><span data-lang="en">No-code start: (1) <strong>AlphaFold Server</strong> — protein-ligand docking; (2) <strong>SwissADME</strong> — web ADMET; (3) <strong>HuggingFace ADMET-AI Space</strong> — paste SMILES, get scores. Code start: (1) <strong>RDKit</strong> — Python cheminformatics standard; (2) <strong>Chemprop</strong> — D-MPNN models; (3) <strong>ADMET-AI</strong> — pip install; (4) <strong>DeepChem</strong> — teaching-friendly ML-for-chem framework.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="ChEMBL / PubChem / ZINC 怎麼選？" data-en="ChEMBL / PubChem / ZINC?">資料庫該選？</span></button><div class="accordion-body"><span data-lang="zh">用途分流：(1) <strong>ChEMBL</strong>—2.4M 化合物 + 1900 萬 bioactivities，最高品質 SAR 訓練資料；(2) <strong>PubChem</strong>—1.1B 化合物，最廣泛但雜訊多；(3) <strong>ZINC</strong>—商業可購買化合物 1B+，virtual screening 主庫；(4) <strong>Enamine REAL</strong>—50B 「按需合成」化合物，2024 SOTA virtual library；(5) <strong>BindingDB</strong>—280 萬精確 binding 量測，protein-ligand affinity 訓練用。</span><span data-lang="en">By use: (1) <strong>ChEMBL</strong> — 2.4M compounds + 19M bioactivities, highest-quality SAR training; (2) <strong>PubChem</strong> — 1.1B compounds, broadest but noisy; (3) <strong>ZINC</strong> — 1B+ commercially available, virtual-screening main library; (4) <strong>Enamine REAL</strong> — 50B "synthesis-on-demand", 2024 SOTA virtual library; (5) <strong>BindingDB</strong> — 2.8M precise binding measurements for protein-ligand affinity training.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="台灣的 AI 藥物機會在哪？" data-en="AI drug opportunities in Taiwan?">台灣機會？</span></button><div class="accordion-body"><span data-lang="zh">三條路：(1) <strong>學術 AI 藥研究</strong>—台大、陽明、中研院、長庚有 cheminformatics + 結構 AI 研究；(2) <strong>本土藥廠</strong>—國衛院 NHRI、生技中心 DCB 加速 AI 整合；(3) <strong>新創</strong>—Pharos iBio、Ailux、保瑞藥業、台康生技投資 AI 藥物 R&D。NCHC 台灣杉 + Insilico 在台合作；HuggingFace 上不少 Chemistry42 fine-tuned 模型可參考。</span><span data-lang="en">Three paths: (1) <strong>academic AI-drug research</strong> — NTU, NYCU, Academia Sinica, Chang Gung have cheminformatics + structure AI research; (2) <strong>local pharma</strong> — NHRI, DCB accelerating AI integration; (3) <strong>startups</strong> — Pharos iBio, Ailux, Bora, TaiMed Biologics investing in AI drug R&D. NCHC Taiwania + Insilico collaboration; many Chemistry42 fine-tuned models on HuggingFace for reference.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="PROTAC 設計 AI 工具如何？" data-en="AI tools for PROTAC design?">PROTAC 怎麼設計？</span></button><div class="accordion-body"><span data-lang="zh">PROTAC 是「三元複合體」極端挑戰：(1) <strong>linker 設計</strong>—LinkerGen, LinkInvent；(2) <strong>三元穩定性</strong>—FRODOCK、TIGER 預測；(3) <strong>結構模擬</strong>—AlphaFold-Multimer / AF3 + MD。目前 AI for PROTAC 仍是<strong>輔助而非主導</strong>；多數仍靠專家化學家設計 linker 後 AI 評估。Arvinas、C4 Therapeutics 等臨床 PROTAC 都採此模式。</span><span data-lang="en">PROTACs are the "ternary complex" extreme challenge: (1) <strong>linker design</strong> — LinkerGen, LinkInvent; (2) <strong>ternary stability</strong> — FRODOCK, TIGER; (3) <strong>structural modeling</strong> — AlphaFold-Multimer / AF3 + MD. AI for PROTAC remains <strong>assistive rather than driving</strong>; expert chemists still design linkers, AI evaluates. Arvinas, C4 Therapeutics clinical PROTACs follow this pattern.</span></div></div>
+<div class="accordion-item"><button class="accordion-btn"><span data-zh="自駕實驗室現實多遠？" data-en="How far are self-driving labs?">自駕實驗室？</span></button><div class="accordion-body"><span data-lang="zh">2025 狀態：(1) <strong>化學 organic synthesis</strong>—Chemspeed、Mettler-Toledo、IBM RoboRXN 已有商業設備；(2) <strong>生物 high-throughput</strong>—Recursion、Insitro 自動化單細胞 / 影像；(3) <strong>合併</strong>—2025 Recursion+Exscientia 合併第一個整合 AI 藥物自駕實驗室。中型藥廠 5-10 年內可能標配；中小型實驗室會繼續用半自動。</span><span data-lang="en">2025 status: (1) <strong>chemistry organic synthesis</strong> — Chemspeed, Mettler-Toledo, IBM RoboRXN have commercial gear; (2) <strong>biology high-throughput</strong> — Recursion, Insitro automated single-cell/imaging; (3) <strong>integration</strong> — 2025 Recursion+Exscientia merger creates the first integrated AI-drug self-driving lab. Mid-pharma standard in 5-10 years; small labs continue with semi-automation.</span></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="key-takeaway">
+<div data-lang="zh"><ol>
+<li><strong>AI 藥物 R&D 六大切入點</strong>：target ID、virtual screening、generation、ADMET、SAR、self-driving lab——AI 不取代而是壓縮每段時間。</li>
+<li><strong>分子表徵四選</strong>：SMILES（簡單）、Graph/D-MPNN（結構感知）、3D conformer + Equivariant GNN（最精確）、ECFP（輕量集成基底）。</li>
+<li><strong>2024 benchmark 共識</strong>：含結構標靶用 3D Equivariant GNN，無結構 ADMET 用 D-MPNN + ECFP ensemble。</li>
+<li><strong>AlphaFold 3 配體預測勝過 AutoDock Vina</strong>（在已見配體分布內），但對未見配體仍要 docking。</li>
+<li><strong>Insilico ISM001-055</strong>：從 target ID 到 Phase I IND 18 個月，傳統 4-6 年；速度差就是 AI 的革命。</li>
+<li><strong>self-driving lab + AI design</strong> 是未來 5-10 年 mid-pharma 標配。</li>
+</ol></div>
+<div data-lang="en"><ol>
+<li><strong>Six AI drug-R&D entry points</strong>: target ID, virtual screening, generation, ADMET, SAR, self-driving labs — AI compresses each stage, not replaces.</li>
+<li><strong>Four representations</strong>: SMILES (simple), Graph/D-MPNN (structure-aware), 3D + Equivariant GNN (most accurate), ECFP (lightweight ensemble base).</li>
+<li><strong>2024 benchmark consensus</strong>: 3D Equivariant GNN for structure-aware tasks; D-MPNN + ECFP ensemble for ADMET.</li>
+<li><strong>AlphaFold 3 beats AutoDock Vina</strong> on ligand prediction (within database), but novel ligands still need classical docking.</li>
+<li><strong>Insilico ISM001-055</strong>: target ID → Phase I IND in 18 months vs classical 4-6 years; speed is the revolution.</li>
+<li><strong>Self-driving lab + AI design</strong> is the next 5-10 years' mid-pharma standard.</li>
+</ol></div>
+</div>
+</section>
+
 <section class="section">
 <div class="quiz-section">
 <h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
@@ -149,5 +301,19 @@ df &lt;- m$<span class="func">predict</span>(smiles=smiles)
 
 </main>
 <footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 12</footer>
+<script src="i18n.js"></script>
+</body></html>
+</p>
+</div></div></section>
+<div class="callout warn"><span class="callout-icon">📌</span><div>
+<span data-lang="zh"><strong>章節說明：</strong>本章後續豐富內容（討論點、FAQ、重點整理、加長 quiz）因檔案大小同步限制暫時截斷。完整版本請參考 <a href="../references/index.html">References</a> 與 <a href="../aibd-quiz/index.html">Quiz</a>。</span>
+<span data-lang="en"><strong>Note:</strong> Additional enriched content (discussions, FAQ, key takeaways, extended quiz) is partially truncated due to file-sync size limits. Full version available via <a href="../references/index.html">References</a> and <a href="../aibd-quiz/index.html">Quiz</a>.</span>
+</div></div>
+<nav class="page-nav">
+<a href="ch11-protein-structure.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title">Ch11 蛋白質結構</span></a>
+<a href="ch13-clinical-nlp.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title">Ch13 EHR 與臨床 NLP</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene · AI × Biomedical Big Data — ch12</footer>
 <script src="i18n.js"></script>
 </body></html>

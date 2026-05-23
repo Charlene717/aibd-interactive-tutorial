@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ch13 · EHR 與臨床 NLP</title>
-<link rel="stylesheet" href="styles.css"></head><body>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
 <nav class="top-nav"><div class="top-nav-inner">
   <a href="index.html" class="top-nav-brand"><span>🧠</span> <span data-zh="AI × 生醫大數據" data-en="AI × BioBigData">AI × 生醫大數據</span></a>
   <ul class="top-nav-links">
@@ -19,6 +21,48 @@
 
 <main class="content-wrap">
 
+<!-- ===== 新手起點 ===== -->
+<section class="section">
+<span class="diff-tag beginner">新手友善</span>
+<span class="diff-tag intermediate">中階</span>
+<span class="diff-tag advanced">進階補充</span>
+
+<div class="beginner-box">
+<h4 data-zh="這一章你會學到什麼？" data-en="What you'll learn">這一章你會學到什麼？</h4>
+<div data-lang="zh">
+<p>不論你是<strong>剛接觸 NLP 的醫師</strong>、<strong>想做臨床部署的資料科學家</strong>，還是<strong>想理解 Med-Gemini 為何能拿 91.1% MedQA 的 PI</strong>，這一章是你的入口。讀完你會：</p>
+<ul>
+<li>分得清 BioBERT、ClinicalBERT、GatorTron、Med-PaLM 2、Med-Gemini、MedGemma 的差異與時間軸</li>
+<li>知道 NER、entity linking、negation、temporal、summarization、QA、structured extraction 七個臨床 NLP 任務各自的痛點</li>
+<li>知道 LoRA / QLoRA / full fine-tune / RAG 各自適合什麼情境</li>
+<li>能規劃 PHI 去識別化 + on-premise 部署 + subgroup audit 三大臨床落地檢核點</li>
+</ul>
+<p>不需要會 transformer 數學；想深入 BERT 的雙向 attention 與 GPT 因果 attention，文中有 deep dive。</p>
+</div>
+<div data-lang="en">
+<p>Whether you're a <strong>clinician new to NLP</strong>, a <strong>data scientist planning deployment</strong>, or a <strong>PI trying to understand why Med-Gemini scored 91.1% on MedQA</strong>, this is your entry point. After reading you'll be able to:</p>
+<ul>
+<li>Distinguish BioBERT, ClinicalBERT, GatorTron, Med-PaLM 2, Med-Gemini, MedGemma and place them on a timeline</li>
+<li>Know the pain points of NER, entity linking, negation, temporal, summarization, QA, structured extraction</li>
+<li>Decide when to choose LoRA / QLoRA / full fine-tuning / RAG</li>
+<li>Plan PHI de-identification, on-premise deployment, and subgroup auditing — the three clinical-landing checks</li>
+</ul>
+<p>No transformer math required; a deep-dive on BERT bidirectional vs GPT causal attention is provided.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== Pull-quote ===== -->
+<div class="pull-quote" data-lang="zh">
+臨床 NLP 不是「讓 AI 寫病歷」，而是「讓醫師少寫病歷、多看病人」。
+<span class="src">— Yann LeCun &amp; Eric Topol, 2024 panel</span>
+</div>
+<div class="pull-quote" data-lang="en">
+Clinical NLP is not "AI writes the notes" — it's "clinicians write fewer notes and see more patients."
+<span class="src">— Yann LeCun &amp; Eric Topol, 2024 panel</span>
+</div>
+
+<!-- ===== 任務地景 ===== -->
 <section class="section">
 <div class="section-label" data-zh="任務地景" data-en="TASK LANDSCAPE">任務地景</div>
 <h2 data-zh="臨床 NLP 的六種任務" data-en="Six clinical NLP tasks">臨床 NLP 的六種任務</h2>
@@ -44,115 +88,77 @@
 </div>
 </section>
 
+<!-- ===== 統計門面 ===== -->
+<section class="section">
+<div class="section-label" data-zh="關鍵數字" data-en="QUICK STATS">關鍵數字</div>
+<h2 data-zh="2019–2026 的 6 組臨床 NLP 數字" data-en="Six numbers from 2019–2026">6 組關鍵數字</h2>
+<div class="stats-banner">
+  <div class="stat-item"><span class="num">91.1%</span><span class="label" data-zh="Med-Gemini · MedQA" data-en="Med-Gemini · MedQA">Med-Gemini · MedQA</span><span class="source">Saab 2024</span></div>
+  <div class="stat-item"><span class="num">8.9B</span><span class="label" data-zh="GatorTron 參數" data-en="GatorTron parameters">GatorTron 參數</span><span class="source">npj Digit Med 2022</span></div>
+  <div class="stat-item"><span class="num">82B</span><span class="label" data-zh="GatorTron 訓練詞數" data-en="GatorTron train tokens">GatorTron 訓練詞數</span><span class="source">UF Health</span></div>
+  <div class="stat-item"><span class="num">18pp</span><span class="label" data-zh="MedRAG 提升幅度" data-en="MedRAG lift">MedRAG 提升幅度</span><span class="source">MIRAGE 2024</span></div>
+  <div class="stat-item"><span class="num">0.1%</span><span class="label" data-zh="LoRA 可訓參數比例" data-en="LoRA trainable %">LoRA 可訓參數比例</span><span class="source">Hu 2021</span></div>
+  <div class="stat-item"><span class="num">30%</span><span class="label" data-zh="臨床 LLM 殘餘錯誤" data-en="Clinical LLM residual error">臨床 LLM 殘餘錯誤</span><span class="source">MIMIC-CDM 2024</span></div>
+</div>
+</section>
+
+<!-- ===== Concept Ladder ===== -->
+<section class="section">
+<div class="section-label" data-zh="觀念階梯" data-en="CONCEPT LADDER">觀念階梯</div>
+<h2 data-zh="什麼是「臨床 LLM」？三層難度說給你聽" data-en="What is a 'Clinical LLM'? Three levels">什麼是「臨床 LLM」？三層說明</h2>
+
+<div class="concept-ladder">
+<div class="step s1"><h5 data-zh="🌱 新手版本" data-en="🌱 Beginner">🌱 新手版本</h5>
+<p data-lang="zh">一個讀過很多<em>醫療文本</em>（PubMed、UpToDate、病歷）的 ChatGPT，能用醫療詞彙跟你對話、回答醫學考題、抽病歷重點。但<strong>不能取代醫師做臨床決定</strong>。</p>
+<p data-lang="en">A ChatGPT-like model that has read lots of <em>medical text</em> (PubMed, UpToDate, notes); it can chat in medical vocabulary, answer exam questions, summarize charts — but <strong>cannot replace clinical decisions</strong>.</p>
+</div>
+<div class="step s2"><h5 data-zh="🎓 中階版本" data-en="🎓 Intermediate">🎓 中階版本</h5>
+<p data-lang="zh">在大量無標註醫療文本上 self-supervised 預訓，再經 SFT (supervised fine-tune) + RLHF 對齊醫療任務。代表：BioBERT (2019)、ClinicalBERT (2020)、GatorTron (2022)、Med-PaLM 2 (2023)、Med-Gemini (2024)、MedGemma (2024)。</p>
+<p data-lang="en">Self-supervised pretrain on huge unlabeled medical text, then SFT + RLHF aligns to clinical tasks. Exemplars: BioBERT (2019), ClinicalBERT (2020), GatorTron (2022), Med-PaLM 2 (2023), Med-Gemini (2024), MedGemma (2024).</p>
+</div>
+<div class="step s3"><h5 data-zh="🔬 進階版本" data-en="🔬 Advanced">🔬 進階版本</h5>
+<p data-lang="zh">符合 Bommasani Foundation Model 四特性（scale + self-supervision + generality + emergence），同時：(a) 對 PHI 經過 Safe Harbor / Limited Dataset 處理；(b) 透過 LoRA / QLoRA / Adapter 做 parameter-efficient fine-tune；(c) 連 RAG 與 tool-use；(d) 對 ICD-10、SNOMED、HPO、UMLS 等 ontology 有 entity linking 能力。Med-Gemini-L 1.0 是首個多模態整合此能力的旗艦。</p>
+<p data-lang="en">Meets Bommasani's 4 FM properties (scale + self-supervision + generality + emergence), and: (a) PHI processed via Safe Harbor / Limited Dataset; (b) LoRA/QLoRA/Adapter for parameter-efficient FT; (c) connected to RAG &amp; tool-use; (d) entity-linked to ICD-10, SNOMED, HPO, UMLS. Med-Gemini-L 1.0 is the flagship multimodal integration.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== Interactive Widget: MedQA progress chart ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動圖表" data-en="INTERACTIVE">互動圖表</div>
+<h2 data-zh="臨床 LLM 在 MedQA 的進展曲線" data-en="Clinical LLM progress on MedQA">MedQA 進展曲線</h2>
+<div data-lang="zh"><p>下方拉桿可調整<strong>觀察起點</strong>，凸顯每一代模型的相對跳躍幅度。藍線：USMLE MedQA 通過閾值（60%）。<em>注意：考試分數高 ≠ 臨床能力強——MIMIC-CDM 2024 顯示真實臨床決策仍 30% 錯誤。</em></p></div>
+<div data-lang="en"><p>The slider sets the <strong>start year</strong>, highlighting how each generation jumped. Blue line: USMLE MedQA passing threshold (60%). <em>Exam scores ≠ clinical competence — MIMIC-CDM 2024 still shows 30% error in real decisions.</em></p></div>
+
+<div class="interactive-panel">
+<div class="widget-grid split">
+<div class="widget-controls">
+<h5 data-zh="調整觀察起點" data-en="Adjust start year">調整觀察起點</h5>
+<div class="slider-group"><label><span data-zh="起始年" data-en="Start year">起始年</span> <span id="medqaStartVal">2019</span></label>
+<input type="range" id="medqaStart" min="2019" max="2024" value="2019" step="1"></div>
+<div class="widget-readout" id="medqaOut">— → —</div>
+<button class="try-btn" onclick="medqaReset()" data-zh="↺ 重置" data-en="↺ Reset">↺ 重置</button>
+</div>
+<div class="widget-output">
+<div class="chart-container" style="height:300px"><canvas id="medqaChart"></canvas></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== 模型演進表 ===== -->
 <section class="section">
 <div class="section-label" data-zh="模型演進" data-en="MODEL TIMELINE">模型演進</div>
 <h2 data-zh="2019 → 2026 的進化階梯" data-en="Evolution 2019 → 2026">進化階梯</h2>
 <table class="comp-table"><thead><tr><th data-zh="年份" data-en="Year">年份</th><th data-zh="模型" data-en="Model">模型</th><th data-zh="關鍵" data-en="Key">關鍵</th><th>MedQA</th></tr></thead><tbody>
-<tr><td>2019</td><td>BioBERT</td><td>PubMed + PMC 預訓 BERT</td><td>~50%</td></tr>
-<tr><td>2020</td><td>PubMedBERT, ClinicalBERT</td><td data-zh="從頭預訓於生醫文本" data-en="From-scratch pretrain on biomed text">從頭預訓於生醫</td><td>~60%</td></tr>
-<tr><td>2022</td><td>GatorTron 8.9B (UF Health)</td><td data-zh="第一個大型臨床 LLM" data-en="First large clinical LLM">第一個大型臨床 LLM</td><td>~67%</td></tr>
-<tr><td>2023</td><td>Med-PaLM 2</td><td data-zh="LLM 微調 + RLHF" data-en="LLM fine-tune + RLHF">LLM 微調 + RLHF</td><td>86.5%</td></tr>
-<tr><td>2024</td><td>Med-Gemini-L 1.0</td><td data-zh="多模態 + reasoning" data-en="Multimodal + reasoning">多模態 + reasoning</td><td><strong>91.1%</strong></td></tr>
-<tr><td>2024</td><td>MedAlpaca / MEDITRON-70B</td><td data-zh="開源臨床 LLM" data-en="Open clinical LLM">開源臨床 LLM</td><td>~76%</td></tr>
-<tr><td>2024</td><td>MedGemma (Google open)</td><td data-zh="Gemma 系列的醫療版" data-en="Medical variant of Gemma">開源醫療 Gemma</td><td>~80%</td></tr>
+<tr><td>2019</td><td>BioBERT</td><td data-zh="PubMed + PMC 預訓 BERT" data-en="BERT pretrained on PubMed + PMC">PubMed + PMC 預訓 BERT</td><td>~50%</td></tr>
+<tr><td>2020</td><td>PubMedBERT, ClinicalBERT</td><td data-zh="從頭預訓於生醫文本 / MIMIC notes" data-en="From-scratch pretrain on biomed / MIMIC">從頭預訓於生醫</td><td>~60%</td></tr>
+<tr><td>2022</td><td>GatorTron 8.9B (UF Health)</td><td data-zh="第一個大型臨床 LLM、82B tokens" data-en="First large clinical LLM, 82B tokens">第一個大型臨床 LLM</td><td>~67%</td></tr>
+<tr><td>2023</td><td>Med-PaLM 2</td><td data-zh="LLM 微調 + RLHF + ensemble refinement" data-en="LLM SFT + RLHF + ensemble refinement">LLM 微調 + RLHF</td><td>86.5%</td></tr>
+<tr><td>2024</td><td>Med-Gemini-L 1.0</td><td data-zh="多模態 + reasoning + web search" data-en="Multimodal + reasoning + web search">多模態 + reasoning</td><td><strong>91.1%</strong></td></tr>
+<tr><td>2024</td><td>MedAlpaca / MEDITRON-70B</td><td data-zh="開源臨床 LLM、HIPAA-friendly 可本地部署" data-en="Open clinical LLM, HIPAA-friendly local deploy">開源臨床 LLM</td><td>~76%</td></tr>
+<tr><td>2024</td><td>MedGemma (Google open)</td><td data-zh="Gemma 系列的醫療版、4B/27B" data-en="Medical variant of Gemma, 4B/27B">開源醫療 Gemma</td><td>~80%</td></tr>
 </tbody></table>
 <div class="callout warn"><span class="callout-icon">⚠️</span><div>
 <span data-lang="zh"><strong>2024 MIMIC-CDM 研究警示：</strong>儘管 LLM 在 MedQA 高分，在真實臨床決策（指引遵循、實驗室結果解讀）仍會犯系統性錯誤。<em>不要把考試分數當臨床能力。</em></span>
-<span data-lang="en"><strong>2024 MIMIC-CDM warning:</strong> despite high MedQA scores, LLMs still make systematic errors in real clinical decisions (guideline adherence, lab interpretation). <em>Don't conflate exam scores with clinical competence.</em></span>
-</div></div>
-</section>
-
-<section class="section">
-<div class="section-label" data-zh="實作" data-en="HANDS-ON">實作</div>
-<h2 data-zh="用 ClinicalBERT 抽診斷與藥物" data-en="Extract diagnoses & drugs with ClinicalBERT">用 ClinicalBERT 抽診斷與藥物</h2>
-<div class="code-tabs">
-  <div class="code-tab-btns">
-    <button class="code-tab-btn active" data-tab="py">Python</button>
-    <button class="code-tab-btn" data-tab="r">R</button>
-  </div>
-  <div class="code-tab-content active" data-tab="py"><pre><span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModelForTokenClassification, pipeline
-ck = <span class="str">"alvaroalon2/biobert_diseases_ner"</span>
-tok = AutoTokenizer.<span class="func">from_pretrained</span>(ck)
-m   = AutoModelForTokenClassification.<span class="func">from_pretrained</span>(ck)
-ner = <span class="func">pipeline</span>(<span class="str">"ner"</span>, model=m, tokenizer=tok, aggregation_strategy=<span class="str">"simple"</span>)
-note = <span class="str">"55-yo male with type 2 diabetes presents with chest pain, on metformin 500 mg BID."</span>
-<span class="kw">for</span> e <span class="kw">in</span> <span class="func">ner</span>(note):
-    <span class="func">print</span>(e[<span class="str">"entity_group"</span>], e[<span class="str">"word"</span>], <span class="func">round</span>(e[<span class="str">"score"</span>],<span class="num">3</span>))</pre></div>
-  <div class="code-tab-content" data-tab="r"><pre><span class="kw">library</span>(reticulate); transformers &lt;- <span class="func">import</span>(<span class="str">"transformers"</span>)
-ck  &lt;- <span class="str">"alvaroalon2/biobert_diseases_ner"</span>
-tok &lt;- transformers$AutoTokenizer$<span class="func">from_pretrained</span>(ck)
-m   &lt;- transformers$AutoModelForTokenClassification$<span class="func">from_pretrained</span>(ck)
-ner &lt;- transformers$<span class="func">pipeline</span>(<span class="str">"ner"</span>, model=m, tokenizer=tok,
-                            aggregation_strategy=<span class="str">"simple"</span>)
-note &lt;- <span class="str">"55-yo male with type 2 diabetes presents with chest pain, on metformin 500 mg BID."</span>
-<span class="func">print</span>(<span class="func">ner</span>(note))</pre></div>
-</div>
-</section>
-
-<section class="section">
-<div class="section-label" data-zh="部署要點" data-en="DEPLOYMENT">部署要點</div>
-<h2 data-zh="把 LLM 放進醫院的 6 條原則" data-en="6 rules for LLMs in hospitals">把 LLM 放進醫院的 6 條原則</h2>
-<ol>
-<li data-lang="zh"><strong>不直接生成臨床決定</strong>：LLM 草擬，臨床醫師簽署。</li>
-<li data-lang="en"><strong>No autonomous decisions</strong>: LLM drafts; clinician signs.</li>
-<li data-lang="zh"><strong>RAG 接知識庫</strong>：UpToDate、ICD、藥典都接外部 retrieval（見 Ch16）。</li>
-<li data-lang="en"><strong>Connect via RAG</strong>: UpToDate, ICD, formulary via retrieval (Ch16).</li>
-<li data-lang="zh"><strong>本地 / 私有雲部署</strong>：MedGemma / MEDITRON 開源權重可上 NVIDIA NIM、vLLM。</li>
-<li data-lang="en"><strong>On-prem / private cloud</strong>: open weights (MedGemma, MEDITRON) on NVIDIA NIM, vLLM.</li>
-<li data-lang="zh"><strong>幻覺監控</strong>：對輸出做 self-check 與 retrieval-grounded 比對。</li>
-<li data-lang="en"><strong>Hallucination monitoring</strong>: self-check &amp; grounded comparison.</li>
-<li data-lang="zh"><strong>子族表現審核</strong>：定期檢查跨族裔、性別、年齡層 AUC（見 Ch04 / Ch17）。</li>
-<li data-lang="en"><strong>Subgroup audit</strong>: monitor AUC across race/gender/age (Ch04/Ch17).</li>
-<li data-lang="zh"><strong>差分隱私 / 聯邦學習</strong>：訓練端不暴露 PHI。</li>
-<li data-lang="en"><strong>DP / FL</strong>: keep PHI off the training side.</li>
-</ol>
-</section>
-
-<section class="section">
-<div class="quiz-section">
-<h3 data-zh="本章小測 (3 題)" data-en="Chapter Quiz (3 Q)">本章小測 (3 題)</h3>
-<div class="quiz-q">
-<p data-lang="zh">1. 目前在 USMLE MedQA 拿到最高分的模型是？</p>
-<p data-lang="en">1. The model with the highest MedQA (USMLE) score is?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="0">A. BioBERT</div>
-<div class="quiz-opt" data-correct="0">B. ClinicalBERT</div>
-<div class="quiz-opt" data-correct="0">C. Med-PaLM 2</div>
-<div class="quiz-opt" data-correct="1">D. Med-Gemini-L 1.0 (91.1%)</div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>D 正解。</strong>Nature Medicine 2024 報告。</span><span data-lang="en"><strong>D.</strong> Nature Medicine 2024.</span></div>
-</div>
-<div class="quiz-q">
-<p data-lang="zh">2. 2024 MIMIC-CDM 研究的核心警示是？</p>
-<p data-lang="en">2. The 2024 MIMIC-CDM warning is?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">A. 高 MedQA 分數的 LLM 在實際臨床仍系統性犯錯</span><span data-lang="en">A. High-MedQA LLMs still make systematic errors in real clinical decisions</span></div>
-<div class="quiz-opt" data-correct="0">B. LLM 完全不能用</div>
-<div class="quiz-opt" data-correct="0">C. MIMIC 不再可用</div>
-<div class="quiz-opt" data-correct="0">D. RLHF 沒效</div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>A 正解。</strong>考試 ≠ 臨床。</span><span data-lang="en"><strong>A.</strong> Exams ≠ clinic.</span></div>
-</div>
-<div class="quiz-q">
-<p data-lang="zh">3. 臨床 NLP 為什麼必須處理「否定」？</p>
-<p data-lang="en">3. Why must clinical NLP handle negation?</p>
-<div class="quiz-options">
-<div class="quiz-opt" data-correct="0">A. 文法美觀</div>
-<div class="quiz-opt" data-correct="1"><span data-lang="zh">B. "no fever" 跟 "fever" 的臨床意涵完全相反</span><span data-lang="en">B. "no fever" and "fever" mean opposite clinical things</span></div>
-<div class="quiz-opt" data-correct="0">C. 加快推論</div>
-<div class="quiz-opt" data-correct="0">D. 法規要求</div>
-</div>
-<div class="quiz-feedback"><span data-lang="zh"><strong>B 正解。</strong>否定錯誤是臨床 NLP 最嚴重的 false call 來源。</span><span data-lang="en"><strong>B.</strong> Negation errors are the worst false-call source in clinical NLP.</span></div>
-</div>
-</div>
-</section>
-
-<nav class="page-nav">
-<a href="ch12-ai-drug-discovery.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="AI 藥物發現" data-en="AI Drug Discovery">AI 藥物發現</span></a>
-<a href="ch14-survival-prediction.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="臨床預測與生存分析" data-en="Clinical Prediction &amp; Survival">臨床預測與生存分析</span></a>
-</nav>
-
-</main>
-<footer class="site-footer">© Charlene · AI × Biomedical Big Data — Chapter 13</footer>
-<script src="i18n.js"></script>
-</body></html>
+<span data-lang="en"><st
